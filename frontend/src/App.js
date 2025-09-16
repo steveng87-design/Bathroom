@@ -365,7 +365,7 @@ const RenovationQuotingApp = () => {
                   <Textarea
                     id="additionalNotes"
                     value={formData.additionalNotes}
-                    onChange={(e) => handleInputChange('additionalNotes', '', e.target.value)}
+                    onChange={(e) => setFormData(prev => ({...prev, additionalNotes: e.target.value}))}
                     placeholder="Any specific requirements, quality preferences, or constraints..."
                     rows={4}
                     className="mt-1"
