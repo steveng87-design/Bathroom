@@ -1,38 +1,542 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState } from 'react';
+import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import axios from 'axios';
+import { Button } from './components/ui/button';
+import { Input } from './components/ui/input';
+import { Label } from './components/ui/label';
+import { Card, CardHeader, CardTitle, CardContent } from './components/ui/card';
+import { Checkbox } from './components/ui/checkbox';
+import { Textarea } from './components/ui/textarea';
+import { Badge } from './components/ui/badge';
+import { Separator } from './components/ui/separator';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
+import { AlertCircle, Calculator, MapPin, Phone, Mail, Ruler, CheckCircle2, Loader2 } from 'lucide-react';
+import { toast, Toaster } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const Home = () => {
-  const helloWorldApi = async () => {
+const RenovationQuotingApp = () => {
+  const [formData, setFormData] = useState({
+    clientInfo: {
+      name: '',
+      email: '',
+      phone: '',
+      address: ''
+    },
+    roomMeasurements: {
+      length: '',
+      width: '',
+      height: ''
+    },
+    components: {
+      demolition: false,
+      framing: false,
+      plumbing_rough_in: false,
+      electrical_rough_in: false,
+      plastering: false,
+      waterproofing: false,
+      tiling: false,
+      fit_off: false
+    },
+    additionalNotes: ''
+  });
+
+  const [quote, setQuote] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedSuppliers, setSelectedSuppliers] = useState({});
+  const [adjustmentMode, setAdjustmentMode] = useState(false);
+  const [adjustedCosts, setAdjustedCosts] = useState({});
+
+  const componentLabels = {
+    demolition: 'Demolition',
+    framing: 'Framing',
+    plumbing_rough_in: 'Plumbing Rough In',
+    electrical_rough_in: 'Electrical Rough In',
+    plastering: 'Plastering',
+    waterproofing: 'Waterproofing',
+    tiling: 'Tiling',
+    fit_off: 'Fit Off'
+  };
+
+  const calculateSquareMeters = () => {
+    const { length, width } = formData.roomMeasurements;
+    if (length && width) {
+      return (parseFloat(length) * parseFloat(width)).toFixed(2);
+    }
+    return '0';
+  };
+
+  const handleInputChange = (section, field, value, isCheckbox = false) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: isCheckbox ? value : value
+      }
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
+      const requestData = {
+        client_info: formData.clientInfo,
+        room_measurements: {
+          length: parseFloat(formData.roomMeasurements.length),
+          width: parseFloat(formData.roomMeasurements.width),
+          height: parseFloat(formData.roomMeasurements.height)
+        },
+        components: formData.components,
+        additional_notes: formData.additionalNotes
+      };
+
+      const response = await axios.post(`${API}/quotes/request`, requestData);
+      setQuote(response.data);
+      toast.success('Quote generated successfully!');
+    } catch (error) {
+      console.error('Error generating quote:', error);
+      toast.error('Failed to generate quote. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
+  const fetchSuppliers = async (component) => {
+    try {
+      const response = await axios.get(`${API}/suppliers/${component}`);
+      setSelectedSuppliers(prev => ({
+        ...prev,
+        [component]: response.data.suppliers
+      }));
+    } catch (error) {
+      console.error('Error fetching suppliers:', error);
+      toast.error('Failed to fetch suppliers');
+    }
+  };
+
+  const handleAdjustCost = async (componentIndex, newCost) => {
+    setAdjustedCosts(prev => ({
+      ...prev,
+      [componentIndex]: newCost
+    }));
+  };
+
+  const submitAdjustments = async () => {
+    if (!quote) return;
+
+    try {
+      const totalAdjusted = Object.values(adjustedCosts).reduce((sum, cost) => sum + parseFloat(cost), 0);
+      
+      const adjustmentData = {
+        original_cost: quote.total_cost,
+        adjusted_cost: totalAdjusted,
+        adjustment_reason: 'Manual adjustment based on project specifics',
+        component_adjustments: adjustedCosts
+      };
+
+      await axios.post(`${API}/quotes/${quote.id}/adjust`, adjustmentData);
+      
+      setQuote(prev => ({
+        ...prev,
+        total_cost: totalAdjusted
+      }));
+      
+      setAdjustmentMode(false);
+      setAdjustedCosts({});
+      toast.success('Quote adjusted successfully! The system has learned from your changes.');
+    } catch (error) {
+      console.error('Error adjusting quote:', error);
+      toast.error('Failed to adjust quote');
+    }
+  };
+
+  const SupplierDialog = ({ component, componentLabel }) => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => fetchSuppliers(component)}
+          className="ml-2"
+        >
+          <MapPin className="w-4 h-4 mr-1" />
+          Suppliers
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center">
+            <MapPin className="w-5 h-5 mr-2" />
+            {componentLabel} Suppliers
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4">
+          {selectedSuppliers[component]?.map((supplier, index) => (
+            <Card key={index} className="p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-semibold text-lg">{supplier.name}</h3>
+                  <p className="text-gray-600 flex items-center mt-1">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {supplier.address} ({supplier.estimated_distance})
+                  </p>
+                  <p className="text-gray-600 flex items-center mt-1">
+                    <Phone className="w-4 h-4 mr-1" />
+                    {supplier.phone}
+                  </p>
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {supplier.specialties.map((specialty, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {specialty}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center">
+            <Calculator className="w-10 h-10 mr-3 text-blue-600" />
+            Bathroom Renovation Quote Generator
+          </h1>
+          <p className="text-xl text-gray-600">AI-powered accurate bathroom renovation cost estimates</p>
+        </div>
+
+        {!quote ? (
+          <Card className="max-w-4xl mx-auto shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+              <CardTitle className="text-2xl">Project Details</CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <form onSubmit={handleSubmit} className="space-y-8">
+                {/* Client Information */}
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                    <Mail className="w-5 h-5 mr-2 text-blue-600" />
+                    Client Information
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="clientName">Client Name *</Label>
+                      <Input
+                        id="clientName"
+                        value={formData.clientInfo.name}
+                        onChange={(e) => handleInputChange('clientInfo', 'name', e.target.value)}
+                        placeholder="John Smith"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="clientEmail">Email *</Label>
+                      <Input
+                        id="clientEmail"
+                        type="email"
+                        value={formData.clientInfo.email}
+                        onChange={(e) => handleInputChange('clientInfo', 'email', e.target.value)}
+                        placeholder="john@example.com"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="clientPhone">Phone *</Label>
+                      <Input
+                        id="clientPhone"
+                        value={formData.clientInfo.phone}
+                        onChange={(e) => handleInputChange('clientInfo', 'phone', e.target.value)}
+                        placeholder="02-1234-5678"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="projectAddress">Project Address *</Label>
+                      <Input
+                        id="projectAddress"
+                        value={formData.clientInfo.address}
+                        onChange={(e) => handleInputChange('clientInfo', 'address', e.target.value)}
+                        placeholder="123 Main St, Sydney NSW 2000"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Room Measurements */}
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                    <Ruler className="w-5 h-5 mr-2 text-blue-600" />
+                    Room Measurements
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="length">Length (meters) *</Label>
+                      <Input
+                        id="length"
+                        type="number"
+                        step="0.1"
+                        value={formData.roomMeasurements.length}
+                        onChange={(e) => handleInputChange('roomMeasurements', 'length', e.target.value)}
+                        placeholder="3.5"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="width">Width (meters) *</Label>
+                      <Input
+                        id="width"
+                        type="number"
+                        step="0.1"
+                        value={formData.roomMeasurements.width}
+                        onChange={(e) => handleInputChange('roomMeasurements', 'width', e.target.value)}
+                        placeholder="2.5"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="height">Height (meters) *</Label>
+                      <Input
+                        id="height"
+                        type="number"
+                        step="0.1"
+                        value={formData.roomMeasurements.height}
+                        onChange={(e) => handleInputChange('roomMeasurements', 'height', e.target.value)}
+                        placeholder="2.4"
+                        required
+                        className="mt-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <p className="text-blue-800 font-medium">
+                      Floor Area: {calculateSquareMeters()} m²
+                    </p>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Renovation Components */}
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                    <CheckCircle2 className="w-5 h-5 mr-2 text-blue-600" />
+                    Renovation Components
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(componentLabels).map(([key, label]) => (
+                      <div key={key} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
+                        <Checkbox
+                          id={key}
+                          checked={formData.components[key]}
+                          onCheckedChange={(checked) => handleInputChange('components', key, checked, true)}
+                        />
+                        <Label htmlFor={key} className="text-sm font-medium cursor-pointer">
+                          {label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Additional Notes */}
+                <div className="space-y-4">
+                  <Label htmlFor="additionalNotes">Additional Notes</Label>
+                  <Textarea
+                    id="additionalNotes"
+                    value={formData.additionalNotes}
+                    onChange={(e) => handleInputChange('additionalNotes', '', e.target.value)}
+                    placeholder="Any specific requirements, quality preferences, or constraints..."
+                    rows={4}
+                    className="mt-1"
+                  />
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-lg font-semibold"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Generating AI-Powered Quote...
+                    </>
+                  ) : (
+                    <>
+                      <Calculator className="w-5 h-5 mr-2" />
+                      Generate Quote
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Quote Summary */}
+            <Card className="shadow-lg">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                <CardTitle className="text-2xl flex items-center">
+                  <CheckCircle2 className="w-6 h-6 mr-2" />
+                  Renovation Quote Generated
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="text-center">
+                    <h3 className="text-3xl font-bold text-green-600">
+                      ${quote.total_cost.toLocaleString()}
+                    </h3>
+                    <p className="text-gray-600">Total Estimated Cost</p>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-2xl font-bold text-blue-600">
+                      {calculateSquareMeters()} m²
+                    </h3>
+                    <p className="text-gray-600">Floor Area</p>
+                  </div>
+                  <div className="text-center">
+                    <Badge variant={quote.confidence_level === 'High' ? 'default' : quote.confidence_level === 'Medium' ? 'secondary' : 'outline'} className="text-lg p-2">
+                      {quote.confidence_level} Confidence
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                  <div className="flex items-start">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-blue-800 mb-2">AI Analysis</h4>
+                      <p className="text-blue-700">{quote.ai_analysis}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button
+                    onClick={() => setAdjustmentMode(!adjustmentMode)}
+                    variant={adjustmentMode ? 'destructive' : 'outline'}
+                    className="flex-1"
+                  >
+                    {adjustmentMode ? 'Cancel Adjustments' : 'Adjust Costs'}
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setQuote(null);
+                      setFormData({
+                        clientInfo: { name: '', email: '', phone: '', address: '' },
+                        roomMeasurements: { length: '', width: '', height: '' },
+                        components: {
+                          demolition: false, framing: false, plumbing_rough_in: false,
+                          electrical_rough_in: false, plastering: false, waterproofing: false,
+                          tiling: false, fit_off: false
+                        },
+                        additionalNotes: ''
+                      });
+                    }}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  >
+                    New Quote
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Cost Breakdown */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl">Cost Breakdown</CardTitle>
+                {adjustmentMode && (
+                  <div className="flex gap-2">
+                    <Button onClick={submitAdjustments} size="sm" className="bg-green-600 hover:bg-green-700">
+                      Save Adjustments
+                    </Button>
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {quote.cost_breakdown.map((item, index) => (
+                    <div key={index} className="border rounded-lg p-4 hover:bg-gray-50">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-semibold text-lg">{item.component}</h4>
+                        <div className="flex items-center gap-2">
+                          {adjustmentMode ? (
+                            <Input
+                              type="number"
+                              value={adjustedCosts[index] || item.estimated_cost}
+                              onChange={(e) => handleAdjustCost(index, e.target.value)}
+                              className="w-32"
+                            />
+                          ) : (
+                            <span className="text-xl font-bold text-green-600">
+                              ${item.estimated_cost.toLocaleString()}
+                            </span>
+                          )}
+                          <SupplierDialog 
+                            component={item.component.toLowerCase().replace(' ', '_')} 
+                            componentLabel={item.component}
+                          />
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-600 mb-2">
+                        Range: ${item.cost_range_min.toLocaleString()} - ${item.cost_range_max.toLocaleString()}
+                      </div>
+                      <p className="text-gray-700">{item.notes}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Client Information Summary */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-xl">Project Information</CardTitle>
+              </CardHeader>
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-2">Client Details</h4>
+                    <p><strong>Name:</strong> {formData.clientInfo.name}</p>
+                    <p><strong>Email:</strong> {formData.clientInfo.email}</p>
+                    <p><strong>Phone:</strong> {formData.clientInfo.phone}</p>
+                    <p><strong>Address:</strong> {formData.clientInfo.address}</p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Room Specifications</h4>
+                    <p><strong>Dimensions:</strong> {formData.roomMeasurements.length}m × {formData.roomMeasurements.width}m × {formData.roomMeasurements.height}m</p>
+                    <p><strong>Floor Area:</strong> {calculateSquareMeters()} m²</p>
+                    <p><strong>Volume:</strong> {(parseFloat(formData.roomMeasurements.length || 0) * parseFloat(formData.roomMeasurements.width || 0) * parseFloat(formData.roomMeasurements.height || 0)).toFixed(2)} m³</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+      <Toaster position="top-right" />
     </div>
   );
 };
@@ -42,9 +546,7 @@ function App() {
     <div className="App">
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
+          <Route path="/" element={<RenovationQuotingApp />} />
         </Routes>
       </BrowserRouter>
     </div>

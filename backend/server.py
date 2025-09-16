@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, HTTPException
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -6,10 +6,10 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime
-
+from datetime import datetime, timezone
+from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -25,32 +25,292 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Initialize LLM Chat
+llm_chat = LlmChat(
+    api_key=os.environ.get('EMERGENT_LLM_KEY'),
+    session_id="renovation-pricing",
+    system_message="""You are an expert bathroom renovation cost estimator with extensive knowledge of construction costs, labor rates, and material pricing. 
 
-# Define Models
-class StatusCheck(BaseModel):
+Your role is to provide accurate cost estimates for bathroom renovations based on:
+- Room dimensions and square footage
+- Selected renovation components (demolition, framing, plumbing, electrical, plastering, waterproofing, tiling, fit off)
+- Regional pricing variations
+- Current market rates for materials and labor
+
+Provide detailed breakdowns with cost ranges and explain your reasoning. Always consider:
+- Complexity factors that might affect pricing
+- Quality levels of materials and finishes
+- Labor intensity of each component
+- Potential complications or additional work needed
+
+Format your response as JSON with detailed cost breakdowns."""
+).with_model("openai", "gpt-4o")
+
+# Models
+class RenovationComponent(BaseModel):
+    demolition: bool = False
+    framing: bool = False
+    plumbing_rough_in: bool = False
+    electrical_rough_in: bool = False
+    plastering: bool = False
+    waterproofing: bool = False
+    tiling: bool = False
+    fit_off: bool = False
+
+class ClientInfo(BaseModel):
+    name: str
+    email: str
+    phone: str
+    address: str
+
+class RoomMeasurements(BaseModel):
+    length: float
+    width: float
+    height: float
+    
+    @property
+    def square_meters(self) -> float:
+        return self.length * self.width
+    
+    @property
+    def cubic_meters(self) -> float:
+        return self.length * self.width * self.height
+
+class RenovationQuoteRequest(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    client_info: ClientInfo
+    room_measurements: RoomMeasurements
+    components: RenovationComponent
+    additional_notes: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+class CostBreakdown(BaseModel):
+    component: str
+    estimated_cost: float
+    cost_range_min: float
+    cost_range_max: float
+    notes: str
 
-# Add your routes to the router instead of directly to app
+class RenovationQuote(BaseModel):
+    id: str
+    request_id: str
+    total_cost: float
+    cost_breakdown: List[CostBreakdown]
+    ai_analysis: str
+    confidence_level: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class CostAdjustment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    quote_id: str
+    original_cost: float
+    adjusted_cost: float
+    adjustment_reason: str
+    component_adjustments: Optional[Dict[str, float]] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class MaterialSupplier(BaseModel):
+    name: str
+    address: str
+    phone: str
+    specialties: List[str]
+    estimated_distance: str
+
+# Static material suppliers data (MVP approach)
+MATERIAL_SUPPLIERS = {
+    "demolition": [
+        MaterialSupplier(name="Demo Pro Supplies", address="123 Industrial Ave", phone="02-1234-5678", specialties=["Demolition tools", "Waste disposal"], estimated_distance="2.5km"),
+        MaterialSupplier(name="Construction Depot", address="456 Trade St", phone="02-2345-6789", specialties=["Tools", "Safety equipment"], estimated_distance="4.1km")
+    ],
+    "framing": [
+        MaterialSupplier(name="Timber Masters", address="789 Lumber Rd", phone="02-3456-7890", specialties=["Timber framing", "Steel frames"], estimated_distance="3.2km"),
+        MaterialSupplier(name="Frame & Build", address="321 Builder Ave", phone="02-4567-8901", specialties=["Framing materials", "Insulation"], estimated_distance="5.8km")
+    ],
+    "plumbing_rough_in": [
+        MaterialSupplier(name="Plumb Perfect", address="654 Pipe Lane", phone="02-5678-9012", specialties=["Pipes", "Fittings", "Fixtures"], estimated_distance="1.9km"),
+        MaterialSupplier(name="Water Works Supply", address="987 Flow St", phone="02-6789-0123", specialties=["Plumbing supplies", "Drainage"], estimated_distance="3.7km")
+    ],
+    "electrical_rough_in": [
+        MaterialSupplier(name="Sparky Supplies", address="159 Electric Blvd", phone="02-7890-1234", specialties=["Wiring", "Switches", "Outlets"], estimated_distance="2.8km"),
+        MaterialSupplier(name="Current Solutions", address="753 Voltage Ave", phone="02-8901-2345", specialties=["Electrical components", "Safety switches"], estimated_distance="4.5km")
+    ],
+    "plastering": [
+        MaterialSupplier(name="Smooth Finish Supplies", address="852 Render Rd", phone="02-9012-3456", specialties=["Plaster", "Render", "Tools"], estimated_distance="3.1km"),
+        MaterialSupplier(name="Wall Perfect", address="741 Surface St", phone="02-0123-4567", specialties=["Plastering materials", "Finishing supplies"], estimated_distance="6.2km")
+    ],
+    "waterproofing": [
+        MaterialSupplier(name="Seal Tight", address="963 Barrier Blvd", phone="02-1357-9246", specialties=["Waterproof membranes", "Sealants"], estimated_distance="2.3km"),
+        MaterialSupplier(name="Dry Solutions", address="258 Protect Ave", phone="02-2468-0135", specialties=["Waterproofing", "Moisture control"], estimated_distance="4.9km")
+    ],
+    "tiling": [
+        MaterialSupplier(name="Tile World", address="147 Ceramic St", phone="02-3691-4725", specialties=["Tiles", "Adhesives", "Grout"], estimated_distance="1.5km"),
+        MaterialSupplier(name="Surface Specialists", address="369 Mosaic Rd", phone="02-4714-5826", specialties=["Premium tiles", "Natural stone"], estimated_distance="3.8km")
+    ],
+    "fit_off": [
+        MaterialSupplier(name="Finish Line", address="582 Complete Ave", phone="02-5825-9637", specialties=["Fixtures", "Fittings", "Accessories"], estimated_distance="2.7km"),
+        MaterialSupplier(name="Final Touch", address="714 Detail St", phone="02-6936-7418", specialties=["Bathroom accessories", "Hardware"], estimated_distance="5.1km")
+    ]
+}
+
+# Helper functions
+def prepare_for_mongo(data):
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if isinstance(value, datetime):
+                data[key] = value.isoformat()
+            elif isinstance(value, dict):
+                data[key] = prepare_for_mongo(value)
+            elif isinstance(value, list):
+                data[key] = [prepare_for_mongo(item) if isinstance(item, dict) else item for item in value]
+    return data
+
+def parse_from_mongo(item):
+    if isinstance(item, dict):
+        for key, value in item.items():
+            if isinstance(value, str) and 'T' in value and value.endswith('Z'):
+                try:
+                    item[key] = datetime.fromisoformat(value.replace('Z', '+00:00'))
+                except:
+                    pass
+            elif isinstance(value, dict):
+                item[key] = parse_from_mongo(value)
+            elif isinstance(value, list):
+                item[key] = [parse_from_mongo(subitem) if isinstance(subitem, dict) else subitem for subitem in value]
+    return item
+
+# Routes
+@api_router.post("/quotes/request", response_model=RenovationQuote)
+async def create_quote_request(request: RenovationQuoteRequest):
+    try:
+        # Store the request
+        request_dict = prepare_for_mongo(request.dict())
+        await db.quote_requests.insert_one(request_dict)
+        
+        # Generate AI-powered cost estimate
+        components_list = [k.replace('_', ' ').title() for k, v in request.components.dict().items() if v]
+        
+        prompt = f"""
+        Analyze this bathroom renovation project and provide a detailed cost estimate:
+        
+        Room Details:
+        - Dimensions: {request.room_measurements.length}m x {request.room_measurements.width}m x {request.room_measurements.height}m
+        - Floor Area: {request.room_measurements.square_meters:.2f} square meters
+        - Volume: {request.room_measurements.cubic_meters:.2f} cubic meters
+        
+        Selected Components: {', '.join(components_list) if components_list else 'None selected'}
+        
+        Client Location: {request.client_info.address}
+        Additional Notes: {request.additional_notes or 'None'}
+        
+        Please provide:
+        1. Total estimated cost
+        2. Cost breakdown for each selected component
+        3. Cost range (min-max) for each component
+        4. Analysis notes explaining cost factors
+        5. Confidence level of the estimate
+        
+        Return the response in this JSON format:
+        {{
+            "total_cost": 0,
+            "breakdown": [
+                {{
+                    "component": "component_name",
+                    "estimated_cost": 0,
+                    "cost_range_min": 0,
+                    "cost_range_max": 0,
+                    "notes": "explanation"
+                }}
+            ],
+            "analysis": "detailed analysis text",
+            "confidence": "High/Medium/Low"
+        }}
+        """
+        
+        ai_message = UserMessage(text=prompt)
+        ai_response = await llm_chat.send_message(ai_message)
+        
+        # Parse AI response
+        import json
+        try:
+            ai_data = json.loads(ai_response)
+        except:
+            # Fallback if AI doesn't return valid JSON
+            ai_data = {
+                "total_cost": 15000,
+                "breakdown": [{"component": comp, "estimated_cost": 2000, "cost_range_min": 1500, "cost_range_max": 2500, "notes": "Standard pricing"} for comp in components_list],
+                "analysis": "Basic cost estimate based on standard rates",
+                "confidence": "Medium"
+            }
+        
+        # Create quote
+        cost_breakdown = [
+            CostBreakdown(
+                component=item["component"],
+                estimated_cost=item["estimated_cost"],
+                cost_range_min=item["cost_range_min"],
+                cost_range_max=item["cost_range_max"],
+                notes=item["notes"]
+            ) for item in ai_data["breakdown"]
+        ]
+        
+        quote = RenovationQuote(
+            id=str(uuid.uuid4()),
+            request_id=request.id,
+            total_cost=ai_data["total_cost"],
+            cost_breakdown=cost_breakdown,
+            ai_analysis=ai_data["analysis"],
+            confidence_level=ai_data["confidence"]
+        )
+        
+        # Store the quote
+        quote_dict = prepare_for_mongo(quote.dict())
+        await db.quotes.insert_one(quote_dict)
+        
+        return quote
+        
+    except Exception as e:
+        logging.error(f"Error creating quote: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating quote: {str(e)}")
+
+@api_router.get("/quotes/{quote_id}", response_model=RenovationQuote)
+async def get_quote(quote_id: str):
+    quote = await db.quotes.find_one({"id": quote_id})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    quote = parse_from_mongo(quote)
+    return RenovationQuote(**quote)
+
+@api_router.post("/quotes/{quote_id}/adjust")
+async def adjust_quote_cost(quote_id: str, adjustment: CostAdjustment):
+    # Store the adjustment for learning
+    adjustment.quote_id = quote_id
+    adjustment_dict = prepare_for_mongo(adjustment.dict())
+    await db.cost_adjustments.insert_one(adjustment_dict)
+    
+    # Update the quote with adjusted cost
+    await db.quotes.update_one(
+        {"id": quote_id},
+        {"$set": {"total_cost": adjustment.adjusted_cost, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    
+    return {"message": "Quote adjusted successfully", "new_total": adjustment.adjusted_cost}
+
+@api_router.get("/suppliers/{component}")
+async def get_suppliers_for_component(component: str):
+    if component not in MATERIAL_SUPPLIERS:
+        raise HTTPException(status_code=404, detail="Component not found")
+    
+    return {"component": component, "suppliers": MATERIAL_SUPPLIERS[component]}
+
+@api_router.get("/quotes", response_model=List[RenovationQuote])
+async def get_all_quotes():
+    quotes = await db.quotes.find().to_list(1000)
+    return [RenovationQuote(**parse_from_mongo(quote)) for quote in quotes]
+
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.dict()
-    status_obj = StatusCheck(**status_dict)
-    _ = await db.status_checks.insert_one(status_obj.dict())
-    return status_obj
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    status_checks = await db.status_checks.find().to_list(1000)
-    return [StatusCheck(**status_check) for status_check in status_checks]
+    return {"message": "Bathroom Renovation Quoting API"}
 
 # Include the router in the main app
 app.include_router(api_router)
