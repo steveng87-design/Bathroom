@@ -102,7 +102,7 @@ class RenovationQuote(BaseModel):
 
 class CostAdjustment(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    quote_id: str
+    quote_id: Optional[str] = None  # This will be set from URL parameter
     original_cost: float
     adjusted_cost: float
     adjustment_reason: str
