@@ -283,7 +283,7 @@ async def get_quote(quote_id: str):
 
 @api_router.post("/quotes/{quote_id}/adjust")
 async def adjust_quote_cost(quote_id: str, adjustment: CostAdjustment):
-    # Store the adjustment for learning
+    # Store the adjustment for learning (remove quote_id from model, use path parameter)
     adjustment.quote_id = quote_id
     adjustment_dict = prepare_for_mongo(adjustment.dict())
     await db.cost_adjustments.insert_one(adjustment_dict)
