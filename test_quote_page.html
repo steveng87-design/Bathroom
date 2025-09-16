@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Quote - Supplier Testing</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .supplier-button { 
+            background: #3b82f6; 
+            color: white; 
+            padding: 8px 16px; 
+            border: none; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            margin: 5px;
+        }
+        .supplier-dialog { 
+            display: none; 
+            position: fixed; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            border: 1px solid #ccc; 
+            padding: 20px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .overlay { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+        }
+        .supplier-card { 
+            border: 1px solid #ddd; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 4px; 
+        }
+        .close-button { 
+            float: right; 
+            background: #dc2626; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            cursor: pointer; 
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Quote - Supplier Functionality</h1>
+    <p>Quote ID: 87a4d973-ec2a-4f80-adc4-f2b5eef1876e</p>
+    <p>Total Cost: $15,000</p>
+    
+    <h2>Components with Supplier Buttons</h2>
+    
+    <div>
+        <h3>Demolition - $2,000</h3>
+        <button class="supplier-button" onclick="fetchSuppliers('demolition')">View Suppliers</button>
+    </div>
+    
+    <div>
+        <h3>Framing - $2,000</h3>
+        <button class="supplier-button" onclick="fetchSuppliers('framing')">View Suppliers</button>
+    </div>
+    
+    <div>
+        <h3>Plumbing Rough In - $2,000</h3>
+        <button class="supplier-button" onclick="fetchSuppliers('plumbing_rough_in')">View Suppliers</button>
+    </div>
+    
+    <div>
+        <h3>Tiling - $2,000</h3>
+        <button class="supplier-button" onclick="fetchSuppliers('tiling')">View Suppliers</button>
+    </div>
+    
+    <!-- Dialog and overlay -->
+    <div class="overlay" id="overlay" onclick="closeDialog()"></div>
+    <div class="supplier-dialog" id="supplierDialog">
+        <button class="close-button" onclick="closeDialog()">×</button>
+        <h2 id="dialogTitle">Suppliers</h2>
+        <div id="supplierContent">Loading...</div>
+    </div>
+    
+    <script>
+        const API_BASE = 'https://reno-price-wizard.preview.emergentagent.com/api';
+        
+        async function fetchSuppliers(component) {
+            try {
+                console.log(`Fetching suppliers for: ${component}`);
+                
+                const response = await axios.get(`${API_BASE}/suppliers/${component}`);
+                const data = response.data;
+                
+                console.log('Supplier data:', data);
+                
+                // Update dialog
+                document.getElementById('dialogTitle').textContent = `${component.replace('_', ' ').toUpperCase()} Suppliers`;
+                
+                let content = '';
+                if (data.suppliers && data.suppliers.length > 0) {
+                    data.suppliers.forEach(supplier => {
+                        content += `
+                            <div class="supplier-card">
+                                <h3>${supplier.name}</h3>
+                                <p><strong>Address:</strong> ${supplier.address} (${supplier.estimated_distance})</p>
+                                <p><strong>Phone:</strong> ${supplier.phone}</p>
+                                <p><strong>Specialties:</strong> ${supplier.specialties.join(', ')}</p>
+                            </div>
+                        `;
+                    });
+                } else {
+                    content = '<p>No suppliers found for this component.</p>';
+                }
+                
+                document.getElementById('supplierContent').innerHTML = content;
+                
+                // Show dialog
+                document.getElementById('overlay').style.display = 'block';
+                document.getElementById('supplierDialog').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error fetching suppliers:', error);
+                alert('Failed to fetch suppliers: ' + error.message);
+            }
+        }
+        
+        function closeDialog() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('supplierDialog').style.display = 'none';
+        }
+        
+        // Test API connection on load
+        window.onload = function() {
+            console.log('Testing API connection...');
+            axios.get(`${API_BASE}/`)
+                .then(response => {
+                    console.log('API connection successful:', response.data);
+                })
+                .catch(error => {
+                    console.error('API connection failed:', error);
+                });
+        };
+    </script>
+</body>
+</html>
