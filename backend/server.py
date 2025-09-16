@@ -231,14 +231,58 @@ async def create_quote_request(request: RenovationQuoteRequest):
         
         # Parse AI response
         import json
+        import re
         try:
-            ai_data = json.loads(ai_response)
-        except:
-            # Fallback if AI doesn't return valid JSON
+            # Try to extract JSON from the AI response
+            json_match = re.search(r'\{[\s\S]*\}', ai_response)
+            if json_match:
+                ai_data = json.loads(json_match.group())
+            else:
+                raise ValueError("No JSON found in response")
+            
+            # Validate required fields
+            if not all(key in ai_data for key in ['total_cost', 'breakdown', 'analysis', 'confidence']):
+                raise ValueError("Missing required fields in AI response")
+                
+        except Exception as e:
+            print(f"AI JSON parsing error: {e}")
+            print(f"AI Response: {ai_response}")
+            
+            # Fallback with more intelligent pricing based on components
+            base_cost_per_sqm = 1200  # Base cost per square meter
+            area = request.room_measurements.square_meters
+            base_total = base_cost_per_sqm * area
+            
+            # Component-specific cost multipliers
+            component_costs = {
+                "Demolition": base_total * 0.15,
+                "Framing": base_total * 0.20,
+                "Plumbing Rough In": base_total * 0.25,
+                "Electrical Rough In": base_total * 0.15,
+                "Plastering": base_total * 0.18,
+                "Waterproofing": base_total * 0.12,
+                "Tiling": base_total * 0.30,
+                "Fit Off": base_total * 0.20
+            }
+            
+            breakdown_items = []
+            total_fallback_cost = 0
+            
+            for comp in components_list:
+                cost = component_costs.get(comp, base_total * 0.15)
+                total_fallback_cost += cost
+                breakdown_items.append({
+                    "component": comp,
+                    "estimated_cost": round(cost),
+                    "cost_range_min": round(cost * 0.8),
+                    "cost_range_max": round(cost * 1.3),
+                    "notes": f"Standard pricing for {comp.lower()} based on {area:.1f}m² area"
+                })
+            
             ai_data = {
-                "total_cost": 15000,
-                "breakdown": [{"component": comp, "estimated_cost": 2000, "cost_range_min": 1500, "cost_range_max": 2500, "notes": "Standard pricing"} for comp in components_list],
-                "analysis": "Basic cost estimate based on standard rates",
+                "total_cost": round(total_fallback_cost),
+                "breakdown": breakdown_items,
+                "analysis": f"Cost estimate based on {area:.1f}m² bathroom with {len(components_list)} selected components. Pricing includes materials and labor at standard market rates.",
                 "confidence": "Medium"
             }
         
