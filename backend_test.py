@@ -1,0 +1,270 @@
+import requests
+import sys
+import json
+from datetime import datetime
+import time
+
+class BathroomRenovationAPITester:
+    def __init__(self, base_url="https://reno-price-wizard.preview.emergentagent.com"):
+        self.base_url = base_url
+        self.api_url = f"{base_url}/api"
+        self.tests_run = 0
+        self.tests_passed = 0
+        self.quote_id = None
+
+    def run_test(self, name, method, endpoint, expected_status, data=None, timeout=30):
+        """Run a single API test"""
+        url = f"{self.api_url}/{endpoint}" if not endpoint.startswith('http') else endpoint
+        headers = {'Content-Type': 'application/json'}
+
+        self.tests_run += 1
+        print(f"\n🔍 Testing {name}...")
+        print(f"   URL: {url}")
+        
+        try:
+            if method == 'GET':
+                response = requests.get(url, headers=headers, timeout=timeout)
+            elif method == 'POST':
+                response = requests.post(url, json=data, headers=headers, timeout=timeout)
+
+            print(f"   Status Code: {response.status_code}")
+            
+            success = response.status_code == expected_status
+            if success:
+                self.tests_passed += 1
+                print(f"✅ Passed - Status: {response.status_code}")
+                try:
+                    response_data = response.json()
+                    print(f"   Response keys: {list(response_data.keys()) if isinstance(response_data, dict) else 'Non-dict response'}")
+                    return True, response_data
+                except:
+                    return True, response.text
+            else:
+                print(f"❌ Failed - Expected {expected_status}, got {response.status_code}")
+                try:
+                    error_data = response.json()
+                    print(f"   Error: {error_data}")
+                except:
+                    print(f"   Error text: {response.text}")
+                return False, {}
+
+        except requests.exceptions.Timeout:
+            print(f"❌ Failed - Request timed out after {timeout} seconds")
+            return False, {}
+        except Exception as e:
+            print(f"❌ Failed - Error: {str(e)}")
+            return False, {}
+
+    def test_root_endpoint(self):
+        """Test the root API endpoint"""
+        return self.run_test("Root API Endpoint", "GET", "", 200)
+
+    def test_create_quote_small_bathroom(self):
+        """Test creating a quote for a small bathroom"""
+        quote_data = {
+            "client_info": {
+                "name": "John Smith",
+                "email": "john.smith@example.com",
+                "phone": "02-1234-5678",
+                "address": "123 Test Street, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 2.0,
+                "width": 1.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": False,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "additional_notes": "Small bathroom renovation with basic components"
+        }
+        
+        success, response = self.run_test(
+            "Create Quote - Small Bathroom",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60  # AI requests may take longer
+        )
+        
+        if success and isinstance(response, dict) and 'id' in response:
+            self.quote_id = response['id']
+            print(f"   Quote ID: {self.quote_id}")
+            print(f"   Total Cost: ${response.get('total_cost', 'N/A')}")
+            print(f"   Confidence: {response.get('confidence_level', 'N/A')}")
+            return True
+        return False
+
+    def test_create_quote_large_bathroom(self):
+        """Test creating a quote for a large bathroom with all components"""
+        quote_data = {
+            "client_info": {
+                "name": "Jane Doe",
+                "email": "jane.doe@example.com",
+                "phone": "02-9876-5432",
+                "address": "456 Large Ave, Melbourne VIC 3000"
+            },
+            "room_measurements": {
+                "length": 4.0,
+                "width": 3.0,
+                "height": 2.7
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": True,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "additional_notes": "Large luxury bathroom renovation with all components"
+        }
+        
+        success, response = self.run_test(
+            "Create Quote - Large Bathroom",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60  # AI requests may take longer
+        )
+        
+        if success and isinstance(response, dict):
+            print(f"   Total Cost: ${response.get('total_cost', 'N/A')}")
+            print(f"   Confidence: {response.get('confidence_level', 'N/A')}")
+            return True
+        return False
+
+    def test_get_quote(self):
+        """Test retrieving a quote by ID"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        return self.run_test(
+            "Get Quote by ID",
+            "GET",
+            f"quotes/{self.quote_id}",
+            200
+        )[0]
+
+    def test_adjust_quote_cost(self):
+        """Test adjusting quote cost"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        adjustment_data = {
+            "original_cost": 15000,
+            "adjusted_cost": 18000,
+            "adjustment_reason": "Added premium materials and extra labor",
+            "component_adjustments": {
+                "0": 3000,
+                "1": 4000,
+                "2": 5000
+            }
+        }
+        
+        return self.run_test(
+            "Adjust Quote Cost",
+            "POST",
+            f"quotes/{self.quote_id}/adjust",
+            200,
+            data=adjustment_data
+        )[0]
+
+    def test_get_all_quotes(self):
+        """Test getting all quotes"""
+        return self.run_test(
+            "Get All Quotes",
+            "GET",
+            "quotes",
+            200
+        )[0]
+
+    def test_suppliers_endpoints(self):
+        """Test all supplier endpoints"""
+        components = [
+            "demolition", "framing", "plumbing_rough_in", "electrical_rough_in",
+            "plastering", "waterproofing", "tiling", "fit_off"
+        ]
+        
+        all_passed = True
+        for component in components:
+            success, response = self.run_test(
+                f"Get Suppliers - {component}",
+                "GET",
+                f"suppliers/{component}",
+                200
+            )
+            if success and isinstance(response, dict):
+                suppliers = response.get('suppliers', [])
+                print(f"   Found {len(suppliers)} suppliers for {component}")
+            else:
+                all_passed = False
+                
+        return all_passed
+
+    def test_invalid_supplier_component(self):
+        """Test invalid supplier component"""
+        return self.run_test(
+            "Invalid Supplier Component",
+            "GET",
+            "suppliers/invalid_component",
+            404
+        )[0]
+
+def main():
+    print("🚀 Starting Bathroom Renovation API Tests")
+    print("=" * 50)
+    
+    tester = BathroomRenovationAPITester()
+    
+    # Test sequence
+    tests = [
+        ("Root Endpoint", tester.test_root_endpoint),
+        ("Small Bathroom Quote", tester.test_create_quote_small_bathroom),
+        ("Large Bathroom Quote", tester.test_create_quote_large_bathroom),
+        ("Get Quote by ID", tester.test_get_quote),
+        ("Adjust Quote Cost", tester.test_adjust_quote_cost),
+        ("Get All Quotes", tester.test_get_all_quotes),
+        ("Supplier Endpoints", tester.test_suppliers_endpoints),
+        ("Invalid Supplier", tester.test_invalid_supplier_component),
+    ]
+    
+    for test_name, test_func in tests:
+        print(f"\n{'='*20} {test_name} {'='*20}")
+        try:
+            test_func()
+        except Exception as e:
+            print(f"❌ Test failed with exception: {str(e)}")
+            tester.tests_run += 1
+    
+    # Print final results
+    print(f"\n{'='*50}")
+    print(f"📊 FINAL RESULTS")
+    print(f"{'='*50}")
+    print(f"Tests Run: {tester.tests_run}")
+    print(f"Tests Passed: {tester.tests_passed}")
+    print(f"Tests Failed: {tester.tests_run - tester.tests_passed}")
+    print(f"Success Rate: {(tester.tests_passed/tester.tests_run*100):.1f}%" if tester.tests_run > 0 else "0%")
+    
+    if tester.tests_passed == tester.tests_run:
+        print("🎉 All tests passed!")
+        return 0
+    else:
+        print("⚠️  Some tests failed!")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
