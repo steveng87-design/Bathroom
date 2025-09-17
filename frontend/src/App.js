@@ -54,7 +54,7 @@ const RenovationQuotingApp = () => {
           cavity_sliding_unit: false,
           new_window_framing: false,
           subfloor_replacement: false,
-          minor_costs_allowance: false
+          additional_costs_allowance: false
         }
       },
       plumbing_rough_in: {
