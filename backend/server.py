@@ -438,6 +438,43 @@ async def get_all_quotes():
     quotes = await db.quotes.find().to_list(1000)
     return [RenovationQuote(**parse_from_mongo(quote)) for quote in quotes]
 
+@api_router.post("/quotes/{quote_id}/generate-proposal")
+async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
+    """Generate a professional scope of works PDF proposal"""
+    try:
+        # Get the quote data
+        quote = await db.quotes.find_one({"id": quote_id})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        # Get the original request data
+        request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+        if not request_data:
+            raise HTTPException(status_code=404, detail="Quote request data not found")
+        
+        # Combine quote and request data
+        combined_data = {
+            **parse_from_mongo(quote),
+            **parse_from_mongo(request_data)
+        }
+        
+        # Generate PDF
+        pdf_generator = BathroomProposalPDF()
+        pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile.dict())
+        
+        # Return PDF as response
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=Bathroom_Proposal_{quote_id[:8]}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"Error generating proposal PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating proposal: {str(e)}")
+
 @api_router.get("/")
 async def root():
     return {"message": "Bathroom Renovation Quoting API"}
