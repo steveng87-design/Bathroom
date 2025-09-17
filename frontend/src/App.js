@@ -1138,7 +1138,11 @@ const RenovationQuotingApp = () => {
                         water_feeds_type: 'single',
                         power_points_quantity: 1,
                         plasterboard_grade: 'standard',
-                        cornice_type: 'standard'
+                        cornice_type: 'standard',
+                        floor_tile_grade: 'standard_ceramic',
+                        wall_tile_grade: 'standard_ceramic',
+                        tile_size: '300x300mm',
+                        feature_tile_grade: 'premium'
                       });
                     }}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
