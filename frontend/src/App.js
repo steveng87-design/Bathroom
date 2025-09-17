@@ -967,6 +967,7 @@ const RenovationQuotingApp = () => {
                         additionalNotes: ''
                       });
                       setTaskOptions({
+                        skip_bin_size: '6 meter bin',
                         build_niches_quantity: 1,
                         swing_door_size: '720mm',
                         cavity_sliding_size: '720mm',
