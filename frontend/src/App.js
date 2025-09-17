@@ -706,14 +706,22 @@ const RenovationQuotingApp = () => {
                       />
                     </div>
                   </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <p className="text-blue-800 font-medium">
-                        Floor Area: {calculateSquareMeters()} m²
-                      </p>
-                      <p className="text-blue-800 font-medium">
-                        Wall Area: {calculateWallArea()} m²
-                      </p>
+                  <div className="bg-gradient-to-r from-emerald-100 to-green-100 p-6 rounded-xl border border-emerald-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="text-center">
+                        <div className="bg-white/80 rounded-lg p-4 shadow-sm">
+                          <p className="text-emerald-600 text-sm font-medium uppercase tracking-wide">Floor Area</p>
+                          <p className="text-3xl font-bold text-emerald-800">{calculateSquareMeters()}</p>
+                          <p className="text-emerald-600 text-sm">Square Meters</p>
+                        </div>
+                      </div>
+                      <div className="text-center">
+                        <div className="bg-white/80 rounded-lg p-4 shadow-sm">
+                          <p className="text-emerald-600 text-sm font-medium uppercase tracking-wide">Wall Area</p>
+                          <p className="text-3xl font-bold text-emerald-800">{calculateWallArea()}</p>
+                          <p className="text-emerald-600 text-sm">Square Meters</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
