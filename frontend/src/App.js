@@ -1041,7 +1041,9 @@ const RenovationQuotingApp = () => {
                         cavity_sliding_size: '720mm',
                         minor_costs_amount: 0,
                         water_feeds_type: 'single',
-                        power_points_quantity: 1
+                        power_points_quantity: 1,
+                        plasterboard_grade: 'standard',
+                        cornice_type: 'standard'
                       });
                     }}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
