@@ -161,12 +161,14 @@ const RenovationQuotingApp = () => {
       asbestos_removal: 'Asbestos Removal (if required)'
     },
     framing: {
-      wall_framing: 'Internal Wall Framing',
-      ceiling_framing: 'Ceiling Frame Modifications',
-      door_frame: 'Door Frame Installation',
-      window_frame: 'Window Frame Modifications',
-      structural_modifications: 'Load-bearing Modifications',
-      insulation: 'Wall & Ceiling Insulation'
+      internal_wall_rectification: 'Internal Wall Frame Rectification',
+      build_niches: 'Build Niches (Soap Dish) - Specify Quantity',
+      recessed_mirror_cabinet: 'Building of Recessed Mirror Cabinet',
+      swing_door_materials: 'Build New Swing Door & Supply All Materials (Door Jamb, Hinges, Door) - Sizes: 720mm/770mm/820mm',
+      cavity_sliding_unit: 'Cavity Sliding Unit with Nib Wall - Sizes: 720mm/770mm/820mm',
+      new_window_framing: 'New Window Framing (Including Structural Framing and/or Exterior Cladding/Brick Work Rectification)',
+      subfloor_replacement: 'Replacement of Subfloor to Compressed Fibro or Ceramic Tile Underlay',
+      minor_costs_allowance: 'Minor Costs Allowance (User Specified)'
     },
     plumbing_rough_in: {
       water_supply_lines: 'Hot & Cold Water Lines',
