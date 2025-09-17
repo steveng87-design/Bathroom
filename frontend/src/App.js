@@ -92,11 +92,11 @@ const RenovationQuotingApp = () => {
       plastering: {
         enabled: false,
         subtasks: {
-          install_ceiling_sheets: false,
-          install_wall_sheets: false,
-          set_internals_joins: false,
+          supply_install_ceiling_sheets: false,
+          supply_install_wall_sheets: false,
+          supply_compounds_finishing: false,
           top_coat_ceilings: false,
-          install_cornice: false
+          supply_install_cornice: false
         }
       },
       waterproofing: {
