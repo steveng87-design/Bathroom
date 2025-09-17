@@ -130,14 +130,10 @@ const RenovationQuotingApp = () => {
       fit_off: {
         enabled: false,
         subtasks: {
-          toilet_installation: false,
-          vanity_installation: false,
-          shower_installation: false,
-          tapware_installation: false,
-          lighting_installation: false,
-          mirror_installation: false,
-          accessories_installation: false,
-          final_connections: false
+          accessories_install: false,
+          site_clean: false,
+          builders_clean: false,
+          painting: false
         }
       }
     },
