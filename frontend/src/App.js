@@ -180,6 +180,16 @@ const RenovationQuotingApp = () => {
     years_experience: '5+',
     projects_completed: '100+'
   });
+
+  // Project Management States
+  const [savedProjects, setSavedProjects] = useState([]);
+  const [projectCategories, setProjectCategories] = useState(['All', 'Residential', 'Commercial', 'Renovation', 'New Build']);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editingProject, setEditingProject] = useState(null);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectCategory, setNewProjectCategory] = useState('General');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [taskOptions, setTaskOptions] = useState({
     // Demolition options
     skip_bin_size: '6 meter bin',
