@@ -248,8 +248,12 @@ async def create_quote_request(request: RenovationQuoteRequest):
         IMPORTANT: Use the detailed sub-tasks to provide more accurate pricing. Each selected sub-task should influence the cost estimate for that component. Consider:
         - Complexity of selected sub-tasks
         - Labor time for specific tasks
-        - Material requirements for each sub-task
+        - Material requirements for each sub-task (INCLUDE SUPPLY COSTS - materials + delivery + labor)
         - Regional pricing variations
+        
+        CRITICAL PRICING NOTE: Tasks marked "Supply & Install" should include BOTH material costs AND installation labor. 
+        For example, "Supply & Install Wall Sheets" should include: sheet materials + screws + compounds + delivery + labor.
+        Base your pricing on total project cost, not just labor rates.
         
         Please provide:
         1. Total estimated cost based on selected sub-tasks
