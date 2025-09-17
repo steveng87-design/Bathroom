@@ -11,6 +11,7 @@ import { Textarea } from './components/ui/textarea';
 import { Badge } from './components/ui/badge';
 import { Separator } from './components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
 import { AlertCircle, Calculator, MapPin, Phone, Mail, Ruler, CheckCircle2, Loader2, ChevronDown } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 
