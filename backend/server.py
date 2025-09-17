@@ -237,6 +237,20 @@ async def create_quote_request(request: RenovationQuoteRequest):
                 task_options_text += f"- Tile Size: {options['tile_size']}\n"
             if options.get('feature_tile_grade'):
                 task_options_text += f"- Feature Tile Grade: {options['feature_tile_grade'].replace('_', ' ').title()}\n"
+            if options.get('vanity_grade'):
+                task_options_text += f"- Vanity Grade: {options['vanity_grade'].replace('_', ' ').title()}\n"
+            if options.get('toilet_grade'):
+                task_options_text += f"- Toilet Grade: {options['toilet_grade'].replace('_', ' ').title()}\n"
+            if options.get('shower_screen_grade'):
+                task_options_text += f"- Shower Screen Type: {options['shower_screen_grade'].replace('_', ' ').title()}\n"
+            if options.get('tapware_grade'):
+                task_options_text += f"- Tapware Grade: {options['tapware_grade'].replace('_', ' ').title()}\n"
+            if options.get('lighting_grade'):
+                task_options_text += f"- Lighting Grade: {options['lighting_grade'].replace('_', ' ').title()}\n"
+            if options.get('mirror_grade'):
+                task_options_text += f"- Mirror/Cabinet Type: {options['mirror_grade'].replace('_', ' ').title()}\n"
+            if options.get('tiles_supply_grade'):
+                task_options_text += f"- Tiles Supply Service: {options['tiles_supply_grade'].replace('_', ' ').title()}\n"
         
         prompt = f"""
         Analyze this bathroom renovation project and provide a detailed cost estimate using the specific sub-tasks selected:
