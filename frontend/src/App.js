@@ -173,13 +173,19 @@ const RenovationQuotingApp = () => {
       minor_costs_allowance: 'Minor Costs Allowance (User Specified)'
     },
     plumbing_rough_in: {
-      water_supply_lines: 'Hot & Cold Water Lines',
-      drainage_pipes: 'Drainage & Waste Pipes',
-      vent_pipes: 'Vent Stack Installation',
-      shut_off_valves: 'Isolation Valves',
-      pressure_testing: 'Pressure Testing & Certification',
-      floor_waste: 'Floor Waste Installation',
-      wall_penetrations: 'Wall Penetration Sealing'
+      make_good_existing_feeds: 'Make Good on All Existing Water Feeds',
+      new_inlet_feed_toilet: 'New Inlet Feed for Toilet',
+      water_feeds_quantity: 'Water Feeds - Specify Quantity (Single/Double Shower Mixers)',
+      bath_inwall_mixer_outlet: 'Bath In-Wall Mixer and Outlet',
+      basin_mixer_inwall: 'Basin Mixer In Wall',
+      shower_outlet: 'Shower Outlet',
+      floor_waste: 'Floor Waste',
+      new_stack_work: 'New Stack Work',
+      concrete_cutting_slab: 'Concrete Quick Cutting for Slab on Ground',
+      rain_head_shower: 'Rain Head Shower',
+      inwall_cistern: 'In Wall Cistern',
+      wall_hung_toilet: 'Wall Hung Toilet',
+      vanity_install: 'Vanity Install'
     },
     electrical_rough_in: {
       power_circuits: 'Power Circuit Installation',
