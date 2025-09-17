@@ -138,6 +138,7 @@ const RenovationQuotingApp = () => {
   const [selectedSuppliers, setSelectedSuppliers] = useState({});
   const [adjustmentMode, setAdjustmentMode] = useState(false);
   const [adjustedCosts, setAdjustedCosts] = useState({});
+  const [expandedComponents, setExpandedComponents] = useState({});
 
   const componentLabels = {
     demolition: 'Demolition',
