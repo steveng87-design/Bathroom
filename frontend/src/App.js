@@ -1295,23 +1295,38 @@ const RenovationQuotingApp = () => {
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-6 text-lg font-semibold"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Generating AI-Powered Quote...
-                    </>
-                  ) : (
-                    <>
-                      <Calculator className="w-5 h-5 mr-2" />
-                      Generate Quote
-                    </>
-                  )}
-                </Button>
+                <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl border border-blue-100">
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white py-8 text-xl font-bold shadow-2xl transform hover:scale-105 transition-all duration-300"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                        <div className="flex flex-col">
+                          <span>Generating AI-Powered Quote...</span>
+                          <span className="text-sm opacity-90">Analyzing 71 professional tasks</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex items-center justify-center">
+                          <div className="bg-white/20 p-2 rounded-lg mr-3">
+                            <Calculator className="w-6 h-6" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span>Generate Professional Quote</span>
+                            <span className="text-sm opacity-90">Powered by Learning AI</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-center text-gray-600 text-sm mt-4">
+                    🔒 Your data is secure • 🚀 Results in seconds • 🎯 Personalized accuracy
+                  </p>
+                </div>
               </form>
             </CardContent>
           </Card>
