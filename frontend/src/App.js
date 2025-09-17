@@ -155,6 +155,17 @@ const RenovationQuotingApp = () => {
   const [adjustmentMode, setAdjustmentMode] = useState(false);
   const [adjustedCosts, setAdjustedCosts] = useState({});
   const [expandedComponents, setExpandedComponents] = useState({});
+  const [taskOptions, setTaskOptions] = useState({
+    // Framing options
+    build_niches_quantity: 1,
+    swing_door_size: '720mm',
+    cavity_sliding_size: '720mm',
+    minor_costs_amount: 0,
+    // Plumbing options
+    water_feeds_type: 'single',
+    // Electrical options
+    power_points_quantity: 1
+  });
 
   const componentLabels = {
     demolition: 'Demolition',
