@@ -283,6 +283,21 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
+  const calculateWallArea = () => {
+    const { length, width, height } = formData.roomMeasurements;
+    if (length && width && height) {
+      // Convert from millimetres to meters first
+      const lengthInMeters = parseFloat(length) / 1000;
+      const widthInMeters = parseFloat(width) / 1000;
+      const heightInMeters = parseFloat(height) / 1000;
+      
+      // Calculate wall area: (2 × length × height) + (2 × width × height)
+      const wallArea = (2 * lengthInMeters * heightInMeters) + (2 * widthInMeters * heightInMeters);
+      return wallArea.toFixed(2);
+    }
+    return '0';
+  };
+
   const handleInputChange = (section, field, value, isCheckbox = false) => {
     setFormData(prev => ({
       ...prev,
