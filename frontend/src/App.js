@@ -355,9 +355,9 @@ const RenovationQuotingApp = () => {
       const requestData = {
         client_info: formData.clientInfo,
         room_measurements: {
-          length: parseFloat(formData.roomMeasurements.length),
-          width: parseFloat(formData.roomMeasurements.width),
-          height: parseFloat(formData.roomMeasurements.height)
+          length: parseFloat(formData.roomMeasurements.length) / 1000, // Convert mm to meters
+          width: parseFloat(formData.roomMeasurements.width) / 1000,   // Convert mm to meters  
+          height: parseFloat(formData.roomMeasurements.height) / 1000  // Convert mm to meters
         },
         components: transformedComponents,
         detailed_components: formData.components, // Send detailed structure for enhanced AI analysis
