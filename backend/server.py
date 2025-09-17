@@ -113,6 +113,15 @@ class CostAdjustment(BaseModel):
     component_adjustments: Optional[Dict[str, float]] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+class UserProfile(BaseModel):
+    company_name: str = "Professional Bathroom Renovations"
+    contact_name: str = "Project Manager"
+    phone: str = "Contact for details"
+    email: str = "info@bathroomquotesaver.ai"
+    license_number: str = "XXXX-XXXX"
+    years_experience: str = "5+"
+    projects_completed: str = "100+"
+
 class MaterialSupplier(BaseModel):
     name: str
     address: str
