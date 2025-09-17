@@ -157,6 +157,8 @@ const RenovationQuotingApp = () => {
   const [adjustedCosts, setAdjustedCosts] = useState({});
   const [expandedComponents, setExpandedComponents] = useState({});
   const [taskOptions, setTaskOptions] = useState({
+    // Demolition options
+    skip_bin_size: '6 meter bin',
     // Framing options
     build_niches_quantity: 1,
     swing_door_size: '720mm',
