@@ -122,6 +122,22 @@ class UserProfile(BaseModel):
     years_experience: str = "5+"
     projects_completed: str = "100+"
 
+class SavedProject(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    project_name: str
+    category: str = "General"
+    quote_id: str
+    client_name: str
+    total_cost: float
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    notes: Optional[str] = None
+
+class ProjectUpdate(BaseModel):
+    project_name: Optional[str] = None
+    category: Optional[str] = None
+    notes: Optional[str] = None
+
 class MaterialSupplier(BaseModel):
     name: str
     address: str
