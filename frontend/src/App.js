@@ -942,6 +942,14 @@ const RenovationQuotingApp = () => {
                         },
                         additionalNotes: ''
                       });
+                      setTaskOptions({
+                        build_niches_quantity: 1,
+                        swing_door_size: '720mm',
+                        cavity_sliding_size: '720mm',
+                        minor_costs_amount: 0,
+                        water_feeds_type: 'single',
+                        power_points_quantity: 1
+                      });
                     }}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
                   >
