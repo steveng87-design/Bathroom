@@ -593,11 +593,16 @@ const RenovationQuotingApp = () => {
             <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Client Information */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                    <Mail className="w-5 h-5 mr-2 text-blue-600" />
-                    Client Information
-                  </h3>
+                <div className="space-y-6 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                      <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-2 rounded-lg mr-3">
+                        <Mail className="w-5 h-5 text-white" />
+                      </div>
+                      Client Information
+                    </h3>
+                    <Badge variant="outline" className="bg-white/80">Required</Badge>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="clientName">Client Name *</Label>
