@@ -229,11 +229,11 @@ const RenovationQuotingApp = () => {
       lighting_switching: 'Lighting Switching'
     },
     plastering: {
-      install_ceiling_sheets: 'Install of New Ceiling Sheets',
-      install_wall_sheets: 'Install of All Wall Sheets',
-      set_internals_joins: 'Set All Internals and Joins',
-      top_coat_ceilings: 'Top Coat Ceilings',
-      install_cornice: 'Install Cornice'
+      supply_install_ceiling_sheets: 'Supply & Install New Ceiling Sheets (including screws, fixings)',
+      supply_install_wall_sheets: 'Supply & Install All Wall Sheets (including screws, fixings)',
+      supply_compounds_finishing: 'Supply & Apply Compounds, Jointing & Finishing Materials',
+      top_coat_ceilings: 'Top Coat Ceilings (including primer, paint materials)',
+      supply_install_cornice: 'Supply & Install Cornice (including adhesives, fixings)'
     },
     waterproofing: {
       shower_waterproofing: 'Shower Recess Waterproofing',
