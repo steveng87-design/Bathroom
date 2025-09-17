@@ -46,12 +46,14 @@ const RenovationQuotingApp = () => {
       framing: {
         enabled: false,
         subtasks: {
-          wall_framing: false,
-          ceiling_framing: false,
-          door_frame: false,
-          window_frame: false,
-          structural_modifications: false,
-          insulation: false
+          internal_wall_rectification: false,
+          build_niches: false,
+          recessed_mirror_cabinet: false,
+          swing_door_materials: false,
+          cavity_sliding_unit: false,
+          new_window_framing: false,
+          subfloor_replacement: false,
+          minor_costs_allowance: false
         }
       },
       plumbing_rough_in: {
