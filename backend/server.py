@@ -82,6 +82,7 @@ class RenovationQuoteRequest(BaseModel):
     room_measurements: RoomMeasurements
     components: RenovationComponent
     detailed_components: Optional[Dict[str, Any]] = None  # For enhanced AI analysis
+    task_options: Optional[Dict[str, Any]] = None  # Quantity/size selections
     additional_notes: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
