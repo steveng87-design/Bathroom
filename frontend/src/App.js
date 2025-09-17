@@ -248,18 +248,18 @@ const RenovationQuotingApp = () => {
       compliance_certification: 'Waterproofing Certification'
     },
     tiling: {
-      sand_cement_bed: 'Supply and Install Sand and Cement Bed',
-      install_floor_tiles: 'Install Floor Tiles',
-      wall_tiles: 'Wall Tiles',
-      shower_niche: 'Shower Niche',
-      bath_niche: 'Bath Niche',
-      floor_to_ceiling_finish: 'Floor to Ceiling Finish',
-      half_finish_heights: 'Half Finish Heights of Wall Tiles',
-      nib_wall_tilings: 'Nib Wall Tilings',
-      grout_and_silicone: 'Grout and Silicone',
-      shower_hob: 'Shower Hob',
-      bath_hob: 'Bath Hob',
-      feature_wall: 'Feature Wall'
+      supply_install_sand_cement_bed: 'Supply & Install Sand and Cement Bed (including materials, mesh)',
+      supply_install_floor_tiles: 'Supply & Install Floor Tiles (including tiles, adhesive, spacers, trim)',
+      supply_install_wall_tiles: 'Supply & Install Wall Tiles (including tiles, adhesive, spacers, trim)',
+      supply_install_shower_niche: 'Supply & Install Shower Niche (including tiles, waterproof niche, trim)',
+      supply_install_bath_niche: 'Supply & Install Bath Niche (including tiles, niche box, trim)',
+      supply_install_floor_ceiling: 'Supply & Install Floor to Ceiling Tiling (including tiles, adhesive, trim)',
+      supply_install_half_height: 'Supply & Install Half Height Wall Tiles (including tiles, adhesive, trim)',
+      supply_install_nib_walls: 'Supply & Install Nib Wall Tilings (including tiles, adhesive, corner trim)',
+      supply_grout_silicone: 'Supply & Apply Grout and Silicone (including grout, silicone, sealers)',
+      supply_install_shower_hob: 'Supply & Install Shower Hob Tiling (including tiles, waterproof membrane)',
+      supply_install_bath_hob: 'Supply & Install Bath Hob Tiling (including tiles, waterproof membrane)',  
+      supply_install_feature_wall: 'Supply & Install Feature Wall (including premium tiles, adhesive, trim)'
     },
     shower_screens: {
       fixed_panel_install: 'Fixed Panel Install',
