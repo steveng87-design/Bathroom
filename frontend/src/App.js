@@ -592,13 +592,15 @@ const RenovationQuotingApp = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => {
-                                const element = document.getElementById(`subtasks-${key}`);
-                                element.style.display = element.style.display === 'none' ? 'block' : 'none';
+                                setExpandedComponents(prev => ({
+                                  ...prev,
+                                  [key]: !prev[key]
+                                }));
                               }}
                               className="text-blue-600 hover:text-blue-800"
                             >
-                              <ChevronDown className="w-4 h-4 mr-1" />
-                              Expand Details
+                              <ChevronDown className={`w-4 h-4 mr-1 transition-transform ${expandedComponents[key] ? 'rotate-180' : ''}`} />
+                              {expandedComponents[key] ? 'Collapse' : 'Expand'} Details
                             </Button>
                           )}
                         </div>
