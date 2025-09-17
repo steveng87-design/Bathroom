@@ -1439,14 +1439,136 @@ const RenovationQuotingApp = () => {
                   </div>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button
                     onClick={() => setAdjustmentMode(!adjustmentMode)}
                     variant={adjustmentMode ? 'destructive' : 'outline'}
-                    className="flex-1"
+                    className="flex items-center justify-center"
                   >
                     {adjustmentMode ? 'Cancel Adjustments' : 'Adjust Costs'}
                   </Button>
+                  
+                  {/* Professional PDF Generation Dialog */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center justify-center">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Generate Proposal PDF
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center text-xl">
+                          <Building className="w-6 h-6 mr-2 text-purple-600" />
+                          Professional Proposal Settings
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-6 py-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label className="flex items-center text-sm font-medium">
+                              <Building className="w-4 h-4 mr-1" />
+                              Company Name *
+                            </Label>
+                            <Input
+                              value={userProfile.company_name}
+                              onChange={(e) => handleProfileChange('company_name', e.target.value)}
+                              placeholder="Your Company Name"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="flex items-center text-sm font-medium">
+                              <User className="w-4 h-4 mr-1" />
+                              Contact Name *
+                            </Label>
+                            <Input
+                              value={userProfile.contact_name}
+                              onChange={(e) => handleProfileChange('contact_name', e.target.value)}
+                              placeholder="Project Manager Name"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="flex items-center text-sm font-medium">
+                              <Phone className="w-4 h-4 mr-1" />
+                              Phone Number *
+                            </Label>
+                            <Input
+                              value={userProfile.phone}
+                              onChange={(e) => handleProfileChange('phone', e.target.value)}
+                              placeholder="02-1234-5678"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="flex items-center text-sm font-medium">
+                              <Mail className="w-4 h-4 mr-1" />
+                              Email Address *
+                            </Label>
+                            <Input
+                              value={userProfile.email}
+                              onChange={(e) => handleProfileChange('email', e.target.value)}
+                              placeholder="contact@yourcompany.com"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="flex items-center text-sm font-medium">
+                              <Award className="w-4 h-4 mr-1" />
+                              License Number *
+                            </Label>
+                            <Input
+                              value={userProfile.license_number}
+                              onChange={(e) => handleProfileChange('license_number', e.target.value)}
+                              placeholder="NSW-123456"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="flex items-center text-sm font-medium">
+                              <Briefcase className="w-4 h-4 mr-1" />
+                              Years Experience
+                            </Label>
+                            <Input
+                              value={userProfile.years_experience}
+                              onChange={(e) => handleProfileChange('years_experience', e.target.value)}
+                              placeholder="5+"
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                          <p className="text-purple-800 text-sm font-medium">
+                            📄 This will generate a professional scope of works PDF proposal similar to your winning client proposals
+                          </p>
+                          <p className="text-purple-600 text-xs mt-1">
+                            Includes: Cover page, company overview, detailed scope of works, terms & conditions, and contact information
+                          </p>
+                        </div>
+                        
+                        <Button 
+                          onClick={generateProposalPDF}
+                          disabled={generatingPDF || !userProfile.company_name || !userProfile.contact_name || !userProfile.phone || !userProfile.email || !userProfile.license_number}
+                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3"
+                        >
+                          {generatingPDF ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Generating Professional Proposal...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="w-4 h-4 mr-2" />
+                              Generate & Download PDF Proposal
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
                   <Button
                     onClick={() => {
                       setQuote(null);
@@ -1490,7 +1612,7 @@ const RenovationQuotingApp = () => {
                         tiles_supply_grade: 'standard'
                       });
                     }}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    className="bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center"
                   >
                     New Quote
                   </Button>
