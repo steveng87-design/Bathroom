@@ -221,14 +221,18 @@ const RenovationQuotingApp = () => {
       compliance_certification: 'Waterproofing Certification'
     },
     tiling: {
-      floor_tiling: 'Floor Tile Installation',
-      wall_tiling: 'Wall Tile Installation',
-      shower_tiling: 'Shower Recess Tiling',
-      feature_tiling: 'Feature Wall Tiling',
-      grout_application: 'Grouting & Cleaning',
-      tile_cutting: 'Precision Tile Cutting',
-      edge_trimming: 'Edge Trim Installation',
-      sealing: 'Grout Sealing & Protection'
+      sand_cement_bed: 'Supply and Install Sand and Cement Bed',
+      install_floor_tiles: 'Install Floor Tiles',
+      wall_tiles: 'Wall Tiles',
+      shower_niche: 'Shower Niche',
+      bath_niche: 'Bath Niche',
+      floor_to_ceiling_finish: 'Floor to Ceiling Finish',
+      half_finish_heights: 'Half Finish Heights of Wall Tiles',
+      nib_wall_tilings: 'Nib Wall Tilings',
+      grout_and_silicone: 'Grout and Silicone',
+      shower_hob: 'Shower Hob',
+      bath_hob: 'Bath Hob',
+      feature_wall: 'Feature Wall'
     },
     fit_off: {
       toilet_installation: 'Toilet & Cistern Installation',
