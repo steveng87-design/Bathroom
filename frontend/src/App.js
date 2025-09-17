@@ -539,6 +539,117 @@ const RenovationQuotingApp = () => {
     }));
   };
 
+  // Project Management Functions
+  const fetchSavedProjects = async () => {
+    try {
+      const response = await axios.get(`${API}/projects`);
+      setSavedProjects(response.data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+
+  const fetchProjectCategories = async () => {
+    try {
+      const response = await axios.get(`${API}/projects/categories`);
+      setProjectCategories(response.data.categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const saveCurrentProject = async () => {
+    if (!quote || !formData.clientInfo.name) return;
+
+    const projectName = newProjectName || `${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`;
+    
+    try {
+      const projectData = {
+        project_name: projectName,
+        category: newProjectCategory,
+        quote_id: quote.id,
+        client_name: formData.clientInfo.name,
+        total_cost: quote.total_cost,
+        notes: formData.additionalNotes
+      };
+
+      await axios.post(`${API}/projects/save`, projectData);
+      toast.success(`Project "${projectName}" saved successfully!`);
+      fetchSavedProjects();
+      setNewProjectName('');
+      setNewProjectCategory('General');
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast.error('Failed to save project');
+    }
+  };
+
+  const loadProject = async (projectId) => {
+    try {
+      const response = await axios.get(`${API}/projects/${projectId}/quote`);
+      const { project, quote: loadedQuote, request } = response.data;
+      
+      if (request) {
+        setFormData({
+          clientInfo: request.client_info,
+          roomMeasurements: {
+            length: (request.room_measurements.length * 1000).toString(),
+            width: (request.room_measurements.width * 1000).toString(),
+            height: (request.room_measurements.height * 1000).toString()
+          },
+          components: request.detailed_components || request.components,
+          additionalNotes: request.additional_notes || ''
+        });
+      }
+      
+      setQuote(loadedQuote);
+      setSidebarOpen(false);
+      toast.success(`Loaded project: ${project.project_name}`);
+      
+    } catch (error) {
+      console.error('Error loading project:', error);
+      toast.error('Failed to load project');
+    }
+  };
+
+  const updateProject = async (projectId, updates) => {
+    try {
+      await axios.put(`${API}/projects/${projectId}`, updates);
+      toast.success('Project updated successfully!');
+      fetchSavedProjects();
+      setEditingProject(null);
+    } catch (error) {
+      console.error('Error updating project:', error);
+      toast.error('Failed to update project');
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    
+    try {
+      await axios.delete(`${API}/projects/${projectId}`);
+      toast.success('Project deleted successfully!');
+      fetchSavedProjects();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error('Failed to delete project');
+    }
+  };
+
+  const filteredProjects = savedProjects.filter(project => {
+    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
+    const matchesSearch = project.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.client_name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  // Load projects on component mount
+  React.useEffect(() => {
+    fetchSavedProjects();
+    fetchProjectCategories();
+  }, []);
+
   const SupplierDialog = ({ component, componentLabel }) => (
     <Dialog>
       <DialogTrigger asChild>
