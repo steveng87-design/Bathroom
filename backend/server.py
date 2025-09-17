@@ -211,6 +211,8 @@ async def create_quote_request(request: RenovationQuoteRequest):
         if request.task_options:
             task_options_text = "\nSpecific Task Options:\n"
             options = request.task_options
+            if options.get('skip_bin_size'):
+                task_options_text += f"- Skip Bin Size: {options['skip_bin_size']}\n"
             if options.get('build_niches_quantity', 0) > 0:
                 task_options_text += f"- Niches Quantity: {options['build_niches_quantity']}\n"
             if options.get('swing_door_size'):
