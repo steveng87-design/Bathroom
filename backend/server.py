@@ -206,6 +206,24 @@ async def create_quote_request(request: RenovationQuoteRequest):
             for component, subtasks in detailed_tasks.items():
                 detailed_task_text += f"- {component.replace('_', ' ').title()}: {', '.join([s.replace('_', ' ').title() for s in subtasks])}\n"
         
+        # Add task options for enhanced pricing
+        task_options_text = ""
+        if request.task_options:
+            task_options_text = "\nSpecific Task Options:\n"
+            options = request.task_options
+            if options.get('build_niches_quantity', 0) > 0:
+                task_options_text += f"- Niches Quantity: {options['build_niches_quantity']}\n"
+            if options.get('swing_door_size'):
+                task_options_text += f"- Swing Door Size: {options['swing_door_size']}\n"
+            if options.get('cavity_sliding_size'):
+                task_options_text += f"- Cavity Sliding Size: {options['cavity_sliding_size']}\n"
+            if options.get('minor_costs_amount', 0) > 0:
+                task_options_text += f"- Minor Costs Allowance: ${options['minor_costs_amount']}\n"
+            if options.get('water_feeds_type'):
+                task_options_text += f"- Water Feeds Type: {options['water_feeds_type']} mixer\n"
+            if options.get('power_points_quantity', 0) > 0:
+                task_options_text += f"- Power Points Quantity: {options['power_points_quantity']}\n"
+        
         prompt = f"""
         Analyze this bathroom renovation project and provide a detailed cost estimate using the specific sub-tasks selected:
         
