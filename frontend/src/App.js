@@ -59,13 +59,19 @@ const RenovationQuotingApp = () => {
       plumbing_rough_in: {
         enabled: false,
         subtasks: {
-          water_supply_lines: false,
-          drainage_pipes: false,
-          vent_pipes: false,
-          shut_off_valves: false,
-          pressure_testing: false,
+          make_good_existing_feeds: false,
+          new_inlet_feed_toilet: false,
+          water_feeds_quantity: false,
+          bath_inwall_mixer_outlet: false,
+          basin_mixer_inwall: false,
+          shower_outlet: false,
           floor_waste: false,
-          wall_penetrations: false
+          new_stack_work: false,
+          concrete_cutting_slab: false,
+          rain_head_shower: false,
+          inwall_cistern: false,
+          wall_hung_toilet: false,
+          vanity_install: false
         }
       },
       electrical_rough_in: {
