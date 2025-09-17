@@ -150,6 +150,83 @@ const RenovationQuotingApp = () => {
     fit_off: 'Fit Off'
   };
 
+  const subtaskLabels = {
+    demolition: {
+      remove_bathtub: 'Remove Existing Bathtub',
+      remove_shower: 'Remove Existing Shower',
+      remove_toilet: 'Remove Toilet & Cistern',
+      remove_vanity: 'Remove Vanity & Basin',
+      remove_tiles: 'Remove Wall & Floor Tiles',
+      remove_fixtures: 'Remove Light Fixtures & Accessories',
+      disposal_fees: 'Waste Disposal & Skip Bin',
+      asbestos_removal: 'Asbestos Removal (if required)'
+    },
+    framing: {
+      wall_framing: 'Internal Wall Framing',
+      ceiling_framing: 'Ceiling Frame Modifications',
+      door_frame: 'Door Frame Installation',
+      window_frame: 'Window Frame Modifications',
+      structural_modifications: 'Load-bearing Modifications',
+      insulation: 'Wall & Ceiling Insulation'
+    },
+    plumbing_rough_in: {
+      water_supply_lines: 'Hot & Cold Water Lines',
+      drainage_pipes: 'Drainage & Waste Pipes',
+      vent_pipes: 'Vent Stack Installation',
+      shut_off_valves: 'Isolation Valves',
+      pressure_testing: 'Pressure Testing & Certification',
+      floor_waste: 'Floor Waste Installation',
+      wall_penetrations: 'Wall Penetration Sealing'
+    },
+    electrical_rough_in: {
+      power_circuits: 'Power Circuit Installation',
+      lighting_circuits: 'Lighting Circuit Wiring',
+      exhaust_fan_wiring: 'Exhaust Fan Wiring',
+      heated_towel_rail: 'Heated Towel Rail Circuit',
+      underfloor_heating: 'Underfloor Heating Wiring',
+      safety_switches: 'Safety Switch Installation',
+      waterproof_outlets: 'IP44 Rated Outlets'
+    },
+    plastering: {
+      wall_preparation: 'Wall Surface Preparation',
+      ceiling_preparation: 'Ceiling Surface Preparation',
+      skim_coating: 'Skim Coat Application',
+      texture_application: 'Texture Finish Application',
+      corner_beading: 'Corner Bead Installation',
+      primer_application: 'Primer & Sealer Application',
+      sanding: 'Surface Sanding & Smoothing'
+    },
+    waterproofing: {
+      shower_waterproofing: 'Shower Recess Waterproofing',
+      floor_waterproofing: 'Full Floor Waterproofing',
+      wall_waterproofing: 'Wet Area Wall Waterproofing',
+      membrane_application: 'Waterproof Membrane Application',
+      corner_sealing: 'Internal Corner Sealing',
+      penetration_sealing: 'Pipe Penetration Sealing',
+      compliance_certification: 'Waterproofing Certification'
+    },
+    tiling: {
+      floor_tiling: 'Floor Tile Installation',
+      wall_tiling: 'Wall Tile Installation',
+      shower_tiling: 'Shower Recess Tiling',
+      feature_tiling: 'Feature Wall Tiling',
+      grout_application: 'Grouting & Cleaning',
+      tile_cutting: 'Precision Tile Cutting',
+      edge_trimming: 'Edge Trim Installation',
+      sealing: 'Grout Sealing & Protection'
+    },
+    fit_off: {
+      toilet_installation: 'Toilet & Cistern Installation',
+      vanity_installation: 'Vanity & Basin Installation',
+      shower_installation: 'Shower Screen & Hardware',
+      tapware_installation: 'Tapware & Mixer Installation',
+      lighting_installation: 'Light Fixture Installation',
+      mirror_installation: 'Mirror & Cabinet Installation',
+      accessories_installation: 'Towel Rails & Accessories',
+      final_connections: 'Final Plumbing & Electrical Connections'
+    }
+  };
+
   const calculateSquareMeters = () => {
     const { length, width } = formData.roomMeasurements;
     if (length && width) {
