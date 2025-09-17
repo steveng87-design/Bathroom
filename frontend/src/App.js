@@ -276,7 +276,15 @@ const RenovationQuotingApp = () => {
       accessories_install: 'Accessories Install',
       site_clean: 'Site Clean',
       builders_clean: 'Builders Clean',
-      painting: 'Painting'
+      painting: 'Painting',
+      pc_items_vanity_basin: 'PC Items - Supply Vanity & Basin',
+      pc_items_toilet_cistern: 'PC Items - Supply Toilet & Cistern',
+      pc_items_shower_screen: 'PC Items - Supply Shower Screen',
+      pc_items_tapware: 'PC Items - Supply Tapware (Mixers, Taps)',
+      pc_items_lighting: 'PC Items - Supply Light Fixtures',
+      pc_items_mirror_cabinet: 'PC Items - Supply Mirror & Cabinet',
+      pc_items_accessories: 'PC Items - Supply Towel Rails & Accessories',
+      tiles_supply_coordination: 'Tiles Supply & Coordination (Builder Markup + Delivery)'
     }
   };
 
