@@ -757,9 +757,14 @@ const RenovationQuotingApp = () => {
                         clientInfo: { name: '', email: '', phone: '', address: '' },
                         roomMeasurements: { length: '', width: '', height: '' },
                         components: {
-                          demolition: false, framing: false, plumbing_rough_in: false,
-                          electrical_rough_in: false, plastering: false, waterproofing: false,
-                          tiling: false, fit_off: false
+                          demolition: { enabled: false, subtasks: { remove_bathtub: false, remove_shower: false, remove_toilet: false, remove_vanity: false, remove_tiles: false, remove_fixtures: false, disposal_fees: false, asbestos_removal: false } },
+                          framing: { enabled: false, subtasks: { wall_framing: false, ceiling_framing: false, door_frame: false, window_frame: false, structural_modifications: false, insulation: false } },
+                          plumbing_rough_in: { enabled: false, subtasks: { water_supply_lines: false, drainage_pipes: false, vent_pipes: false, shut_off_valves: false, pressure_testing: false, floor_waste: false, wall_penetrations: false } },
+                          electrical_rough_in: { enabled: false, subtasks: { power_circuits: false, lighting_circuits: false, exhaust_fan_wiring: false, heated_towel_rail: false, underfloor_heating: false, safety_switches: false, waterproof_outlets: false } },
+                          plastering: { enabled: false, subtasks: { wall_preparation: false, ceiling_preparation: false, skim_coating: false, texture_application: false, corner_beading: false, primer_application: false, sanding: false } },
+                          waterproofing: { enabled: false, subtasks: { shower_waterproofing: false, floor_waterproofing: false, wall_waterproofing: false, membrane_application: false, corner_sealing: false, penetration_sealing: false, compliance_certification: false } },
+                          tiling: { enabled: false, subtasks: { floor_tiling: false, wall_tiling: false, shower_tiling: false, feature_tiling: false, grout_application: false, tile_cutting: false, edge_trimming: false, sealing: false } },
+                          fit_off: { enabled: false, subtasks: { toilet_installation: false, vanity_installation: false, shower_installation: false, tapware_installation: false, lighting_installation: false, mirror_installation: false, accessories_installation: false, final_connections: false } }
                         },
                         additionalNotes: ''
                       });
