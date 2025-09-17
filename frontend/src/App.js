@@ -235,6 +235,12 @@ const RenovationQuotingApp = () => {
       bath_hob: 'Bath Hob',
       feature_wall: 'Feature Wall'
     },
+    shower_screens: {
+      fixed_panel_install: 'Fixed Panel Install',
+      frameless_shower_enclosure: 'Frameless Shower Enclosure',
+      semi_frameless_shower_enclosure: 'Semi Frameless Shower Enclosure',
+      shower_curtain: 'Shower Curtain'
+    },
     fit_off: {
       accessories_install: 'Accessories Install',
       site_clean: 'Site Clean',
