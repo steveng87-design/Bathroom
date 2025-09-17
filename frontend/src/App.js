@@ -655,11 +655,16 @@ const RenovationQuotingApp = () => {
                 <Separator />
 
                 {/* Room Measurements */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                    <Ruler className="w-5 h-5 mr-2 text-blue-600" />
-                    Room Measurements
-                  </h3>
+                <div className="space-y-6 bg-gradient-to-br from-emerald-50 to-green-50 p-6 rounded-2xl border border-emerald-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                      <div className="bg-gradient-to-r from-emerald-500 to-green-600 p-2 rounded-lg mr-3">
+                        <Ruler className="w-5 h-5 text-white" />
+                      </div>
+                      Precision Measurements
+                    </h3>
+                    <Badge variant="outline" className="bg-white/80">Millimeter Accuracy</Badge>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                       <Label htmlFor="length">Length (millimetres) *</Label>
