@@ -613,9 +613,14 @@ const RenovationQuotingApp = () => {
                     </div>
                   </div>
                   <div className="bg-blue-50 p-4 rounded-lg">
-                    <p className="text-blue-800 font-medium">
-                      Floor Area: {calculateSquareMeters()} m²
-                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <p className="text-blue-800 font-medium">
+                        Floor Area: {calculateSquareMeters()} m²
+                      </p>
+                      <p className="text-blue-800 font-medium">
+                        Wall Area: {calculateWallArea()} m²
+                      </p>
+                    </div>
                   </div>
                 </div>
 
