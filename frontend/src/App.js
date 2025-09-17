@@ -606,8 +606,8 @@ const RenovationQuotingApp = () => {
                         </div>
 
                         {/* Expandable Subtasks */}
-                        {formData.components[key].enabled && (
-                          <div id={`subtasks-${key}`} className="mt-4 ml-8 space-y-3 border-l-2 border-blue-200 pl-4">
+                        {formData.components[key].enabled && expandedComponents[key] && (
+                          <div className="mt-4 ml-8 space-y-3 border-l-2 border-blue-200 pl-4 animate-in slide-in-from-top-1 duration-300">
                             <div className="text-sm font-medium text-blue-800 mb-3">
                               Select specific {label.toLowerCase()} tasks:
                             </div>
