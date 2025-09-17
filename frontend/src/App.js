@@ -709,6 +709,200 @@ const RenovationQuotingApp = () => {
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5"></div>
       
       <div className="container mx-auto px-4 py-12 relative z-10">
+        
+        {/* Floating Side Panel Trigger */}
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button 
+              className="fixed top-6 left-6 z-50 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-2xl"
+              size="lg"
+            >
+              <FolderOpen className="w-5 h-5 mr-2" />
+              Saved Projects ({savedProjects.length})
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[420px] sm:w-[540px] bg-white/95 backdrop-blur-sm">
+            <SheetHeader>
+              <SheetTitle className="flex items-center text-xl">
+                <FolderOpen className="w-6 h-6 mr-2 text-purple-600" />
+                Saved Projects
+              </SheetTitle>
+            </SheetHeader>
+            
+            <div className="space-y-4 mt-6">
+              {/* Save Current Project */}
+              {quote && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-800 flex items-center mb-3">
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Current Project
+                  </h4>
+                  <div className="space-y-2">
+                    <Input
+                      placeholder={`${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`}
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      className="text-sm"
+                    />
+                    <Select value={newProjectCategory} onValueChange={setNewProjectCategory}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="General">General</SelectItem>
+                        <SelectItem value="Residential">Residential</SelectItem>
+                        <SelectItem value="Commercial">Commercial</SelectItem>
+                        <SelectItem value="Renovation">Renovation</SelectItem>
+                        <SelectItem value="New Build">New Build</SelectItem>
+                        <SelectItem value="Premium">Premium</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={saveCurrentProject} size="sm" className="w-full bg-green-600 hover:bg-green-700">
+                      <Save className="w-4 h-4 mr-1" />
+                      Save Project
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Search and Filter */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    placeholder="Search projects..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-10"
+                  />
+                </div>
+                
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-10">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projectCategories.map(category => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Projects List */}
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                {filteredProjects.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No saved projects found</p>
+                    <p className="text-sm">Generate a quote and save your first project!</p>
+                  </div>
+                ) : (
+                  filteredProjects.map(project => (
+                    <div key={project.id} className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                      {editingProject === project.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={project.project_name}
+                            onChange={(e) => {
+                              const updated = savedProjects.map(p => 
+                                p.id === project.id ? {...p, project_name: e.target.value} : p
+                              );
+                              setSavedProjects(updated);
+                            }}
+                            className="font-medium"
+                          />
+                          <Select 
+                            value={project.category} 
+                            onValueChange={(value) => {
+                              const updated = savedProjects.map(p => 
+                                p.id === project.id ? {...p, category: value} : p
+                              );
+                              setSavedProjects(updated);
+                            }}
+                          >
+                            <SelectTrigger className="h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {projectCategories.filter(cat => cat !== 'All').map(category => (
+                                <SelectItem key={category} value={category}>{category}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => updateProject(project.id, {
+                                project_name: project.project_name,
+                                category: project.category
+                              })}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              Save
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingProject(null)}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-800 text-sm">{project.project_name}</h4>
+                              <p className="text-xs text-gray-600">{project.client_name}</p>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {project.category}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center text-green-600">
+                              <DollarSign className="w-4 h-4 mr-1" />
+                              <span className="font-bold">${project.total_cost.toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center text-gray-500 text-xs">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {new Date(project.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => loadProject(project.id)}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-xs"
+                            >
+                              Load
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setEditingProject(project.id)}
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => deleteProject(project.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
         {/* Professional Header with Premium Branding */}
         <div className="text-center mb-12">
           <div className="relative">
