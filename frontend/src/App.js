@@ -1303,7 +1303,8 @@ const RenovationQuotingApp = () => {
                           waterproofing: { enabled: false, subtasks: { shower_waterproofing: false, floor_waterproofing: false, wall_waterproofing: false, membrane_application: false, corner_sealing: false, penetration_sealing: false, compliance_certification: false } },
                           tiling: { enabled: false, subtasks: { supply_install_sand_cement_bed: false, supply_install_floor_tiles: false, supply_install_wall_tiles: false, supply_install_shower_niche: false, supply_install_bath_niche: false, supply_install_floor_ceiling: false, supply_install_half_height: false, supply_install_nib_walls: false, supply_grout_silicone: false, supply_install_shower_hob: false, supply_install_bath_hob: false, supply_install_feature_wall: false } },
                           shower_screens: { enabled: false, subtasks: { fixed_panel_install: false, frameless_shower_enclosure: false, semi_frameless_shower_enclosure: false, shower_curtain: false } },
-                          fit_off: { enabled: false, subtasks: { accessories_install: false, site_clean: false, builders_clean: false, painting: false, pc_items_vanity_basin: false, pc_items_toilet_cistern: false, pc_items_shower_screen: false, pc_items_tapware: false, pc_items_lighting: false, pc_items_mirror_cabinet: false, pc_items_accessories: false, tiles_supply_coordination: false } }
+                          pc_items_tile_supply: { enabled: false, subtasks: { pc_items_vanity_basin: false, pc_items_toilet_cistern: false, pc_items_shower_screen: false, pc_items_tapware: false, pc_items_lighting: false, pc_items_mirror_cabinet: false, pc_items_accessories: false, tiles_supply_coordination: false } },
+                          fit_off: { enabled: false, subtasks: { accessories_install: false, site_clean: false, builders_clean: false, painting: false } }
                         },
                         additionalNotes: ''
                       });
