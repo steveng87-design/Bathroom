@@ -198,7 +198,7 @@ const RenovationQuotingApp = () => {
       cavity_sliding_unit: 'Cavity Sliding Unit with Nib Wall - Sizes: 720mm/770mm/820mm',
       new_window_framing: 'New Window Framing (Including Structural Framing and/or Exterior Cladding/Brick Work Rectification)',
       subfloor_replacement: 'Replacement of Subfloor to Compressed Fibro or Ceramic Tile Underlay',
-      minor_costs_allowance: 'Minor Costs Allowance (User Specified)'
+      additional_costs_allowance: 'Additional Costs Allowance (User Specified)'
     },
     plumbing_rough_in: {
       make_good_existing_feeds: 'Make Good on All Existing Water Feeds',
