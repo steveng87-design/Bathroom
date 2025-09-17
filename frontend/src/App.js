@@ -894,6 +894,96 @@ const RenovationQuotingApp = () => {
                                         </div>
                                       )}
 
+                                      {/* Tiling - Floor Tile Grade */}
+                                      {subtaskKey === 'supply_install_floor_tiles' && (
+                                        <div className="space-y-2">
+                                          <div className="flex items-center space-x-2">
+                                            <Label className="text-xs text-gray-600">Grade:</Label>
+                                            <Select
+                                              value={taskOptions.floor_tile_grade}
+                                              onValueChange={(value) => handleTaskOptionChange('floor_tile_grade', value)}
+                                            >
+                                              <SelectTrigger className="h-8 w-36">
+                                                <SelectValue />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="budget_ceramic">Budget Ceramic</SelectItem>
+                                                <SelectItem value="standard_ceramic">Standard Ceramic</SelectItem>
+                                                <SelectItem value="premium_ceramic">Premium Ceramic</SelectItem>
+                                                <SelectItem value="porcelain">Porcelain</SelectItem>
+                                                <SelectItem value="natural_stone">Natural Stone</SelectItem>
+                                                <SelectItem value="luxury_stone">Luxury Stone</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                          <div className="flex items-center space-x-2">
+                                            <Label className="text-xs text-gray-600">Size:</Label>
+                                            <Select
+                                              value={taskOptions.tile_size}
+                                              onValueChange={(value) => handleTaskOptionChange('tile_size', value)}
+                                            >
+                                              <SelectTrigger className="h-8 w-28">
+                                                <SelectValue />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="300x300mm">300x300mm</SelectItem>
+                                                <SelectItem value="400x400mm">400x400mm</SelectItem>
+                                                <SelectItem value="600x600mm">600x600mm</SelectItem>
+                                                <SelectItem value="800x800mm">800x800mm</SelectItem>
+                                                <SelectItem value="300x600mm">300x600mm</SelectItem>
+                                                <SelectItem value="450x900mm">450x900mm</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Tiling - Wall Tile Grade */}
+                                      {(subtaskKey === 'supply_install_wall_tiles' || subtaskKey === 'supply_install_half_height') && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Grade:</Label>
+                                          <Select
+                                            value={taskOptions.wall_tile_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('wall_tile_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-36">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="budget_ceramic">Budget Ceramic</SelectItem>
+                                              <SelectItem value="standard_ceramic">Standard Ceramic</SelectItem>
+                                              <SelectItem value="premium_ceramic">Premium Ceramic</SelectItem>
+                                              <SelectItem value="porcelain">Porcelain</SelectItem>
+                                              <SelectItem value="subway_tile">Subway Tile</SelectItem>
+                                              <SelectItem value="mosaic">Mosaic Tiles</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Tiling - Feature Wall Grade */}
+                                      {subtaskKey === 'supply_install_feature_wall' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Type:</Label>
+                                          <Select
+                                            value={taskOptions.feature_tile_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('feature_tile_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-36">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="premium">Premium Ceramic</SelectItem>
+                                              <SelectItem value="designer_porcelain">Designer Porcelain</SelectItem>
+                                              <SelectItem value="natural_stone">Natural Stone</SelectItem>
+                                              <SelectItem value="marble">Marble</SelectItem>
+                                              <SelectItem value="mosaic_feature">Mosaic Feature</SelectItem>
+                                              <SelectItem value="textured_stone">Textured Stone</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
                                     </div>
                                   )}
                                 </div>
