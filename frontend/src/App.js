@@ -114,18 +114,18 @@ const RenovationQuotingApp = () => {
       tiling: {
         enabled: false,
         subtasks: {
-          sand_cement_bed: false,
-          install_floor_tiles: false,
-          wall_tiles: false,
-          shower_niche: false,
-          bath_niche: false,
-          floor_to_ceiling_finish: false,
-          half_finish_heights: false,
-          nib_wall_tilings: false,
-          grout_and_silicone: false,
-          shower_hob: false,
-          bath_hob: false,
-          feature_wall: false
+          supply_install_sand_cement_bed: false,
+          supply_install_floor_tiles: false,
+          supply_install_wall_tiles: false,
+          supply_install_shower_niche: false,
+          supply_install_bath_niche: false,
+          supply_install_floor_ceiling: false,
+          supply_install_half_height: false,
+          supply_install_nib_walls: false,
+          supply_grout_silicone: false,
+          supply_install_shower_hob: false,
+          supply_install_bath_hob: false,
+          supply_install_feature_wall: false
         }
       },
       shower_screens: {
