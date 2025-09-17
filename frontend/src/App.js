@@ -169,6 +169,16 @@ const RenovationQuotingApp = () => {
   const [adjustmentMode, setAdjustmentMode] = useState(false);
   const [adjustedCosts, setAdjustedCosts] = useState({});
   const [expandedComponents, setExpandedComponents] = useState({});
+  const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [userProfile, setUserProfile] = useState({
+    company_name: 'Professional Bathroom Renovations',
+    contact_name: 'Project Manager', 
+    phone: '',
+    email: '',
+    license_number: '',
+    years_experience: '5+',
+    projects_completed: '100+'
+  });
   const [taskOptions, setTaskOptions] = useState({
     // Demolition options
     skip_bin_size: '6 meter bin',
