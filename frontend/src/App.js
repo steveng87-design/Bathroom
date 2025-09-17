@@ -239,14 +239,10 @@ const RenovationQuotingApp = () => {
       feature_wall: 'Feature Wall'
     },
     fit_off: {
-      toilet_installation: 'Toilet & Cistern Installation',
-      vanity_installation: 'Vanity & Basin Installation',
-      shower_installation: 'Shower Screen & Hardware',
-      tapware_installation: 'Tapware & Mixer Installation',
-      lighting_installation: 'Light Fixture Installation',
-      mirror_installation: 'Mirror & Cabinet Installation',
-      accessories_installation: 'Towel Rails & Accessories',
-      final_connections: 'Final Plumbing & Electrical Connections'
+      accessories_install: 'Accessories Install',
+      site_clean: 'Site Clean',
+      builders_clean: 'Builders Clean',
+      painting: 'Painting'
     }
   };
 
