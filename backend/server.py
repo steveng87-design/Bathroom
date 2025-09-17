@@ -218,7 +218,7 @@ async def create_quote_request(request: RenovationQuoteRequest):
             if options.get('cavity_sliding_size'):
                 task_options_text += f"- Cavity Sliding Size: {options['cavity_sliding_size']}\n"
             if options.get('minor_costs_amount', 0) > 0:
-                task_options_text += f"- Minor Costs Allowance: ${options['minor_costs_amount']}\n"
+                task_options_text += f"- Additional Costs Allowance: ${options['minor_costs_amount']}\n"
             if options.get('water_feeds_type'):
                 task_options_text += f"- Water Feeds Type: {options['water_feeds_type']} mixer\n"
             if options.get('power_points_quantity', 0) > 0:
