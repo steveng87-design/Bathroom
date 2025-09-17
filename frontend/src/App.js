@@ -555,40 +555,40 @@ const RenovationQuotingApp = () => {
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <Label htmlFor="length">Length (meters) *</Label>
+                      <Label htmlFor="length">Length (millimetres) *</Label>
                       <Input
                         id="length"
                         type="number"
-                        step="0.1"
+                        step="1"
                         value={formData.roomMeasurements.length}
                         onChange={(e) => handleInputChange('roomMeasurements', 'length', e.target.value)}
-                        placeholder="3.5"
+                        placeholder="3500"
                         required
                         className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="width">Width (meters) *</Label>
+                      <Label htmlFor="width">Width (millimetres) *</Label>
                       <Input
                         id="width"
                         type="number"
-                        step="0.1"
+                        step="1"
                         value={formData.roomMeasurements.width}
                         onChange={(e) => handleInputChange('roomMeasurements', 'width', e.target.value)}
-                        placeholder="2.5"
+                        placeholder="2500"
                         required
                         className="mt-1"
                       />
                     </div>
                     <div>
-                      <Label htmlFor="height">Height (meters) *</Label>
+                      <Label htmlFor="height">Height (millimetres) *</Label>
                       <Input
                         id="height"
                         type="number"
-                        step="0.1"
+                        step="1"
                         value={formData.roomMeasurements.height}
                         onChange={(e) => handleInputChange('roomMeasurements', 'height', e.target.value)}
-                        placeholder="2.4"
+                        placeholder="2400"
                         required
                         className="mt-1"
                       />
