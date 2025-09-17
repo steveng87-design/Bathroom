@@ -155,6 +155,7 @@ const RenovationQuotingApp = () => {
     plastering: 'Plastering',
     waterproofing: 'Waterproofing',
     tiling: 'Tiling',
+    shower_screens: 'Shower Screens',
     fit_off: 'Fit Off'
   };
 
