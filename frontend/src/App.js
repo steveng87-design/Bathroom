@@ -1341,23 +1341,36 @@ const RenovationQuotingApp = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  <div className="text-center">
-                    <h3 className="text-3xl font-bold text-green-600">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                  <div className="text-center bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+                    <h3 className="text-4xl font-black text-green-600">
                       ${quote.total_cost.toLocaleString()}
                     </h3>
-                    <p className="text-gray-600">Total Estimated Cost</p>
+                    <p className="text-green-700 font-semibold">Total Estimated Cost</p>
                   </div>
-                  <div className="text-center">
-                    <h3 className="text-2xl font-bold text-blue-600">
+                  <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                    <h3 className="text-3xl font-bold text-blue-600">
                       {calculateSquareMeters()} m²
                     </h3>
-                    <p className="text-gray-600">Floor Area</p>
+                    <p className="text-blue-700 font-semibold">Floor Area</p>
+                    <p className="text-blue-500 text-xs">For floor materials</p>
                   </div>
-                  <div className="text-center">
-                    <Badge variant={quote.confidence_level === 'High' ? 'default' : quote.confidence_level === 'Medium' ? 'secondary' : 'outline'} className="text-lg p-2">
+                  <div className="text-center bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+                    <h3 className="text-3xl font-bold text-purple-600">
+                      {calculateWallArea()} m²
+                    </h3>
+                    <p className="text-purple-700 font-semibold">Wall Area</p>
+                    <p className="text-purple-500 text-xs">For wall materials</p>
+                  </div>
+                  <div className="text-center bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                    <Badge 
+                      variant={quote.confidence_level === 'High' ? 'default' : quote.confidence_level === 'Medium' ? 'secondary' : 'outline'} 
+                      className="text-lg p-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold"
+                    >
                       {quote.confidence_level} Confidence
                     </Badge>
+                    <p className="text-yellow-700 font-semibold mt-2">AI Accuracy</p>
+                    <p className="text-yellow-600 text-xs">Learning from your style</p>
                   </div>
                 </div>
 
