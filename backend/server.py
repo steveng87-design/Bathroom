@@ -229,6 +229,14 @@ async def create_quote_request(request: RenovationQuoteRequest):
                 task_options_text += f"- Plasterboard Grade: {options['plasterboard_grade'].replace('_', ' ').title()}\n"
             if options.get('cornice_type'):
                 task_options_text += f"- Cornice Type: {options['cornice_type'].replace('_', ' ').title()}\n"
+            if options.get('floor_tile_grade'):
+                task_options_text += f"- Floor Tile Grade: {options['floor_tile_grade'].replace('_', ' ').title()}\n"
+            if options.get('wall_tile_grade'):
+                task_options_text += f"- Wall Tile Grade: {options['wall_tile_grade'].replace('_', ' ').title()}\n"
+            if options.get('tile_size'):
+                task_options_text += f"- Tile Size: {options['tile_size']}\n"
+            if options.get('feature_tile_grade'):
+                task_options_text += f"- Feature Tile Grade: {options['feature_tile_grade'].replace('_', ' ').title()}\n"
         
         prompt = f"""
         Analyze this bathroom renovation project and provide a detailed cost estimate using the specific sub-tasks selected:
