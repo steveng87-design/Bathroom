@@ -143,7 +143,15 @@ const RenovationQuotingApp = () => {
           accessories_install: false,
           site_clean: false,
           builders_clean: false,
-          painting: false
+          painting: false,
+          pc_items_vanity_basin: false,
+          pc_items_toilet_cistern: false,
+          pc_items_shower_screen: false,
+          pc_items_tapware: false,
+          pc_items_lighting: false,
+          pc_items_mirror_cabinet: false,
+          pc_items_accessories: false,
+          tiles_supply_coordination: false
         }
       }
     },
