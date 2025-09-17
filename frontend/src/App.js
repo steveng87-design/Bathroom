@@ -662,22 +662,142 @@ const RenovationQuotingApp = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               {Object.entries(subtaskLabels[key]).map(([subtaskKey, subtaskLabel]) => (
-                                <div
-                                  key={subtaskKey}
-                                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200"
-                                >
-                                  <Checkbox
-                                    id={`${key}-${subtaskKey}`}
-                                    checked={formData.components[key].subtasks[subtaskKey]}
-                                    onCheckedChange={(checked) => handleSubtaskToggle(key, subtaskKey, checked)}
-                                    className="h-4 w-4"
-                                  />
-                                  <Label
-                                    htmlFor={`${key}-${subtaskKey}`}
-                                    className="text-sm cursor-pointer text-gray-700 hover:text-gray-900"
-                                  >
-                                    {subtaskLabel}
-                                  </Label>
+                                <div key={subtaskKey} className="space-y-2">
+                                  <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
+                                    <Checkbox
+                                      id={`${key}-${subtaskKey}`}
+                                      checked={formData.components[key].subtasks[subtaskKey]}
+                                      onCheckedChange={(checked) => handleSubtaskToggle(key, subtaskKey, checked)}
+                                      className="h-4 w-4"
+                                    />
+                                    <Label
+                                      htmlFor={`${key}-${subtaskKey}`}
+                                      className="text-sm cursor-pointer text-gray-700 hover:text-gray-900"
+                                    >
+                                      {subtaskLabel}
+                                    </Label>
+                                  </div>
+                                  
+                                  {/* Interactive Options for Specific Tasks */}
+                                  {formData.components[key].subtasks[subtaskKey] && (
+                                    <div className="ml-6 space-y-2">
+                                      
+                                      {/* Framing - Build Niches Quantity */}
+                                      {subtaskKey === 'build_niches' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Quantity:</Label>
+                                          <Select
+                                            value={taskOptions.build_niches_quantity.toString()}
+                                            onValueChange={(value) => handleTaskOptionChange('build_niches_quantity', parseInt(value))}
+                                          >
+                                            <SelectTrigger className="h-8 w-20">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {[1,2,3,4,5,6].map(num => (
+                                                <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Framing - Swing Door Size */}
+                                      {subtaskKey === 'swing_door_materials' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Door Size:</Label>
+                                          <Select
+                                            value={taskOptions.swing_door_size}
+                                            onValueChange={(value) => handleTaskOptionChange('swing_door_size', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-24">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="720mm">720mm</SelectItem>
+                                              <SelectItem value="770mm">770mm</SelectItem>
+                                              <SelectItem value="820mm">820mm</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Framing - Cavity Sliding Size */}
+                                      {subtaskKey === 'cavity_sliding_unit' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Unit Size:</Label>
+                                          <Select
+                                            value={taskOptions.cavity_sliding_size}
+                                            onValueChange={(value) => handleTaskOptionChange('cavity_sliding_size', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-24">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="720mm">720mm</SelectItem>
+                                              <SelectItem value="770mm">770mm</SelectItem>
+                                              <SelectItem value="820mm">820mm</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Framing - Minor Costs */}
+                                      {subtaskKey === 'minor_costs_allowance' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Amount: $</Label>
+                                          <Input
+                                            type="number"
+                                            value={taskOptions.minor_costs_amount}
+                                            onChange={(e) => handleTaskOptionChange('minor_costs_amount', parseFloat(e.target.value) || 0)}
+                                            className="h-8 w-24"
+                                            placeholder="0"
+                                          />
+                                        </div>
+                                      )}
+
+                                      {/* Plumbing - Water Feeds Type */}
+                                      {subtaskKey === 'water_feeds_quantity' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Type:</Label>
+                                          <Select
+                                            value={taskOptions.water_feeds_type}
+                                            onValueChange={(value) => handleTaskOptionChange('water_feeds_type', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="single">Single Mixer</SelectItem>
+                                              <SelectItem value="double">Double Mixer</SelectItem>
+                                              <SelectItem value="triple">Triple Mixer</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Electrical - Power Points Quantity */}
+                                      {subtaskKey === 'power_points_quantity' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Quantity:</Label>
+                                          <Select
+                                            value={taskOptions.power_points_quantity.toString()}
+                                            onValueChange={(value) => handleTaskOptionChange('power_points_quantity', parseInt(value))}
+                                          >
+                                            <SelectTrigger className="h-8 w-20">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              {[1,2,3,4,5,6,7,8].map(num => (
+                                                <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                                              ))}
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                    </div>
+                                  )}
                                 </div>
                               ))}
                             </div>
