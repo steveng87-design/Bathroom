@@ -194,13 +194,15 @@ const RenovationQuotingApp = () => {
       vanity_install: 'Vanity Install'
     },
     electrical_rough_in: {
-      power_circuits: 'Power Circuit Installation',
-      lighting_circuits: 'Lighting Circuit Wiring',
-      exhaust_fan_wiring: 'Exhaust Fan Wiring',
-      heated_towel_rail: 'Heated Towel Rail Circuit',
-      underfloor_heating: 'Underfloor Heating Wiring',
-      safety_switches: 'Safety Switch Installation',
-      waterproof_outlets: 'IP44 Rated Outlets'
+      make_safe_old_wiring: 'Make Safe on All Old Wiring',
+      four_in_one_combo: '4 in 1 (Heat, Light and Fan Combo in Ceiling)',
+      power_points_quantity: 'Power Points - Specify Quantity',
+      led_strip_lighting: 'LED Strip Lighting',
+      wall_lights: 'Wall Lights',
+      downlight: 'Downlight',
+      separate_extraction_fan: 'Separate Extraction Fan',
+      underfloor_heating: 'Underfloor Heating',
+      lighting_switching: 'Lighting Switching'
     },
     plastering: {
       wall_preparation: 'Wall Surface Preparation',
