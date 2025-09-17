@@ -743,8 +743,8 @@ const RenovationQuotingApp = () => {
                                         </div>
                                       )}
 
-                                      {/* Framing - Minor Costs */}
-                                      {subtaskKey === 'minor_costs_allowance' && (
+                                      {/* Framing - Additional Costs */}
+                                      {subtaskKey === 'additional_costs_allowance' && (
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Amount: $</Label>
                                           <Input
