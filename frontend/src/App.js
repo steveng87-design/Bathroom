@@ -207,13 +207,11 @@ const RenovationQuotingApp = () => {
       lighting_switching: 'Lighting Switching'
     },
     plastering: {
-      wall_preparation: 'Wall Surface Preparation',
-      ceiling_preparation: 'Ceiling Surface Preparation',
-      skim_coating: 'Skim Coat Application',
-      texture_application: 'Texture Finish Application',
-      corner_beading: 'Corner Bead Installation',
-      primer_application: 'Primer & Sealer Application',
-      sanding: 'Surface Sanding & Smoothing'
+      install_ceiling_sheets: 'Install of New Ceiling Sheets',
+      install_wall_sheets: 'Install of All Wall Sheets',
+      set_internals_joins: 'Set All Internals and Joins',
+      top_coat_ceilings: 'Top Coat Ceilings',
+      install_cornice: 'Install Cornice'
     },
     waterproofing: {
       shower_waterproofing: 'Shower Recess Waterproofing',
