@@ -167,7 +167,10 @@ const RenovationQuotingApp = () => {
     // Plumbing options
     water_feeds_type: 'single',
     // Electrical options
-    power_points_quantity: 1
+    power_points_quantity: 1,
+    // Plastering options
+    plasterboard_grade: 'standard',
+    cornice_type: 'standard'
   });
 
   const componentLabels = {
