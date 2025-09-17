@@ -847,6 +847,48 @@ const RenovationQuotingApp = () => {
                                         </div>
                                       )}
 
+                                      {/* Plastering - Plasterboard Grade */}
+                                      {(subtaskKey === 'supply_install_ceiling_sheets' || subtaskKey === 'supply_install_wall_sheets') && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Grade:</Label>
+                                          <Select
+                                            value={taskOptions.plasterboard_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('plasterboard_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="standard">Standard Grade</SelectItem>
+                                              <SelectItem value="moisture_resistant">Moisture Resistant</SelectItem>
+                                              <SelectItem value="fire_rated">Fire Rated</SelectItem>
+                                              <SelectItem value="acoustic">Acoustic Grade</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Plastering - Cornice Type */}
+                                      {subtaskKey === 'supply_install_cornice' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Type:</Label>
+                                          <Select
+                                            value={taskOptions.cornice_type}
+                                            onValueChange={(value) => handleTaskOptionChange('cornice_type', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="standard">Standard 75mm</SelectItem>
+                                              <SelectItem value="premium">Premium 90mm</SelectItem>
+                                              <SelectItem value="decorative">Decorative 110mm</SelectItem>
+                                              <SelectItem value="shadowline">Shadow Line</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
                                     </div>
                                   )}
                                 </div>
