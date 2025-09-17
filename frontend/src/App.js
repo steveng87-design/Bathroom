@@ -77,13 +77,15 @@ const RenovationQuotingApp = () => {
       electrical_rough_in: {
         enabled: false,
         subtasks: {
-          power_circuits: false,
-          lighting_circuits: false,
-          exhaust_fan_wiring: false,
-          heated_towel_rail: false,
+          make_safe_old_wiring: false,
+          four_in_one_combo: false,
+          power_points_quantity: false,
+          led_strip_lighting: false,
+          wall_lights: false,
+          downlight: false,
+          separate_extraction_fan: false,
           underfloor_heating: false,
-          safety_switches: false,
-          waterproof_outlets: false
+          lighting_switching: false
         }
       },
       plastering: {
