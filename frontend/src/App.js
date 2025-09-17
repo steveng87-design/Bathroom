@@ -153,14 +153,12 @@ const RenovationQuotingApp = () => {
 
   const subtaskLabels = {
     demolition: {
-      remove_bathtub: 'Remove Existing Bathtub',
-      remove_shower: 'Remove Existing Shower',
-      remove_toilet: 'Remove Toilet & Cistern',
-      remove_vanity: 'Remove Vanity & Basin',
-      remove_tiles: 'Remove Wall & Floor Tiles',
-      remove_fixtures: 'Remove Light Fixtures & Accessories',
-      disposal_fees: 'Waste Disposal & Skip Bin',
-      asbestos_removal: 'Asbestos Removal (if required)'
+      removal_internal_ware: 'Removal of All Internal Bathroom Ware',
+      removal_wall_linings: 'Removal of All Wall Linings',
+      removal_ceiling_linings: 'Removal of All Ceiling Linings',
+      removal_ground_tiles_screed: 'Removal of All Ground Tiles Including Old Screed',
+      removal_old_substrate: 'Removal of Old Substrate',
+      supply_skip_bin: 'Supply Skip Bin (Trade Waste Removal)'
     },
     framing: {
       wall_framing: 'Internal Wall Framing',
