@@ -234,6 +234,7 @@ async def create_quote_request(request: RenovationQuoteRequest):
         
         Selected Main Components: {', '.join(components_list) if components_list else 'None selected'}
         {detailed_task_text}
+        {task_options_text}
         
         Client Location: {request.client_info.address}
         Additional Notes: {request.additional_notes or 'None'}
