@@ -1008,6 +1008,152 @@ const RenovationQuotingApp = () => {
                                         </div>
                                       )}
 
+                                      {/* PC Items - Vanity Grade */}
+                                      {subtaskKey === 'pc_items_vanity_basin' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Grade:</Label>
+                                          <Select
+                                            value={taskOptions.vanity_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('vanity_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="budget">Budget ($800-1200)</SelectItem>
+                                              <SelectItem value="standard">Standard ($1200-2000)</SelectItem>
+                                              <SelectItem value="premium">Premium ($2000-3500)</SelectItem>
+                                              <SelectItem value="luxury">Luxury ($3500+)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* PC Items - Toilet Grade */}
+                                      {subtaskKey === 'pc_items_toilet_cistern' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Grade:</Label>
+                                          <Select
+                                            value={taskOptions.toilet_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('toilet_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="budget">Budget ($400-600)</SelectItem>
+                                              <SelectItem value="standard">Standard ($600-900)</SelectItem>
+                                              <SelectItem value="premium">Premium ($900-1500)</SelectItem>
+                                              <SelectItem value="designer">Designer ($1500+)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* PC Items - Shower Screen Grade */}
+                                      {subtaskKey === 'pc_items_shower_screen' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Type:</Label>
+                                          <Select
+                                            value={taskOptions.shower_screen_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('shower_screen_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-36">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="standard">Standard Frame ($600-900)</SelectItem>
+                                              <SelectItem value="semi_frameless">Semi Frameless ($900-1400)</SelectItem>
+                                              <SelectItem value="frameless">Frameless ($1400-2200)</SelectItem>
+                                              <SelectItem value="premium_frameless">Premium Frameless ($2200+)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* PC Items - Tapware Grade */}
+                                      {subtaskKey === 'pc_items_tapware' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Grade:</Label>
+                                          <Select
+                                            value={taskOptions.tapware_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('tapware_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="budget">Budget ($300-600)</SelectItem>
+                                              <SelectItem value="standard">Standard ($600-1200)</SelectItem>
+                                              <SelectItem value="premium">Premium ($1200-2000)</SelectItem>
+                                              <SelectItem value="luxury">Luxury ($2000+)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* PC Items - Lighting Grade */}
+                                      {subtaskKey === 'pc_items_lighting' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Grade:</Label>
+                                          <Select
+                                            value={taskOptions.lighting_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('lighting_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="budget">Budget ($200-400)</SelectItem>
+                                              <SelectItem value="standard">Standard ($400-800)</SelectItem>
+                                              <SelectItem value="premium">Premium ($800-1500)</SelectItem>
+                                              <SelectItem value="designer">Designer ($1500+)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* PC Items - Mirror Grade */}
+                                      {subtaskKey === 'pc_items_mirror_cabinet' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Type:</Label>
+                                          <Select
+                                            value={taskOptions.mirror_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('mirror_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-36">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="basic_mirror">Basic Mirror ($150-300)</SelectItem>
+                                              <SelectItem value="standard_cabinet">Standard Cabinet ($300-600)</SelectItem>
+                                              <SelectItem value="premium_cabinet">Premium Cabinet ($600-1200)</SelectItem>
+                                              <SelectItem value="luxury_cabinet">Luxury Cabinet ($1200+)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
+                                      {/* Tiles Supply Grade */}
+                                      {subtaskKey === 'tiles_supply_coordination' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Service:</Label>
+                                          <Select
+                                            value={taskOptions.tiles_supply_grade}
+                                            onValueChange={(value) => handleTaskOptionChange('tiles_supply_grade', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-40">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="standard">Standard (15% markup)</SelectItem>
+                                              <SelectItem value="premium_service">Premium Service (20% markup)</SelectItem>
+                                              <SelectItem value="full_service">Full Service (25% markup + coordination)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
                                     </div>
                                   )}
                                 </div>
