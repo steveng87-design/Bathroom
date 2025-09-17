@@ -183,7 +183,15 @@ const RenovationQuotingApp = () => {
     floor_tile_grade: 'standard_ceramic',
     wall_tile_grade: 'standard_ceramic',
     tile_size: '300x300mm',
-    feature_tile_grade: 'premium'
+    feature_tile_grade: 'premium',
+    // PC Items options
+    vanity_grade: 'standard',
+    toilet_grade: 'standard', 
+    shower_screen_grade: 'standard',
+    tapware_grade: 'standard',
+    lighting_grade: 'standard',
+    mirror_grade: 'standard',
+    tiles_supply_grade: 'standard'
   });
 
   const componentLabels = {
