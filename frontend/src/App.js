@@ -137,13 +137,9 @@ const RenovationQuotingApp = () => {
           shower_curtain: false
         }
       },
-      fit_off: {
+      pc_items_tile_supply: {
         enabled: false,
         subtasks: {
-          accessories_install: false,
-          site_clean: false,
-          builders_clean: false,
-          painting: false,
           pc_items_vanity_basin: false,
           pc_items_toilet_cistern: false,
           pc_items_shower_screen: false,
@@ -152,6 +148,15 @@ const RenovationQuotingApp = () => {
           pc_items_mirror_cabinet: false,
           pc_items_accessories: false,
           tiles_supply_coordination: false
+        }
+      },
+      fit_off: {
+        enabled: false,
+        subtasks: {
+          accessories_install: false,
+          site_clean: false,
+          builders_clean: false,
+          painting: false
         }
       }
     },
