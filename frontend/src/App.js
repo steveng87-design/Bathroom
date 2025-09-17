@@ -763,7 +763,7 @@ const RenovationQuotingApp = () => {
                         roomMeasurements: { length: '', width: '', height: '' },
                         components: {
                           demolition: { enabled: false, subtasks: { removal_internal_ware: false, removal_wall_linings: false, removal_ceiling_linings: false, removal_ground_tiles_screed: false, removal_old_substrate: false, supply_skip_bin: false, asbestos_removal: false } },
-                          framing: { enabled: false, subtasks: { wall_framing: false, ceiling_framing: false, door_frame: false, window_frame: false, structural_modifications: false, insulation: false } },
+                          framing: { enabled: false, subtasks: { internal_wall_rectification: false, build_niches: false, recessed_mirror_cabinet: false, swing_door_materials: false, cavity_sliding_unit: false, new_window_framing: false, subfloor_replacement: false, minor_costs_allowance: false } },
                           plumbing_rough_in: { enabled: false, subtasks: { water_supply_lines: false, drainage_pipes: false, vent_pipes: false, shut_off_valves: false, pressure_testing: false, floor_waste: false, wall_penetrations: false } },
                           electrical_rough_in: { enabled: false, subtasks: { power_circuits: false, lighting_circuits: false, exhaust_fan_wiring: false, heated_towel_rail: false, underfloor_heating: false, safety_switches: false, waterproof_outlets: false } },
                           plastering: { enabled: false, subtasks: { wall_preparation: false, ceiling_preparation: false, skim_coating: false, texture_application: false, corner_beading: false, primer_application: false, sanding: false } },
