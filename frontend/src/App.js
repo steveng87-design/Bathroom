@@ -328,6 +328,13 @@ const RenovationQuotingApp = () => {
       .map(([key, value]) => key);
   };
 
+  const handleTaskOptionChange = (optionKey, value) => {
+    setTaskOptions(prev => ({
+      ...prev,
+      [optionKey]: value
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
