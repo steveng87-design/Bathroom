@@ -275,7 +275,10 @@ const RenovationQuotingApp = () => {
   const calculateSquareMeters = () => {
     const { length, width } = formData.roomMeasurements;
     if (length && width) {
-      return (parseFloat(length) * parseFloat(width)).toFixed(2);
+      // Convert from millimetres to meters first, then calculate square meters
+      const lengthInMeters = parseFloat(length) / 1000;
+      const widthInMeters = parseFloat(width) / 1000;
+      return (lengthInMeters * widthInMeters).toFixed(2);
     }
     return '0';
   };
