@@ -225,6 +225,10 @@ async def create_quote_request(request: RenovationQuoteRequest):
                 task_options_text += f"- Water Feeds Type: {options['water_feeds_type']} mixer\n"
             if options.get('power_points_quantity', 0) > 0:
                 task_options_text += f"- Power Points Quantity: {options['power_points_quantity']}\n"
+            if options.get('plasterboard_grade'):
+                task_options_text += f"- Plasterboard Grade: {options['plasterboard_grade'].replace('_', ' ').title()}\n"
+            if options.get('cornice_type'):
+                task_options_text += f"- Cornice Type: {options['cornice_type'].replace('_', ' ').title()}\n"
         
         prompt = f"""
         Analyze this bathroom renovation project and provide a detailed cost estimate using the specific sub-tasks selected:
