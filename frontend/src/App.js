@@ -533,12 +533,48 @@ const RenovationQuotingApp = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2 flex items-center justify-center">
-            <Calculator className="w-10 h-10 mr-3 text-blue-600" />
-            Bathroom Renovation Quote Generator
-          </h1>
-          <p className="text-xl text-gray-600">AI-powered accurate bathroom renovation cost estimates</p>
+        {/* Professional Header with Premium Branding */}
+        <div className="text-center mb-12">
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 blur-3xl opacity-10 rounded-full"></div>
+            <div className="relative">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-4 rounded-2xl shadow-2xl mr-4">
+                  <Calculator className="w-12 h-12 text-white" />
+                </div>
+                <div className="text-left">
+                  <h1 className="text-5xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    Bathroom Quote Saver.AI
+                  </h1>
+                  <div className="flex items-center mt-2">
+                    <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1 text-sm font-semibold">
+                      AI-Powered Precision
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 text-sm font-semibold ml-2">
+                      Learning Algorithm
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xl text-gray-600 font-medium">
+                Revolutionary AI-driven bathroom renovation cost estimates that learn from your business
+              </p>
+              <div className="flex items-center justify-center mt-4 space-x-6 text-sm text-gray-500">
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  71 Professional Tasks
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+                  10 Specialized Categories  
+                </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
+                  Personalized Learning AI
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {!quote ? (
