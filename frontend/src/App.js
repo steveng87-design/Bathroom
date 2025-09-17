@@ -203,6 +203,7 @@ const RenovationQuotingApp = () => {
     waterproofing: 'Waterproofing',
     tiling: 'Tiling',
     shower_screens: 'Shower Screens',
+    pc_items_tile_supply: 'PC Items & Tile Supply',
     fit_off: 'Fit Off'
   };
 
