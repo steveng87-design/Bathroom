@@ -685,6 +685,28 @@ const RenovationQuotingApp = () => {
                                   {formData.components[key].subtasks[subtaskKey] && (
                                     <div className="ml-6 space-y-2">
                                       
+                                      {/* Demolition - Skip Bin Size */}
+                                      {subtaskKey === 'supply_skip_bin' && (
+                                        <div className="flex items-center space-x-2">
+                                          <Label className="text-xs text-gray-600">Bin Size:</Label>
+                                          <Select
+                                            value={taskOptions.skip_bin_size}
+                                            onValueChange={(value) => handleTaskOptionChange('skip_bin_size', value)}
+                                          >
+                                            <SelectTrigger className="h-8 w-32">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="4 meter bin">4 Meter Bin</SelectItem>
+                                              <SelectItem value="5 meter bin">5 Meter Bin</SelectItem>
+                                              <SelectItem value="6 meter bin">6 Meter Bin</SelectItem>
+                                              <SelectItem value="9 meter bin">9 Meter Bin</SelectItem>
+                                              <SelectItem value="12 meter bin">12 Meter Bin</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      )}
+
                                       {/* Framing - Build Niches Quantity */}
                                       {subtaskKey === 'build_niches' && (
                                         <div className="flex items-center space-x-2">
