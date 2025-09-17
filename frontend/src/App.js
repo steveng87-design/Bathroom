@@ -12,8 +12,7 @@ import { Badge } from './components/ui/badge';
 import { Separator } from './components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
-import { FileText, Download, Building, User, Phone, Mail, Award, Briefcase } from 'lucide-react';
-import { AlertCircle, Calculator, MapPin, Phone, Mail, Ruler, CheckCircle2, Loader2, ChevronDown } from 'lucide-react';
+import { AlertCircle, Calculator, MapPin, Phone, Mail, Ruler, CheckCircle2, Loader2, ChevronDown, FileText, Download, Building, User, Award, Briefcase } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
