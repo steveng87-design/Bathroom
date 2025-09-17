@@ -729,17 +729,31 @@ const RenovationQuotingApp = () => {
                 <Separator />
 
                 {/* Renovation Components - Revolutionary Expandable System */}
-                <div className="space-y-6">
-                  <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                    <CheckCircle2 className="w-5 h-5 mr-2 text-blue-600" />
-                    Detailed Renovation Components
-                    <Badge variant="secondary" className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-                      Ground-breaking Accuracy
-                    </Badge>
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    Select main components, then expand for detailed sub-tasks to get the most accurate quote possible.
-                  </p>
+                <div className="space-y-8 bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-100">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-2xl font-bold text-gray-900 flex items-center">
+                      <div className="bg-gradient-to-r from-purple-500 to-pink-600 p-2 rounded-lg mr-3">
+                        <CheckCircle2 className="w-5 h-5 text-white" />
+                      </div>
+                      AI-Powered Component Selection
+                    </h3>
+                    <div className="flex gap-2">
+                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                        71 Professional Tasks
+                      </Badge>
+                      <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                        Revolutionary Accuracy
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="bg-white/80 p-4 rounded-xl border border-purple-200">
+                    <p className="text-gray-700 text-center font-medium">
+                      🎯 Select main components, then expand for detailed sub-tasks to achieve ground-breaking quote accuracy
+                    </p>
+                    <p className="text-gray-600 text-sm text-center mt-2">
+                      Our AI learns from your adjustments to provide increasingly personalized estimates
+                    </p>
+                  </div>
                   
                   <div className="space-y-4">
                     {Object.entries(componentLabels).map(([key, label]) => (
