@@ -491,6 +491,44 @@ const RenovationQuotingApp = () => {
     }
   };
 
+  const generateProposalPDF = async () => {
+    if (!quote) return;
+
+    setGeneratingPDF(true);
+    try {
+      const response = await axios.post(
+        `${API}/quotes/${quote.id}/generate-proposal`,
+        userProfile,
+        { responseType: 'blob' }
+      );
+
+      // Create download link
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `Bathroom_Proposal_${quote.id.substring(0, 8)}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Professional proposal PDF generated successfully!');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate proposal PDF');
+    } finally {
+      setGeneratingPDF(false);
+    }
+  };
+
+  const handleProfileChange = (field, value) => {
+    setUserProfile(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const SupplierDialog = ({ component, componentLabel }) => (
     <Dialog>
       <DialogTrigger asChild>
