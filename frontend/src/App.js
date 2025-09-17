@@ -356,6 +356,7 @@ const RenovationQuotingApp = () => {
         },
         components: transformedComponents,
         detailed_components: formData.components, // Send detailed structure for enhanced AI analysis
+        task_options: taskOptions, // Include quantity/size selections
         additional_notes: formData.additionalNotes
       };
 
