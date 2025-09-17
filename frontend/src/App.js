@@ -578,9 +578,17 @@ const RenovationQuotingApp = () => {
         </div>
 
         {!quote ? (
-          <Card className="max-w-4xl mx-auto shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-              <CardTitle className="text-2xl">Project Details</CardTitle>
+          <Card className="max-w-5xl mx-auto shadow-2xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform skew-x-12"></div>
+              <CardTitle className="text-3xl font-bold relative z-10 flex items-center">
+                <div className="bg-white/20 p-2 rounded-lg mr-3">
+                  <Mail className="w-6 h-6" />
+                </div>
+                Professional Project Details
+              </CardTitle>
+              <p className="text-blue-100 text-sm relative z-10 mt-2">Complete the form below for your personalized AI-generated quote</p>
             </CardHeader>
             <CardContent className="p-6">
               <form onSubmit={handleSubmit} className="space-y-8">
