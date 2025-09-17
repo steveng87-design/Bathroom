@@ -590,8 +590,8 @@ const RenovationQuotingApp = () => {
               </CardTitle>
               <p className="text-blue-100 text-sm relative z-10 mt-2">Complete the form below for your personalized AI-generated quote</p>
             </CardHeader>
-            <CardContent className="p-6">
-              <form onSubmit={handleSubmit} className="space-y-8">
+            <CardContent className="p-8">
+              <form onSubmit={handleSubmit} className="space-y-10">
                 {/* Client Information */}
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold text-gray-900 flex items-center">
