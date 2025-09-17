@@ -245,6 +245,47 @@ const RenovationQuotingApp = () => {
     }));
   };
 
+  const handleComponentToggle = (component, enabled) => {
+    setFormData(prev => ({
+      ...prev,
+      components: {
+        ...prev.components,
+        [component]: {
+          ...prev.components[component],
+          enabled: enabled,
+          // If disabling main component, disable all subtasks
+          subtasks: enabled ? prev.components[component].subtasks : 
+            Object.keys(prev.components[component].subtasks).reduce((acc, key) => {
+              acc[key] = false;
+              return acc;
+            }, {})
+        }
+      }
+    }));
+  };
+
+  const handleSubtaskToggle = (component, subtask, enabled) => {
+    setFormData(prev => ({
+      ...prev,
+      components: {
+        ...prev.components,
+        [component]: {
+          ...prev.components[component],
+          subtasks: {
+            ...prev.components[component].subtasks,
+            [subtask]: enabled
+          }
+        }
+      }
+    }));
+  };
+
+  const getSelectedSubtasks = (component) => {
+    return Object.entries(formData.components[component].subtasks)
+      .filter(([key, value]) => value)
+      .map(([key, value]) => key);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
