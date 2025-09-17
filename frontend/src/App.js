@@ -34,14 +34,12 @@ const RenovationQuotingApp = () => {
       demolition: {
         enabled: false,
         subtasks: {
-          remove_bathtub: false,
-          remove_shower: false,
-          remove_toilet: false,
-          remove_vanity: false,
-          remove_tiles: false,
-          remove_fixtures: false,
-          disposal_fees: false,
-          asbestos_removal: false
+          removal_internal_ware: false,
+          removal_wall_linings: false,
+          removal_ceiling_linings: false,
+          removal_ground_tiles_screed: false,
+          removal_old_substrate: false,
+          supply_skip_bin: false
         }
       },
       framing: {
