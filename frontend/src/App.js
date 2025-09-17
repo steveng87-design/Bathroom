@@ -127,6 +127,15 @@ const RenovationQuotingApp = () => {
           feature_wall: false
         }
       },
+      shower_screens: {
+        enabled: false,
+        subtasks: {
+          fixed_panel_install: false,
+          frameless_shower_enclosure: false,
+          semi_frameless_shower_enclosure: false,
+          shower_curtain: false
+        }
+      },
       fit_off: {
         enabled: false,
         subtasks: {
