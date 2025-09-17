@@ -156,7 +156,8 @@ const RenovationQuotingApp = () => {
       removal_ceiling_linings: 'Removal of All Ceiling Linings',
       removal_ground_tiles_screed: 'Removal of All Ground Tiles Including Old Screed',
       removal_old_substrate: 'Removal of Old Substrate',
-      supply_skip_bin: 'Supply Skip Bin (Trade Waste Removal)'
+      supply_skip_bin: 'Supply Skip Bin (Trade Waste Removal)',
+      asbestos_removal: 'Asbestos Removal (if required)'
     },
     framing: {
       wall_framing: 'Internal Wall Framing',
