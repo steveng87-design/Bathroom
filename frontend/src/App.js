@@ -543,23 +543,117 @@ const RenovationQuotingApp = () => {
 
                 <Separator />
 
-                {/* Renovation Components */}
-                <div className="space-y-4">
+                {/* Renovation Components - Revolutionary Expandable System */}
+                <div className="space-y-6">
                   <h3 className="text-xl font-semibold text-gray-900 flex items-center">
                     <CheckCircle2 className="w-5 h-5 mr-2 text-blue-600" />
-                    Renovation Components
+                    Detailed Renovation Components
+                    <Badge variant="secondary" className="ml-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                      Ground-breaking Accuracy
+                    </Badge>
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <p className="text-gray-600 text-sm">
+                    Select main components, then expand for detailed sub-tasks to get the most accurate quote possible.
+                  </p>
+                  
+                  <div className="space-y-4">
                     {Object.entries(componentLabels).map(([key, label]) => (
-                      <div key={key} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-gray-50">
-                        <Checkbox
-                          id={key}
-                          checked={formData.components[key]}
-                          onCheckedChange={(checked) => handleInputChange('components', key, checked, true)}
-                        />
-                        <Label htmlFor={key} className="text-sm font-medium cursor-pointer">
-                          {label}
-                        </Label>
+                      <div key={key} className="border rounded-xl p-4 transition-all duration-300 hover:shadow-lg bg-gradient-to-r from-white to-gray-50">
+                        {/* Main Component Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <Checkbox
+                              id={key}
+                              checked={formData.components[key].enabled}
+                              onCheckedChange={(checked) => handleComponentToggle(key, checked)}
+                              className="h-5 w-5"
+                            />
+                            <Label htmlFor={key} className="text-lg font-semibold cursor-pointer text-gray-800">
+                              {label}
+                            </Label>
+                            {formData.components[key].enabled && (
+                              <Badge variant="outline" className="text-xs">
+                                {getSelectedSubtasks(key).length} tasks selected
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          {formData.components[key].enabled && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const element = document.getElementById(`subtasks-${key}`);
+                                element.style.display = element.style.display === 'none' ? 'block' : 'none';
+                              }}
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <ChevronDown className="w-4 h-4 mr-1" />
+                              Expand Details
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Expandable Subtasks */}
+                        {formData.components[key].enabled && (
+                          <div id={`subtasks-${key}`} className="mt-4 ml-8 space-y-3 border-l-2 border-blue-200 pl-4">
+                            <div className="text-sm font-medium text-blue-800 mb-3">
+                              Select specific {label.toLowerCase()} tasks:
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {Object.entries(subtaskLabels[key]).map(([subtaskKey, subtaskLabel]) => (
+                                <div
+                                  key={subtaskKey}
+                                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                                >
+                                  <Checkbox
+                                    id={`${key}-${subtaskKey}`}
+                                    checked={formData.components[key].subtasks[subtaskKey]}
+                                    onCheckedChange={(checked) => handleSubtaskToggle(key, subtaskKey, checked)}
+                                    className="h-4 w-4"
+                                  />
+                                  <Label
+                                    htmlFor={`${key}-${subtaskKey}`}
+                                    className="text-sm cursor-pointer text-gray-700 hover:text-gray-900"
+                                  >
+                                    {subtaskLabel}
+                                  </Label>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {/* Quick Select Buttons */}
+                            <div className="flex gap-2 mt-4 pt-3 border-t border-gray-200">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  Object.keys(subtaskLabels[key]).forEach(subtaskKey => {
+                                    handleSubtaskToggle(key, subtaskKey, true);
+                                  });
+                                }}
+                                className="text-xs"
+                              >
+                                Select All
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  Object.keys(subtaskLabels[key]).forEach(subtaskKey => {
+                                    handleSubtaskToggle(key, subtaskKey, false);
+                                  });
+                                }}
+                                className="text-xs"
+                              >
+                                Clear All
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
