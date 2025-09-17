@@ -781,7 +781,7 @@ const RenovationQuotingApp = () => {
                           plastering: { enabled: false, subtasks: { install_ceiling_sheets: false, install_wall_sheets: false, set_internals_joins: false, top_coat_ceilings: false, install_cornice: false } },
                           waterproofing: { enabled: false, subtasks: { shower_waterproofing: false, floor_waterproofing: false, wall_waterproofing: false, membrane_application: false, corner_sealing: false, penetration_sealing: false, compliance_certification: false } },
                           tiling: { enabled: false, subtasks: { sand_cement_bed: false, install_floor_tiles: false, wall_tiles: false, shower_niche: false, bath_niche: false, floor_to_ceiling_finish: false, half_finish_heights: false, nib_wall_tilings: false, grout_and_silicone: false, shower_hob: false, bath_hob: false, feature_wall: false } },
-                          fit_off: { enabled: false, subtasks: { toilet_installation: false, vanity_installation: false, shower_installation: false, tapware_installation: false, lighting_installation: false, mirror_installation: false, accessories_installation: false, final_connections: false } }
+                          fit_off: { enabled: false, subtasks: { accessories_install: false, site_clean: false, builders_clean: false, painting: false } }
                         },
                         additionalNotes: ''
                       });
