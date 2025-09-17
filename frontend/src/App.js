@@ -291,6 +291,12 @@ const RenovationQuotingApp = () => {
     setLoading(true);
 
     try {
+      // Transform the new detailed components structure for backend compatibility
+      const transformedComponents = {};
+      Object.entries(formData.components).forEach(([key, component]) => {
+        transformedComponents[key] = component.enabled;
+      });
+
       const requestData = {
         client_info: formData.clientInfo,
         room_measurements: {
@@ -298,7 +304,8 @@ const RenovationQuotingApp = () => {
           width: parseFloat(formData.roomMeasurements.width),
           height: parseFloat(formData.roomMeasurements.height)
         },
-        components: formData.components,
+        components: transformedComponents,
+        detailed_components: formData.components, // Send detailed structure for enhanced AI analysis
         additional_notes: formData.additionalNotes
       };
 
