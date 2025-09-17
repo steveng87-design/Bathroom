@@ -170,7 +170,12 @@ const RenovationQuotingApp = () => {
     power_points_quantity: 1,
     // Plastering options
     plasterboard_grade: 'standard',
-    cornice_type: 'standard'
+    cornice_type: 'standard',
+    // Tiling options
+    floor_tile_grade: 'standard_ceramic',
+    wall_tile_grade: 'standard_ceramic',
+    tile_size: '300x300mm',
+    feature_tile_grade: 'premium'
   });
 
   const componentLabels = {
