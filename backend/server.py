@@ -454,6 +454,98 @@ async def get_all_quotes():
     quotes = await db.quotes.find().to_list(1000)
     return [RenovationQuote(**parse_from_mongo(quote)) for quote in quotes]
 
+# Project Management Endpoints
+@api_router.post("/projects/save", response_model=SavedProject)
+async def save_project(project: SavedProject):
+    """Save a project for future reference"""
+    try:
+        project_dict = prepare_for_mongo(project.dict())
+        await db.saved_projects.insert_one(project_dict)
+        return project
+    except Exception as e:
+        logger.error(f"Error saving project: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving project: {str(e)}")
+
+@api_router.get("/projects", response_model=List[SavedProject])
+async def get_saved_projects(category: Optional[str] = None):
+    """Get all saved projects, optionally filtered by category"""
+    try:
+        query = {}
+        if category and category != "All":
+            query["category"] = category
+        
+        projects = await db.saved_projects.find(query).sort("updated_at", -1).to_list(1000)
+        return [SavedProject(**parse_from_mongo(project)) for project in projects]
+    except Exception as e:
+        logger.error(f"Error fetching projects: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching projects: {str(e)}")
+
+@api_router.put("/projects/{project_id}")
+async def update_project(project_id: str, update: ProjectUpdate):
+    """Update project name, category, or notes"""
+    try:
+        update_data = {k: v for k, v in update.dict().items() if v is not None}
+        update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        result = await db.saved_projects.update_one(
+            {"id": project_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        return {"message": "Project updated successfully"}
+    except Exception as e:
+        logger.error(f"Error updating project: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error updating project: {str(e)}")
+
+@api_router.delete("/projects/{project_id}")
+async def delete_project(project_id: str):
+    """Delete a saved project"""
+    try:
+        result = await db.saved_projects.delete_one({"id": project_id})
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        return {"message": "Project deleted successfully"}
+    except Exception as e:
+        logger.error(f"Error deleting project: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error deleting project: {str(e)}")
+
+@api_router.get("/projects/categories")
+async def get_project_categories():
+    """Get all unique project categories"""
+    try:
+        categories = await db.saved_projects.distinct("category")
+        return {"categories": ["All"] + sorted(categories)}
+    except Exception as e:
+        logger.error(f"Error fetching categories: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching categories: {str(e)}")
+
+@api_router.get("/projects/{project_id}/quote")
+async def get_project_quote(project_id: str):
+    """Get the full quote data for a saved project"""
+    try:
+        project = await db.saved_projects.find_one({"id": project_id})
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        quote = await db.quotes.find_one({"id": project["quote_id"]})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+        
+        return {
+            "project": SavedProject(**parse_from_mongo(project)),
+            "quote": RenovationQuote(**parse_from_mongo(quote)),
+            "request": parse_from_mongo(request_data) if request_data else None
+        }
+    except Exception as e:
+        logger.error(f"Error fetching project quote: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error fetching project quote: {str(e)}")
+
 @api_router.post("/quotes/{quote_id}/generate-proposal")
 async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
     """Generate a professional scope of works PDF proposal"""
