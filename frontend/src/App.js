@@ -39,7 +39,8 @@ const RenovationQuotingApp = () => {
           removal_ceiling_linings: false,
           removal_ground_tiles_screed: false,
           removal_old_substrate: false,
-          supply_skip_bin: false
+          supply_skip_bin: false,
+          asbestos_removal: false
         }
       },
       framing: {
