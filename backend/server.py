@@ -187,27 +187,49 @@ async def create_quote_request(request: RenovationQuoteRequest):
         request_dict = prepare_for_mongo(request.dict())
         await db.quote_requests.insert_one(request_dict)
         
-        # Generate AI-powered cost estimate
+        # Generate AI-powered cost estimate with detailed subtask analysis
         components_list = [k.replace('_', ' ').title() for k, v in request.components.dict().items() if v]
         
+        # Extract detailed subtasks for enhanced analysis
+        detailed_tasks = {}
+        if request.detailed_components:
+            for component, details in request.detailed_components.items():
+                if details.get('enabled'):
+                    selected_subtasks = [k for k, v in details.get('subtasks', {}).items() if v]
+                    if selected_subtasks:
+                        detailed_tasks[component] = selected_subtasks
+        
+        detailed_task_text = ""
+        if detailed_tasks:
+            detailed_task_text = "\nDetailed Sub-tasks Selected:\n"
+            for component, subtasks in detailed_tasks.items():
+                detailed_task_text += f"- {component.replace('_', ' ').title()}: {', '.join([s.replace('_', ' ').title() for s in subtasks])}\n"
+        
         prompt = f"""
-        Analyze this bathroom renovation project and provide a detailed cost estimate:
+        Analyze this bathroom renovation project and provide a detailed cost estimate using the specific sub-tasks selected:
         
         Room Details:
         - Dimensions: {request.room_measurements.length}m x {request.room_measurements.width}m x {request.room_measurements.height}m
         - Floor Area: {request.room_measurements.square_meters:.2f} square meters
         - Volume: {request.room_measurements.cubic_meters:.2f} cubic meters
         
-        Selected Components: {', '.join(components_list) if components_list else 'None selected'}
+        Selected Main Components: {', '.join(components_list) if components_list else 'None selected'}
+        {detailed_task_text}
         
         Client Location: {request.client_info.address}
         Additional Notes: {request.additional_notes or 'None'}
         
+        IMPORTANT: Use the detailed sub-tasks to provide more accurate pricing. Each selected sub-task should influence the cost estimate for that component. Consider:
+        - Complexity of selected sub-tasks
+        - Labor time for specific tasks
+        - Material requirements for each sub-task
+        - Regional pricing variations
+        
         Please provide:
-        1. Total estimated cost
-        2. Cost breakdown for each selected component
+        1. Total estimated cost based on selected sub-tasks
+        2. Cost breakdown for each selected component (considering specific sub-tasks)
         3. Cost range (min-max) for each component
-        4. Analysis notes explaining cost factors
+        4. Analysis notes explaining cost factors and how sub-tasks influence pricing
         5. Confidence level of the estimate
         
         Return the response in this JSON format:
@@ -219,10 +241,10 @@ async def create_quote_request(request: RenovationQuoteRequest):
                     "estimated_cost": 0,
                     "cost_range_min": 0,
                     "cost_range_max": 0,
-                    "notes": "explanation"
+                    "notes": "explanation including sub-task analysis"
                 }}
             ],
-            "analysis": "detailed analysis text",
+            "analysis": "detailed analysis text mentioning specific sub-tasks and their impact on pricing",
             "confidence": "High/Medium/Low"
         }}
         """
