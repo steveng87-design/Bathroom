@@ -1318,11 +1318,16 @@ const RenovationQuotingApp = () => {
     if (projectAreas && projectAreas.length > 0) {
       const currentArea = projectAreas[currentAreaIndex];
       if (currentArea?.measurements?.length && currentArea?.measurements?.width) {
-        // Force a small state update to trigger re-renders of calculation components
-        setCurrentAreaIndex(prev => prev);
+        // Create a small state update to force component re-render without infinite loops
+        const timeoutId = setTimeout(() => {
+          // This prevents infinite loops by using a timeout
+          setProjectAreas(prev => [...prev]);
+        }, 100);
+        
+        return () => clearTimeout(timeoutId);
       }
     }
-  }, [projectAreas, currentAreaIndex]);
+  }, [projectAreas.length, currentAreaIndex]); // Only trigger on area count or index changes
 
   const SupplierDialog = ({ component, componentLabel }) => (
     <Dialog>
