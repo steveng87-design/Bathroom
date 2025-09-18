@@ -877,13 +877,6 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const filteredProjects = savedProjects.filter(project => {
-    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
-    const matchesSearch = project.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         project.client_name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
   // Auto-save functionality
   const saveToLocalStorage = (data) => {
     try {
