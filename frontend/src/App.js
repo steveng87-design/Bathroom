@@ -3134,10 +3134,18 @@ const RenovationQuotingApp = () => {
               <CardHeader>
                 <CardTitle className="text-xl">Cost Breakdown</CardTitle>
                 {adjustmentMode && (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <Button onClick={submitAdjustments} size="sm" className="bg-green-600 hover:bg-green-700">
                       Save Adjustments
                     </Button>
+                    <div className="bg-blue-50 px-3 py-1 rounded">
+                      <span className="text-sm text-blue-700">
+                        New Total: <span className="font-bold">${getTotalAdjustedCost().toLocaleString()}</span>
+                      </span>
+                      <span className="text-xs text-blue-600 ml-2">
+                        (Original: ${quote.total_cost.toLocaleString()})
+                      </span>
+                    </div>
                   </div>
                 )}
               </CardHeader>
