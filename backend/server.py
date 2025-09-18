@@ -597,7 +597,7 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
         )
         
     except Exception as e:
-        logger.error(f"Error generating proposal PDF: {str(e)}")
+        logging.error(f"Error generating proposal PDF: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating proposal: {str(e)}")
 
 @api_router.get("/")
