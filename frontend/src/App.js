@@ -1617,7 +1617,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Bin Size:</Label>
                                           <Select
-                                            value={taskOptions.skip_bin_size}
+                                            value={getCurrentArea()?.taskOptions?.skip_bin_size || '6 meter bin'}
                                             onValueChange={(value) => handleTaskOptionChange('skip_bin_size', value)}
                                           >
                                             <SelectTrigger className="h-8 w-32">
