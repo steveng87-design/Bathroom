@@ -1640,7 +1640,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Quantity:</Label>
                                           <Select
-                                            value={taskOptions.build_niches_quantity.toString()}
+                                            value={getCurrentTaskOptions().build_niches_quantity?.toString() || '1'}
                                             onValueChange={(value) => handleTaskOptionChange('build_niches_quantity', parseInt(value))}
                                           >
                                             <SelectTrigger className="h-8 w-20">
