@@ -191,6 +191,11 @@ const RenovationQuotingApp = () => {
   const [newProjectCategory, setNewProjectCategory] = useState('General');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
+  // Google Maps Integration
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  
   // Multi-Area System States
   const [projectAreas, setProjectAreas] = useState([
     {
