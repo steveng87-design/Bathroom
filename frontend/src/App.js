@@ -552,23 +552,18 @@ const RenovationQuotingApp = () => {
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
-    setProjectAreas(prev => prev.map((area, index) => {
-      if (index === currentAreaIndex) {
-        return {
-          ...area,
-          components: {
-            ...area.components,
-            [component]: {
-              ...area.components[component],
-              subtasks: {
-                ...area.components[component].subtasks,
-                [subtask]: enabled
-              }
-            }
+    setFormData(prev => ({
+      ...prev,
+      components: {
+        ...prev.components,
+        [component]: {
+          ...prev.components[component],
+          subtasks: {
+            ...prev.components[component].subtasks,
+            [subtask]: enabled
           }
-        };
+        }
       }
-      return area;
     }));
   };
 
