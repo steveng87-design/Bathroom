@@ -1609,7 +1609,7 @@ const RenovationQuotingApp = () => {
                                   </div>
                                   
                                   {/* Interactive Options for Specific Tasks */}
-                                  {formData.components[key].subtasks[subtaskKey] && (
+                                  {getCurrentArea()?.components[key]?.subtasks[subtaskKey] && (
                                     <div className="ml-6 space-y-2">
                                       
                                       {/* Demolition - Skip Bin Size */}
