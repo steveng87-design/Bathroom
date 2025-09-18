@@ -763,10 +763,22 @@ const RenovationQuotingApp = () => {
   };
 
   const handleAdjustCost = async (componentIndex, newCost) => {
+    // Convert to number and validate
+    const numericCost = parseFloat(newCost) || 0;
     setAdjustedCosts(prev => ({
       ...prev,
-      [componentIndex]: newCost
+      [componentIndex]: numericCost
     }));
+  };
+
+  const getTotalAdjustedCost = () => {
+    if (!quote || !quote.cost_breakdown) return 0;
+    
+    return quote.cost_breakdown.reduce((total, item, index) => {
+      // Use adjusted cost if available, otherwise use original cost
+      const cost = adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost;
+      return total + parseFloat(cost);
+    }, 0);
   };
 
   const submitAdjustments = async () => {
