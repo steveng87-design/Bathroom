@@ -1840,8 +1840,8 @@ const RenovationQuotingApp = () => {
                         id="width"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.width}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'width', e.target.value)}
+                        value={getCurrentArea()?.measurements?.width || ''}
+                        onChange={(e) => handleAreaMeasurementChange('width', e.target.value)}
                         placeholder="2500"
                         required
                         className="mt-1"
