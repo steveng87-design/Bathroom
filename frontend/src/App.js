@@ -394,8 +394,8 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const calculateSquareMeters = (areaIndex = currentAreaIndex) => {
-    const { length, width } = projectAreas[areaIndex]?.measurements || {};
+  const calculateSquareMeters = () => {
+    const { length, width } = formData.roomMeasurements;
     if (length && width) {
       // Convert from millimetres to meters first, then calculate square meters
       const lengthInMeters = parseFloat(length) / 1000;
