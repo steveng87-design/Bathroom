@@ -2067,7 +2067,7 @@ const RenovationQuotingApp = () => {
                                           <Label className="text-xs text-gray-600">Amount: $</Label>
                                           <Input
                                             type="number"
-                                            value={taskOptions.minor_costs_amount || 0}
+                                            value={getCurrentTaskOptions().minor_costs_amount || 0}
                                             onChange={(e) => handleTaskOptionChange('minor_costs_amount', parseFloat(e.target.value) || 0)}
                                             className="h-8 w-24"
                                             placeholder="0"
