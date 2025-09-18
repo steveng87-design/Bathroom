@@ -523,42 +523,55 @@ const RenovationQuotingApp = () => {
   };
 
   const handleComponentToggle = (component, enabled) => {
-    setFormData(prev => ({
-      ...prev,
-      components: {
-        ...prev.components,
-        [component]: {
-          ...prev.components[component],
-          enabled: enabled,
-          // If disabling main component, disable all subtasks
-          subtasks: enabled ? prev.components[component].subtasks : 
-            Object.keys(prev.components[component].subtasks).reduce((acc, key) => {
-              acc[key] = false;
-              return acc;
-            }, {})
-        }
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          components: {
+            ...area.components,
+            [component]: {
+              ...area.components[component],
+              enabled: enabled,
+              // If disabling main component, disable all subtasks
+              subtasks: enabled ? area.components[component].subtasks : 
+                Object.keys(area.components[component].subtasks).reduce((acc, key) => {
+                  acc[key] = false;
+                  return acc;
+                }, {})
+            }
+          }
+        };
       }
+      return area;
     }));
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
-    setFormData(prev => ({
-      ...prev,
-      components: {
-        ...prev.components,
-        [component]: {
-          ...prev.components[component],
-          subtasks: {
-            ...prev.components[component].subtasks,
-            [subtask]: enabled
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          components: {
+            ...area.components,
+            [component]: {
+              ...area.components[component],
+              subtasks: {
+                ...area.components[component].subtasks,
+                [subtask]: enabled
+              }
+            }
           }
-        }
+        };
       }
+      return area;
     }));
   };
 
   const getSelectedSubtasks = (component) => {
-    return Object.entries(formData.components[component].subtasks)
+    const currentArea = getCurrentArea();
+    if (!currentArea?.components[component]?.subtasks) return [];
+    
+    return Object.entries(currentArea.components[component].subtasks)
       .filter(([key, value]) => value)
       .map(([key, value]) => key);
   };
