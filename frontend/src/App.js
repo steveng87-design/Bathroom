@@ -405,8 +405,8 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const calculateWallArea = (areaIndex = currentAreaIndex) => {
-    const { length, width, height } = projectAreas[areaIndex]?.measurements || {};
+  const calculateWallArea = () => {
+    const { length, width, height } = formData.roomMeasurements;
     if (length && width && height) {
       // Convert from millimetres to meters first
       const lengthInMeters = parseFloat(length) / 1000;
