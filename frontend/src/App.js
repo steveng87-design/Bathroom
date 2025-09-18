@@ -606,26 +606,37 @@ const RenovationQuotingApp = () => {
     setLoading(true);
 
     try {
-      // Transform the new detailed components structure for backend compatibility
+      const currentArea = getCurrentArea();
+      
+      // Transform the components structure for backend compatibility
       const transformedComponents = {};
-      Object.entries(formData.components).forEach(([key, component]) => {
+      Object.entries(currentArea.components).forEach(([key, component]) => {
         transformedComponents[key] = component.enabled;
       });
 
       const requestData = {
         client_info: formData.clientInfo,
         room_measurements: {
-          length: parseFloat(formData.roomMeasurements.length) / 1000, // Convert mm to meters
-          width: parseFloat(formData.roomMeasurements.width) / 1000,   // Convert mm to meters  
-          height: parseFloat(formData.roomMeasurements.height) / 1000  // Convert mm to meters
+          length: parseFloat(currentArea.measurements.length) / 1000, // Convert mm to meters
+          width: parseFloat(currentArea.measurements.width) / 1000,   // Convert mm to meters  
+          height: parseFloat(currentArea.measurements.height) / 1000  // Convert mm to meters
         },
         components: transformedComponents,
-        detailed_components: formData.components, // Send detailed structure for enhanced AI analysis
-        task_options: taskOptions, // Include quantity/size selections
-        additional_notes: formData.additionalNotes
+        detailed_components: currentArea.components, // Send detailed structure for enhanced AI analysis
+        task_options: currentArea.taskOptions, // Include quantity/size selections
+        additional_notes: currentArea.additionalNotes || formData.additionalNotes
       };
 
       const response = await axios.post(`${API}/quotes/request`, requestData);
+      
+      // Update the current area with the quote
+      setProjectAreas(prev => prev.map((area, index) => {
+        if (index === currentAreaIndex) {
+          return { ...area, quote: response.data };
+        }
+        return area;
+      }));
+      
       setQuote(response.data);
       toast.success('Quote generated successfully!');
     } catch (error) {
