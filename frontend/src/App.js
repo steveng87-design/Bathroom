@@ -1918,7 +1918,7 @@ const RenovationQuotingApp = () => {
                           <div className="flex items-center space-x-3">
                             <Checkbox
                               id={key}
-                              checked={formData.components[key]?.enabled || false}
+                              checked={getCurrentArea()?.components[key]?.enabled || false}
                               onCheckedChange={(checked) => handleComponentToggle(key, checked)}
                               className="h-5 w-5"
                             />
