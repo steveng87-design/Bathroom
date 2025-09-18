@@ -586,6 +586,12 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
             **parse_from_mongo(request_data)
         }
         
+        # Debug: Log the combined data structure
+        logging.info(f"Combined data keys: {list(combined_data.keys())}")
+        logging.info(f"Has detailed_components: {'detailed_components' in combined_data}")
+        if 'detailed_components' in combined_data:
+            logging.info(f"detailed_components type: {type(combined_data['detailed_components'])}")
+        
         # Generate PDF
         pdf_generator = BathroomProposalPDF()
         
@@ -596,6 +602,8 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
         user_profile_dict = user_profile.dict()
         if user_profile_dict is None:
             raise HTTPException(status_code=400, detail="User profile data is invalid")
+        
+        logging.info(f"User profile keys: {list(user_profile_dict.keys())}")
         
         pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile_dict)
         
