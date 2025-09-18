@@ -1439,8 +1439,8 @@ const RenovationQuotingApp = () => {
                         id="length"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.length}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'length', e.target.value)}
+                        value={getCurrentArea()?.measurements.length || ''}
+                        onChange={(e) => handleInputChange('measurements', 'length', e.target.value)}
                         placeholder="3500"
                         required
                         className="mt-1"
@@ -1452,8 +1452,8 @@ const RenovationQuotingApp = () => {
                         id="width"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.width}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'width', e.target.value)}
+                        value={getCurrentArea()?.measurements.width || ''}
+                        onChange={(e) => handleInputChange('measurements', 'width', e.target.value)}
                         placeholder="2500"
                         required
                         className="mt-1"
@@ -1465,8 +1465,8 @@ const RenovationQuotingApp = () => {
                         id="height"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.height}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'height', e.target.value)}
+                        value={getCurrentArea()?.measurements.height || ''}
+                        onChange={(e) => handleInputChange('measurements', 'height', e.target.value)}
                         placeholder="2400"
                         required
                         className="mt-1"
