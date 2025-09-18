@@ -13,7 +13,7 @@ import { Separator } from './components/ui/separator';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './components/ui/sheet';
-import { AlertCircle, Calculator, MapPin, Phone, Mail, Ruler, CheckCircle2, Loader2, ChevronDown, FileText, Download, Building, User, Award, Briefcase, FolderOpen, Save, Edit3, Trash2, Filter, Search, Menu, X, Calendar, DollarSign } from 'lucide-react';
+import { AlertCircle, Calculator, MapPin, Phone, Mail, Ruler, CheckCircle2, Loader2, ChevronDown, FileText, Download, Building, User, Award, Briefcase, FolderOpen, Save, Edit3, Trash2, Filter, Search, Menu, X, Calendar, DollarSign, Navigation, ExternalLink } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -180,6 +180,79 @@ const RenovationQuotingApp = () => {
     years_experience: '5+',
     projects_completed: '100+'
   });
+
+  // Project Management States
+  const [savedProjects, setSavedProjects] = useState([]);
+  const [projectCategories, setProjectCategories] = useState(['All', 'Residential', 'Commercial', 'Renovation', 'New Build']);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editingProject, setEditingProject] = useState(null);
+  const [newProjectName, setNewProjectName] = useState('');
+  const [newProjectCategory, setNewProjectCategory] = useState('General');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Google Maps Integration
+  const [addressSuggestions, setAddressSuggestions] = useState([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  
+  // Multi-Area System States
+  const [projectAreas, setProjectAreas] = useState([
+    {
+      id: 'main',
+      name: 'Main Bathroom',
+      type: 'bathroom',
+      measurements: { length: '', width: '', height: '' },
+      components: {
+        demolition: { enabled: false, subtasks: { removal_internal_ware: false, removal_wall_linings: false, removal_ceiling_linings: false, removal_ground_tiles_screed: false, removal_old_substrate: false, supply_skip_bin: false, asbestos_removal: false } },
+        framing: { enabled: false, subtasks: { internal_wall_rectification: false, build_niches: false, recessed_mirror_cabinet: false, swing_door_materials: false, cavity_sliding_unit: false, new_window_framing: false, subfloor_replacement: false, additional_costs_allowance: false } },
+        plumbing_rough_in: { enabled: false, subtasks: { make_good_existing_feeds: false, new_inlet_feed_toilet: false, water_feeds_quantity: false, bath_inwall_mixer_outlet: false, basin_mixer_inwall: false, shower_outlet: false, floor_waste: false, new_stack_work: false, concrete_cutting_slab: false, rain_head_shower: false, inwall_cistern: false, wall_hung_toilet: false, vanity_install: false } },
+        electrical_rough_in: { enabled: false, subtasks: { make_safe_old_wiring: false, four_in_one_combo: false, power_points_quantity: false, led_strip_lighting: false, wall_lights: false, downlight: false, separate_extraction_fan: false, underfloor_heating: false, lighting_switching: false } },
+        plastering: { enabled: false, subtasks: { supply_install_ceiling_sheets: false, supply_install_wall_sheets: false, supply_compounds_finishing: false, top_coat_ceilings: false, supply_install_cornice: false } },
+        waterproofing: { enabled: false, subtasks: { shower_waterproofing: false, floor_waterproofing: false, wall_waterproofing: false, membrane_application: false, corner_sealing: false, penetration_sealing: false, compliance_certification: false } },
+        tiling: { enabled: false, subtasks: { supply_install_sand_cement_bed: false, supply_install_floor_tiles: false, supply_install_wall_tiles: false, supply_install_shower_niche: false, supply_install_bath_niche: false, supply_install_floor_ceiling: false, supply_install_half_height: false, supply_install_nib_walls: false, supply_grout_silicone: false, supply_install_shower_hob: false, supply_install_bath_hob: false, supply_install_feature_wall: false } },
+        shower_screens: { enabled: false, subtasks: { fixed_panel_install: false, frameless_shower_enclosure: false, semi_frameless_shower_enclosure: false, shower_curtain: false } },
+        pc_items_tile_supply: { enabled: false, subtasks: { pc_items_vanity_basin: false, pc_items_toilet_cistern: false, pc_items_shower_screen: false, pc_items_tapware: false, pc_items_lighting: false, pc_items_mirror_cabinet: false, pc_items_accessories: false, tiles_supply_coordination: false } },
+        fit_off: { enabled: false, subtasks: { accessories_install: false, site_clean: false, builders_clean: false, painting: false } }
+      },
+      taskOptions: {
+        skip_bin_size: '6 meter bin',
+        build_niches_quantity: 1,
+        swing_door_size: '720mm',
+        cavity_sliding_size: '720mm',
+        minor_costs_amount: 0,
+        water_feeds_type: 'single',
+        power_points_quantity: 1,
+        plasterboard_grade: 'standard',
+        cornice_type: 'standard',
+        floor_tile_grade: 'standard_ceramic',
+        wall_tile_grade: 'standard_ceramic',
+        tile_size: '300x300mm',
+        feature_tile_grade: 'premium',
+        vanity_grade: 'standard',
+        toilet_grade: 'standard',
+        shower_screen_grade: 'standard',
+        tapware_grade: 'standard',
+        lighting_grade: 'standard',
+        mirror_grade: 'standard',
+        tiles_supply_grade: 'standard'
+      },
+      additionalNotes: '',
+      quote: null
+    }
+  ]);
+  const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
+  const [showAddAreaDialog, setShowAddAreaDialog] = useState(false);
+  
+  const areaTypes = [
+    { value: 'bathroom', label: 'Bathroom', icon: '🛁' },
+    { value: 'ensuite', label: 'Ensuite', icon: '🚿' },
+    { value: 'wc', label: 'Separate Toilet (WC)', icon: '🚽' },
+    { value: 'laundry', label: 'Laundry', icon: '🧺' },
+    { value: 'powder_room', label: 'Powder Room', icon: '💄' },
+    { value: 'guest_bathroom', label: 'Guest Bathroom', icon: '🏨' },
+    { value: 'kids_bathroom', label: 'Kids Bathroom', icon: '🧸' }
+  ];
   const [taskOptions, setTaskOptions] = useState({
     // Demolition options
     skip_bin_size: '6 meter bin',
@@ -323,8 +396,8 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const calculateSquareMeters = () => {
-    const { length, width } = formData.roomMeasurements;
+  const calculateSquareMeters = (areaIndex = currentAreaIndex) => {
+    const { length, width } = projectAreas[areaIndex]?.measurements || {};
     if (length && width) {
       // Convert from millimetres to meters first, then calculate square meters
       const lengthInMeters = parseFloat(length) / 1000;
@@ -334,8 +407,8 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const calculateWallArea = () => {
-    const { length, width, height } = formData.roomMeasurements;
+  const calculateWallArea = (areaIndex = currentAreaIndex) => {
+    const { length, width, height } = projectAreas[areaIndex]?.measurements || {};
     if (length && width && height) {
       // Convert from millimetres to meters first
       const lengthInMeters = parseFloat(length) / 1000;
@@ -349,61 +422,178 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const handleInputChange = (section, field, value, isCheckbox = false) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
-        [field]: isCheckbox ? value : value
+  const getCurrentArea = () => projectAreas[currentAreaIndex];
+  const getCurrentTaskOptions = () => getCurrentArea()?.taskOptions || {};
+  
+  const getTotalProjectCost = () => {
+    return projectAreas.reduce((total, area) => {
+      return total + (area.quote?.total_cost || 0);
+    }, 0);
+  };
+
+  const getTotalFloorArea = () => {
+    return projectAreas.reduce((total, area, index) => {
+      const areaSize = parseFloat(calculateSquareMeters(index)) || 0;
+      return total + areaSize;
+    }, 0).toFixed(2);
+  };
+
+  const getTotalWallArea = () => {
+    return projectAreas.reduce((total, area, index) => {
+      const areaSize = parseFloat(calculateWallArea(index)) || 0;
+      return total + areaSize;
+    }, 0).toFixed(2);
+  };
+
+  // Multi-Area Management Functions
+  const addNewArea = (areaType) => {
+    const newArea = {
+      id: `area_${Date.now()}`,
+      name: areaTypes.find(t => t.value === areaType)?.label || 'New Area',
+      type: areaType,
+      measurements: { length: '', width: '', height: '' },
+      components: {
+        demolition: { enabled: false, subtasks: { removal_internal_ware: false, removal_wall_linings: false, removal_ceiling_linings: false, removal_ground_tiles_screed: false, removal_old_substrate: false, supply_skip_bin: false, asbestos_removal: false } },
+        framing: { enabled: false, subtasks: { internal_wall_rectification: false, build_niches: false, recessed_mirror_cabinet: false, swing_door_materials: false, cavity_sliding_unit: false, new_window_framing: false, subfloor_replacement: false, additional_costs_allowance: false } },
+        plumbing_rough_in: { enabled: false, subtasks: { make_good_existing_feeds: false, new_inlet_feed_toilet: false, water_feeds_quantity: false, bath_inwall_mixer_outlet: false, basin_mixer_inwall: false, shower_outlet: false, floor_waste: false, new_stack_work: false, concrete_cutting_slab: false, rain_head_shower: false, inwall_cistern: false, wall_hung_toilet: false, vanity_install: false } },
+        electrical_rough_in: { enabled: false, subtasks: { make_safe_old_wiring: false, four_in_one_combo: false, power_points_quantity: false, led_strip_lighting: false, wall_lights: false, downlight: false, separate_extraction_fan: false, underfloor_heating: false, lighting_switching: false } },
+        plastering: { enabled: false, subtasks: { supply_install_ceiling_sheets: false, supply_install_wall_sheets: false, supply_compounds_finishing: false, top_coat_ceilings: false, supply_install_cornice: false } },
+        waterproofing: { enabled: false, subtasks: { shower_waterproofing: false, floor_waterproofing: false, wall_waterproofing: false, membrane_application: false, corner_sealing: false, penetration_sealing: false, compliance_certification: false } },
+        tiling: { enabled: false, subtasks: { supply_install_sand_cement_bed: false, supply_install_floor_tiles: false, supply_install_wall_tiles: false, supply_install_shower_niche: false, supply_install_bath_niche: false, supply_install_floor_ceiling: false, supply_install_half_height: false, supply_install_nib_walls: false, supply_grout_silicone: false, supply_install_shower_hob: false, supply_install_bath_hob: false, supply_install_feature_wall: false } },
+        shower_screens: { enabled: false, subtasks: { fixed_panel_install: false, frameless_shower_enclosure: false, semi_frameless_shower_enclosure: false, shower_curtain: false } },
+        pc_items_tile_supply: { enabled: false, subtasks: { pc_items_vanity_basin: false, pc_items_toilet_cistern: false, pc_items_shower_screen: false, pc_items_tapware: false, pc_items_lighting: false, pc_items_mirror_cabinet: false, pc_items_accessories: false, tiles_supply_coordination: false } },
+        fit_off: { enabled: false, subtasks: { accessories_install: false, site_clean: false, builders_clean: false, painting: false } }
+      },
+      taskOptions: {
+        skip_bin_size: '6 meter bin',
+        build_niches_quantity: 1,
+        swing_door_size: '720mm',
+        cavity_sliding_size: '720mm',
+        minor_costs_amount: 0,
+        water_feeds_type: 'single',
+        power_points_quantity: 1,
+        plasterboard_grade: 'standard',
+        cornice_type: 'standard',
+        floor_tile_grade: 'standard_ceramic',
+        wall_tile_grade: 'standard_ceramic',
+        tile_size: '300x300mm',
+        feature_tile_grade: 'premium',
+        vanity_grade: 'standard',
+        toilet_grade: 'standard',
+        shower_screen_grade: 'standard',
+        tapware_grade: 'standard',
+        lighting_grade: 'standard',
+        mirror_grade: 'standard',
+        tiles_supply_grade: 'standard'
+      },
+      additionalNotes: '',
+      quote: null
+    };
+
+    setProjectAreas(prev => [...prev, newArea]);
+    setCurrentAreaIndex(projectAreas.length); // Switch to new area
+    setShowAddAreaDialog(false);
+    toast.success(`Added ${newArea.name} to project`);
+  };
+
+  const removeArea = (areaIndex) => {
+    if (projectAreas.length <= 1) {
+      toast.error('Cannot remove the last area');
+      return;
+    }
+    
+    if (!window.confirm(`Remove ${projectAreas[areaIndex].name} from project?`)) return;
+    
+    setProjectAreas(prev => prev.filter((_, index) => index !== areaIndex));
+    setCurrentAreaIndex(Math.max(0, currentAreaIndex - 1));
+    toast.success('Area removed from project');
+  };
+
+  const updateAreaData = (areaIndex, section, field, value, isCheckbox = false) => {
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === areaIndex) {
+        return {
+          ...area,
+          [section]: {
+            ...area[section],
+            [field]: isCheckbox ? value : value
+          }
+        };
       }
+      return area;
     }));
   };
 
+  const handleInputChange = (section, field, value, isCheckbox = false) => {
+    updateAreaData(currentAreaIndex, section, field, value, isCheckbox);
+  };
+
   const handleComponentToggle = (component, enabled) => {
-    setFormData(prev => ({
-      ...prev,
-      components: {
-        ...prev.components,
-        [component]: {
-          ...prev.components[component],
-          enabled: enabled,
-          // If disabling main component, disable all subtasks
-          subtasks: enabled ? prev.components[component].subtasks : 
-            Object.keys(prev.components[component].subtasks).reduce((acc, key) => {
-              acc[key] = false;
-              return acc;
-            }, {})
-        }
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          components: {
+            ...area.components,
+            [component]: {
+              ...area.components[component],
+              enabled: enabled,
+              // If disabling main component, disable all subtasks
+              subtasks: enabled ? area.components[component].subtasks : 
+                Object.keys(area.components[component].subtasks).reduce((acc, key) => {
+                  acc[key] = false;
+                  return acc;
+                }, {})
+            }
+          }
+        };
       }
+      return area;
     }));
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
-    setFormData(prev => ({
-      ...prev,
-      components: {
-        ...prev.components,
-        [component]: {
-          ...prev.components[component],
-          subtasks: {
-            ...prev.components[component].subtasks,
-            [subtask]: enabled
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          components: {
+            ...area.components,
+            [component]: {
+              ...area.components[component],
+              subtasks: {
+                ...area.components[component].subtasks,
+                [subtask]: enabled
+              }
+            }
           }
-        }
+        };
       }
+      return area;
     }));
   };
 
   const getSelectedSubtasks = (component) => {
-    return Object.entries(formData.components[component].subtasks)
+    const currentArea = getCurrentArea();
+    if (!currentArea?.components[component]?.subtasks) return [];
+    
+    return Object.entries(currentArea.components[component].subtasks)
       .filter(([key, value]) => value)
       .map(([key, value]) => key);
   };
 
   const handleTaskOptionChange = (optionKey, value) => {
-    setTaskOptions(prev => ({
-      ...prev,
-      [optionKey]: value
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          taskOptions: {
+            ...area.taskOptions,
+            [optionKey]: value
+          }
+        };
+      }
+      return area;
     }));
   };
 
@@ -529,6 +719,316 @@ const RenovationQuotingApp = () => {
     }));
   };
 
+  // Project Management Functions
+  const fetchSavedProjects = async () => {
+    try {
+      const response = await axios.get(`${API}/projects`);
+      setSavedProjects(response.data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+
+  const fetchProjectCategories = async () => {
+    try {
+      const response = await axios.get(`${API}/projects/categories`);
+      setProjectCategories(response.data.categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const saveCurrentProject = async () => {
+    if (!quote || !formData.clientInfo.name) return;
+
+    const projectName = newProjectName || `${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`;
+    
+    try {
+      const projectData = {
+        project_name: projectName,
+        category: newProjectCategory,
+        quote_id: quote.id,
+        client_name: formData.clientInfo.name,
+        total_cost: quote.total_cost,
+        notes: formData.additionalNotes
+      };
+
+      await axios.post(`${API}/projects/save`, projectData);
+      toast.success(`Project "${projectName}" saved successfully!`);
+      fetchSavedProjects();
+      setNewProjectName('');
+      setNewProjectCategory('General');
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast.error('Failed to save project');
+    }
+  };
+
+  const loadProject = async (projectId) => {
+    try {
+      const response = await axios.get(`${API}/projects/${projectId}/quote`);
+      const { project, quote: loadedQuote, request } = response.data;
+      
+      if (request) {
+        setFormData({
+          clientInfo: request.client_info,
+          roomMeasurements: {
+            length: (request.room_measurements.length * 1000).toString(),
+            width: (request.room_measurements.width * 1000).toString(),
+            height: (request.room_measurements.height * 1000).toString()
+          },
+          components: request.detailed_components || request.components,
+          additionalNotes: request.additional_notes || ''
+        });
+      }
+      
+      setQuote(loadedQuote);
+      setSidebarOpen(false);
+      toast.success(`Loaded project: ${project.project_name}`);
+      
+    } catch (error) {
+      console.error('Error loading project:', error);
+      toast.error('Failed to load project');
+    }
+  };
+
+  const updateProject = async (projectId, updates) => {
+    try {
+      await axios.put(`${API}/projects/${projectId}`, updates);
+      toast.success('Project updated successfully!');
+      fetchSavedProjects();
+      setEditingProject(null);
+    } catch (error) {
+      console.error('Error updating project:', error);
+      toast.error('Failed to update project');
+    }
+  };
+
+  const deleteProject = async (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    
+    try {
+      await axios.delete(`${API}/projects/${projectId}`);
+      toast.success('Project deleted successfully!');
+      fetchSavedProjects();
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      toast.error('Failed to delete project');
+    }
+  };
+
+  const filteredProjects = savedProjects.filter(project => {
+    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
+    const matchesSearch = project.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.client_name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  // Auto-save functionality
+  const saveToLocalStorage = (data) => {
+    try {
+      localStorage.setItem('bathroom_quote_draft', JSON.stringify({
+        ...data,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
+    try {
+      const saved = localStorage.getItem('bathroom_quote_draft');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Only load if saved within last 24 hours
+        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+    }
+    return null;
+  };
+
+  const clearLocalStorage = () => {
+    try {
+      localStorage.removeItem('bathroom_quote_draft');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+  };
+
+  const saveDraftProject = async () => {
+    if (!formData.clientInfo.name) {
+      toast.error('Please enter client name first');
+      return;
+    }
+
+    const draftName = `DRAFT: ${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`;
+    
+    try {
+      // Create a mock quote for draft saving
+      const draftQuote = {
+        id: `draft_${Date.now()}`,
+        request_id: `draft_req_${Date.now()}`,
+        total_cost: 0,
+        cost_breakdown: [],
+        ai_analysis: 'Draft project - not yet estimated',
+        confidence_level: 'Draft',
+        created_at: new Date().toISOString()
+      };
+
+      // Save draft request data
+      const draftRequest = {
+        id: draftQuote.request_id,
+        client_info: formData.clientInfo,
+        room_measurements: {
+          length: parseFloat(formData.roomMeasurements.length) / 1000 || 0,
+          width: parseFloat(formData.roomMeasurements.width) / 1000 || 0,
+          height: parseFloat(formData.roomMeasurements.height) / 1000 || 0
+        },
+        components: {},
+        detailed_components: formData.components,
+        task_options: taskOptions,
+        additional_notes: formData.additionalNotes,
+        created_at: new Date().toISOString()
+      };
+
+      // Store both in database
+      await axios.post(`${API}/quotes/save-draft`, {
+        quote: draftQuote,
+        request: draftRequest
+      });
+
+      const projectData = {
+        project_name: draftName,
+        category: 'Draft',
+        quote_id: draftQuote.id,
+        client_name: formData.clientInfo.name,
+        total_cost: 0,
+        notes: 'Draft project - incomplete form data saved'
+      };
+
+      await axios.post(`${API}/projects/save`, projectData);
+      
+      // Clear auto-save after successful draft save
+      clearLocalStorage();
+      
+      toast.success(`Draft saved: ${draftName}`);
+      fetchSavedProjects();
+      
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft project');
+    }
+  };
+
+  // Auto-save form data as user types (debounced)
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveToLocalStorage({
+        formData,
+        taskOptions,
+        userProfile
+      });
+    }, 2000); // Save 2 seconds after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [formData, taskOptions, userProfile]);
+
+  // Google Maps Address Functions
+  const searchAddresses = async (query) => {
+    if (!query || query.length < 3) {
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
+      return;
+    }
+
+    try {
+      // Using a free geocoding service (you can replace with Google Places API if you have a key)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=au&limit=5&addressdetails=1`
+      );
+      const data = await response.json();
+      
+      const suggestions = data.map(item => ({
+        display_name: item.display_name,
+        formatted_address: item.display_name,
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon),
+        place_id: item.place_id
+      }));
+
+      setAddressSuggestions(suggestions);
+      setShowAddressSuggestions(true);
+    } catch (error) {
+      console.error('Error searching addresses:', error);
+    }
+  };
+
+  const selectAddress = (address) => {
+    setSelectedAddress(address);
+    setFormData(prev => ({
+      ...prev,
+      clientInfo: {
+        ...prev.clientInfo,
+        address: address.formatted_address
+      }
+    }));
+    setShowAddressSuggestions(false);
+    toast.success('Address selected with GPS coordinates');
+  };
+
+  const openDirections = () => {
+    if (selectedAddress) {
+      // Open Google Maps with coordinates for precise navigation
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedAddress.lat},${selectedAddress.lng}`;
+      window.open(url, '_blank');
+    } else if (formData.clientInfo.address) {
+      // Fallback to address string
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formData.clientInfo.address)}`;
+      window.open(url, '_blank');
+    } else {
+      toast.error('Please enter project address first');
+    }
+  };
+
+  // Debounced address search
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (formData.clientInfo.address && !selectedAddress) {
+        searchAddresses(formData.clientInfo.address);
+      }
+    }, 500); // Search after 500ms of typing
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.clientInfo.address, selectedAddress]);
+
+  // Load saved draft on component mount
+  React.useEffect(() => {
+    fetchSavedProjects();
+    fetchProjectCategories();
+    
+    // Load draft data if available
+    const savedDraft = loadFromLocalStorage();
+    if (savedDraft) {
+      setFormData(savedDraft.formData || formData);
+      setTaskOptions(savedDraft.taskOptions || taskOptions);
+      setUserProfile(savedDraft.userProfile || userProfile);
+      toast.info('Draft data restored from previous session', {
+        action: {
+          label: 'Clear',
+          onClick: () => {
+            clearLocalStorage();
+            window.location.reload();
+          },
+        },
+      });
+    }
+  }, []);
+
   const SupplierDialog = ({ component, componentLabel }) => (
     <Dialog>
       <DialogTrigger asChild>
@@ -588,6 +1088,200 @@ const RenovationQuotingApp = () => {
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5"></div>
       
       <div className="container mx-auto px-4 py-12 relative z-10">
+        
+        {/* Floating Side Panel Trigger */}
+        <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+          <SheetTrigger asChild>
+            <Button 
+              className="fixed top-6 left-6 z-50 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-2xl"
+              size="lg"
+            >
+              <FolderOpen className="w-5 h-5 mr-2" />
+              Saved Projects ({savedProjects.length})
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[420px] sm:w-[540px] bg-white/95 backdrop-blur-sm">
+            <SheetHeader>
+              <SheetTitle className="flex items-center text-xl">
+                <FolderOpen className="w-6 h-6 mr-2 text-purple-600" />
+                Saved Projects
+              </SheetTitle>
+            </SheetHeader>
+            
+            <div className="space-y-4 mt-6">
+              {/* Save Current Project */}
+              {quote && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-800 flex items-center mb-3">
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Current Project
+                  </h4>
+                  <div className="space-y-2">
+                    <Input
+                      placeholder={`${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`}
+                      value={newProjectName}
+                      onChange={(e) => setNewProjectName(e.target.value)}
+                      className="text-sm"
+                    />
+                    <Select value={newProjectCategory} onValueChange={setNewProjectCategory}>
+                      <SelectTrigger className="h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="General">General</SelectItem>
+                        <SelectItem value="Residential">Residential</SelectItem>
+                        <SelectItem value="Commercial">Commercial</SelectItem>
+                        <SelectItem value="Renovation">Renovation</SelectItem>
+                        <SelectItem value="New Build">New Build</SelectItem>
+                        <SelectItem value="Premium">Premium</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={saveCurrentProject} size="sm" className="w-full bg-green-600 hover:bg-green-700">
+                      <Save className="w-4 h-4 mr-1" />
+                      Save Project
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Search and Filter */}
+              <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+                <div className="relative">
+                  <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+                  <Input
+                    placeholder="Search projects..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-10"
+                  />
+                </div>
+                
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger className="h-10">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projectCategories.map(category => (
+                      <SelectItem key={category} value={category}>{category}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Projects List */}
+              <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+                {filteredProjects.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                    <p>No saved projects found</p>
+                    <p className="text-sm">Generate a quote and save your first project!</p>
+                  </div>
+                ) : (
+                  filteredProjects.map(project => (
+                    <div key={project.id} className="bg-white p-4 rounded-lg border shadow-sm hover:shadow-md transition-shadow">
+                      {editingProject === project.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={project.project_name}
+                            onChange={(e) => {
+                              const updated = savedProjects.map(p => 
+                                p.id === project.id ? {...p, project_name: e.target.value} : p
+                              );
+                              setSavedProjects(updated);
+                            }}
+                            className="font-medium"
+                          />
+                          <Select 
+                            value={project.category} 
+                            onValueChange={(value) => {
+                              const updated = savedProjects.map(p => 
+                                p.id === project.id ? {...p, category: value} : p
+                              );
+                              setSavedProjects(updated);
+                            }}
+                          >
+                            <SelectTrigger className="h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {projectCategories.filter(cat => cat !== 'All').map(category => (
+                                <SelectItem key={category} value={category}>{category}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => updateProject(project.id, {
+                                project_name: project.project_name,
+                                category: project.category
+                              })}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              Save
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingProject(null)}>
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-gray-800 text-sm">{project.project_name}</h4>
+                              <p className="text-xs text-gray-600">{project.client_name}</p>
+                            </div>
+                            <Badge variant="outline" className="text-xs">
+                              {project.category}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center text-green-600">
+                              <DollarSign className="w-4 h-4 mr-1" />
+                              <span className="font-bold">${project.total_cost.toLocaleString()}</span>
+                            </div>
+                            <div className="flex items-center text-gray-500 text-xs">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {new Date(project.created_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => loadProject(project.id)}
+                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-xs"
+                            >
+                              Load
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => setEditingProject(project.id)}
+                            >
+                              <Edit3 className="w-3 h-3" />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => deleteProject(project.id)}
+                              className="text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
         {/* Professional Header with Premium Branding */}
         <div className="text-center mb-12">
           <div className="relative">
@@ -627,6 +1321,119 @@ const RenovationQuotingApp = () => {
                   <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
                   Personalized Learning AI
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Multi-Area Navigation Tabs */}
+        <div className="max-w-5xl mx-auto mb-8">
+          <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                <Building className="w-5 h-5 mr-2 text-purple-600" />
+                Project Areas ({projectAreas.length})
+              </h3>
+              <Dialog open={showAddAreaDialog} onOpenChange={setShowAddAreaDialog}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white">
+                    + Add Area
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Additional Area to Project</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid grid-cols-1 gap-3 py-4">
+                    {areaTypes.map(areaType => (
+                      <Button
+                        key={areaType.value}
+                        variant="outline"
+                        onClick={() => addNewArea(areaType.value)}
+                        className="justify-start text-left p-4 h-auto hover:bg-blue-50"
+                      >
+                        <span className="text-2xl mr-3">{areaType.icon}</span>
+                        <div>
+                          <div className="font-semibold">{areaType.label}</div>
+                          <div className="text-sm text-gray-500">
+                            {areaType.value === 'ensuite' && 'Private bathroom attached to bedroom'}
+                            {areaType.value === 'wc' && 'Separate toilet room'}
+                            {areaType.value === 'laundry' && 'Washing and utility area'}
+                            {areaType.value === 'powder_room' && 'Guest half-bathroom'}
+                            {areaType.value === 'guest_bathroom' && 'Full guest bathroom'}
+                            {areaType.value === 'kids_bathroom' && 'Children\'s bathroom'}
+                            {areaType.value === 'bathroom' && 'Main family bathroom'}
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {/* Area Tabs */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {projectAreas.map((area, index) => (
+                <div key={area.id} className="relative">
+                  <Button
+                    variant={index === currentAreaIndex ? 'default' : 'outline'}
+                    onClick={() => setCurrentAreaIndex(index)}
+                    className={`${
+                      index === currentAreaIndex 
+                        ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white' 
+                        : 'hover:bg-blue-50'
+                    } flex items-center space-x-2 pr-8`}
+                  >
+                    <span>{areaTypes.find(t => t.value === area.type)?.icon || '🏠'}</span>
+                    <span>{area.name}</span>
+                    {area.quote && (
+                      <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">
+                        ${area.quote.total_cost.toLocaleString()}
+                      </Badge>
+                    )}
+                  </Button>
+                  {projectAreas.length > 1 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeArea(index)}
+                      className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Current Area Summary */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-semibold text-blue-800">
+                    Currently Editing: {getCurrentArea()?.name}
+                  </h4>
+                  <div className="text-sm text-blue-600 flex items-center space-x-4 mt-1">
+                    <span>Floor: {calculateSquareMeters()} m²</span>
+                    <span>Wall: {calculateWallArea()} m²</span>
+                    {getCurrentArea()?.quote && (
+                      <span className="font-semibold text-green-600">
+                        Cost: ${getCurrentArea().quote.total_cost.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {projectAreas.length > 1 && (
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-purple-800">
+                      Total Project: ${getTotalProjectCost().toLocaleString()}
+                    </div>
+                    <div className="text-sm text-purple-600">
+                      {getTotalFloorArea()} m² floor • {getTotalWallArea()} m² wall
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -693,16 +1500,110 @@ const RenovationQuotingApp = () => {
                         className="mt-1"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="projectAddress">Project Address *</Label>
-                      <Input
-                        id="projectAddress"
-                        value={formData.clientInfo.address}
-                        onChange={(e) => handleInputChange('clientInfo', 'address', e.target.value)}
-                        placeholder="123 Main St, Sydney NSW 2000"
-                        required
-                        className="mt-1"
-                      />
+                    <div className="relative">
+                      <Label htmlFor="projectAddress" className="flex items-center">
+                        <MapPin className="w-4 h-4 mr-1 text-blue-600" />
+                        Project Address with GPS *
+                      </Label>
+                      <div className="relative mt-1">
+                        <Input
+                          id="projectAddress"
+                          value={formData.clientInfo.address}
+                          onChange={(e) => {
+                            handleInputChange('clientInfo', 'address', e.target.value);
+                            setSelectedAddress(null); // Clear selected address when typing
+                          }}
+                          onFocus={() => {
+                            if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
+                          }}
+                          placeholder="Start typing address... (e.g. 123 Main St, Sydney)"
+                          required
+                          className="pr-12"
+                        />
+                        
+                        {/* GPS/Directions Button */}
+                        {(formData.clientInfo.address || selectedAddress) && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={openDirections}
+                            className="absolute right-1 top-1 h-8 w-10 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            title="Get Directions"
+                          >
+                            <Navigation className="w-4 h-4" />
+                          </Button>
+                        )}
+                        
+                        {/* GPS Coordinates Indicator */}
+                        {selectedAddress && (
+                          <div className="absolute right-12 top-2 text-green-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" title="GPS coordinates saved"></div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Address Suggestions Dropdown */}
+                      {showAddressSuggestions && addressSuggestions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                          {addressSuggestions.map((address, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              onClick={() => selectAddress(address)}
+                              className="w-full text-left px-4 py-3 hover:bg-blue-50 border-b border-gray-100 last:border-b-0 transition-colors"
+                            >
+                              <div className="flex items-start">
+                                <MapPin className="w-4 h-4 mr-2 mt-0.5 text-blue-500 flex-shrink-0" />
+                                <div>
+                                  <div className="font-medium text-gray-900 text-sm">
+                                    {address.display_name.split(',').slice(0, 2).join(',')}
+                                  </div>
+                                  <div className="text-xs text-gray-600 mt-1">
+                                    {address.display_name}
+                                  </div>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                          <div className="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t">
+                            📍 Select address for GPS coordinates and precise directions
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Selected Address Confirmation */}
+                      {selectedAddress && (
+                        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center text-green-800">
+                              <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                              <span className="text-sm font-medium">GPS Location Confirmed</span>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={openDirections}
+                              className="text-green-700 border-green-300 hover:bg-green-100 text-xs"
+                            >
+                              <Navigation className="w-3 h-3 mr-1" />
+                              Directions
+                            </Button>
+                          </div>
+                          <div className="text-xs text-green-600 mt-1">
+                            📍 {selectedAddress.lat.toFixed(6)}, {selectedAddress.lng.toFixed(6)}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Close suggestions when clicking outside */}
+                      {showAddressSuggestions && (
+                        <div 
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowAddressSuggestions(false)}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -727,8 +1628,8 @@ const RenovationQuotingApp = () => {
                         id="length"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.length}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'length', e.target.value)}
+                        value={getCurrentArea()?.measurements.length || ''}
+                        onChange={(e) => handleInputChange('measurements', 'length', e.target.value)}
                         placeholder="3500"
                         required
                         className="mt-1"
@@ -740,8 +1641,8 @@ const RenovationQuotingApp = () => {
                         id="width"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.width}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'width', e.target.value)}
+                        value={getCurrentArea()?.measurements.width || ''}
+                        onChange={(e) => handleInputChange('measurements', 'width', e.target.value)}
                         placeholder="2500"
                         required
                         className="mt-1"
@@ -753,8 +1654,8 @@ const RenovationQuotingApp = () => {
                         id="height"
                         type="number"
                         step="1"
-                        value={formData.roomMeasurements.height}
-                        onChange={(e) => handleInputChange('roomMeasurements', 'height', e.target.value)}
+                        value={getCurrentArea()?.measurements.height || ''}
+                        onChange={(e) => handleInputChange('measurements', 'height', e.target.value)}
                         placeholder="2400"
                         required
                         className="mt-1"
@@ -818,14 +1719,14 @@ const RenovationQuotingApp = () => {
                           <div className="flex items-center space-x-3">
                             <Checkbox
                               id={key}
-                              checked={formData.components[key].enabled}
+                              checked={getCurrentArea()?.components[key]?.enabled || false}
                               onCheckedChange={(checked) => handleComponentToggle(key, checked)}
                               className="h-5 w-5"
                             />
                             <Label htmlFor={key} className="text-lg font-semibold cursor-pointer text-gray-800">
                               {label}
                             </Label>
-                            {formData.components[key].enabled && (
+                            {getCurrentArea()?.components[key]?.enabled && (
                               <Badge variant="outline" className="text-xs">
                                 {getSelectedSubtasks(key).length} tasks selected
                               </Badge>
@@ -863,7 +1764,7 @@ const RenovationQuotingApp = () => {
                                   <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
                                     <Checkbox
                                       id={`${key}-${subtaskKey}`}
-                                      checked={formData.components[key].subtasks[subtaskKey]}
+                                      checked={getCurrentArea()?.components[key]?.subtasks[subtaskKey] || false}
                                       onCheckedChange={(checked) => handleSubtaskToggle(key, subtaskKey, checked)}
                                       className="h-4 w-4"
                                     />
@@ -876,7 +1777,7 @@ const RenovationQuotingApp = () => {
                                   </div>
                                   
                                   {/* Interactive Options for Specific Tasks */}
-                                  {formData.components[key].subtasks[subtaskKey] && (
+                                  {getCurrentArea()?.components[key]?.subtasks[subtaskKey] && (
                                     <div className="ml-6 space-y-2">
                                       
                                       {/* Demolition - Skip Bin Size */}
@@ -884,7 +1785,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Bin Size:</Label>
                                           <Select
-                                            value={taskOptions.skip_bin_size}
+                                            value={getCurrentArea()?.taskOptions?.skip_bin_size || '6 meter bin'}
                                             onValueChange={(value) => handleTaskOptionChange('skip_bin_size', value)}
                                           >
                                             <SelectTrigger className="h-8 w-32">
@@ -906,7 +1807,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Quantity:</Label>
                                           <Select
-                                            value={taskOptions.build_niches_quantity.toString()}
+                                            value={getCurrentTaskOptions().build_niches_quantity?.toString() || '1'}
                                             onValueChange={(value) => handleTaskOptionChange('build_niches_quantity', parseInt(value))}
                                           >
                                             <SelectTrigger className="h-8 w-20">
@@ -926,7 +1827,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Door Size:</Label>
                                           <Select
-                                            value={taskOptions.swing_door_size}
+                                            value={getCurrentTaskOptions().swing_door_size || '720mm'}
                                             onValueChange={(value) => handleTaskOptionChange('swing_door_size', value)}
                                           >
                                             <SelectTrigger className="h-8 w-24">
@@ -946,7 +1847,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Unit Size:</Label>
                                           <Select
-                                            value={taskOptions.cavity_sliding_size}
+                                            value={getCurrentTaskOptions().cavity_sliding_size || '720mm'}
                                             onValueChange={(value) => handleTaskOptionChange('cavity_sliding_size', value)}
                                           >
                                             <SelectTrigger className="h-8 w-24">
@@ -967,7 +1868,7 @@ const RenovationQuotingApp = () => {
                                           <Label className="text-xs text-gray-600">Amount: $</Label>
                                           <Input
                                             type="number"
-                                            value={taskOptions.minor_costs_amount}
+                                            value={getCurrentTaskOptions().minor_costs_amount || 0}
                                             onChange={(e) => handleTaskOptionChange('minor_costs_amount', parseFloat(e.target.value) || 0)}
                                             className="h-8 w-24"
                                             placeholder="0"
@@ -1351,6 +2252,33 @@ const RenovationQuotingApp = () => {
                 </div>
 
                 <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl border border-blue-100">
+                  
+                  {/* Auto-save status indicator */}
+                  <div className="mb-4 text-center">
+                    <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                      Auto-saving your progress...
+                    </div>
+                  </div>
+
+                  {/* Save Draft Button */}
+                  <div className="mb-6">
+                    <Button 
+                      type="button"
+                      onClick={saveDraftProject}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-4 text-lg font-semibold mb-4"
+                      disabled={!formData.clientInfo.name}
+                    >
+                      <Save className="w-5 h-5 mr-2" />
+                      Save Draft Project Now
+                      <span className="text-sm opacity-90 ml-2">(works even if phone sleeps)</span>
+                    </Button>
+                    <p className="text-center text-orange-700 text-sm">
+                      💡 Save incomplete projects anytime • Never lose your work • Continue later
+                    </p>
+                  </div>
+
+                  {/* Generate Quote Button */}
                   <Button 
                     type="submit" 
                     className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white py-8 text-xl font-bold shadow-2xl transform hover:scale-105 transition-all duration-300"
