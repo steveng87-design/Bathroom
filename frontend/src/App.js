@@ -523,7 +523,13 @@ const RenovationQuotingApp = () => {
   };
 
   const handleInputChange = (section, field, value, isCheckbox = false) => {
-    updateAreaData(currentAreaIndex, section, field, value, isCheckbox);
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: isCheckbox ? value : value
+      }
+    }));
   };
 
   const handleComponentToggle = (component, enabled) => {
