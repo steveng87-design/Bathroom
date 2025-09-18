@@ -1530,14 +1530,14 @@ const RenovationQuotingApp = () => {
                           <div className="flex items-center space-x-3">
                             <Checkbox
                               id={key}
-                              checked={formData.components[key].enabled}
+                              checked={getCurrentArea()?.components[key]?.enabled || false}
                               onCheckedChange={(checked) => handleComponentToggle(key, checked)}
                               className="h-5 w-5"
                             />
                             <Label htmlFor={key} className="text-lg font-semibold cursor-pointer text-gray-800">
                               {label}
                             </Label>
-                            {formData.components[key].enabled && (
+                            {getCurrentArea()?.components[key]?.enabled && (
                               <Badge variant="outline" className="text-xs">
                                 {getSelectedSubtasks(key).length} tasks selected
                               </Badge>
