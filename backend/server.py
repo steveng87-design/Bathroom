@@ -510,7 +510,7 @@ async def delete_project(project_id: str):
         
         return {"message": "Project deleted successfully"}
     except Exception as e:
-        logger.error(f"Error deleting project: {str(e)}")
+        logging.error(f"Error deleting project: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error deleting project: {str(e)}")
 
 @api_router.get("/projects/categories")
