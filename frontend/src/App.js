@@ -644,10 +644,141 @@ const RenovationQuotingApp = () => {
     return matchesCategory && matchesSearch;
   });
 
-  // Load projects on component mount
+  // Auto-save functionality
+  const saveToLocalStorage = (data) => {
+    try {
+      localStorage.setItem('bathroom_quote_draft', JSON.stringify({
+        ...data,
+        timestamp: Date.now()
+      }));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  };
+
+  const loadFromLocalStorage = () => {
+    try {
+      const saved = localStorage.getItem('bathroom_quote_draft');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Only load if saved within last 24 hours
+        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+          return parsed;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+    }
+    return null;
+  };
+
+  const clearLocalStorage = () => {
+    try {
+      localStorage.removeItem('bathroom_quote_draft');
+    } catch (error) {
+      console.error('Error clearing localStorage:', error);
+    }
+  };
+
+  const saveDraftProject = async () => {
+    if (!formData.clientInfo.name) {
+      toast.error('Please enter client name first');
+      return;
+    }
+
+    const draftName = `DRAFT: ${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`;
+    
+    try {
+      // Create a mock quote for draft saving
+      const draftQuote = {
+        id: `draft_${Date.now()}`,
+        request_id: `draft_req_${Date.now()}`,
+        total_cost: 0,
+        cost_breakdown: [],
+        ai_analysis: 'Draft project - not yet estimated',
+        confidence_level: 'Draft',
+        created_at: new Date().toISOString()
+      };
+
+      // Save draft request data
+      const draftRequest = {
+        id: draftQuote.request_id,
+        client_info: formData.clientInfo,
+        room_measurements: {
+          length: parseFloat(formData.roomMeasurements.length) / 1000 || 0,
+          width: parseFloat(formData.roomMeasurements.width) / 1000 || 0,
+          height: parseFloat(formData.roomMeasurements.height) / 1000 || 0
+        },
+        components: {},
+        detailed_components: formData.components,
+        task_options: taskOptions,
+        additional_notes: formData.additionalNotes,
+        created_at: new Date().toISOString()
+      };
+
+      // Store both in database
+      await axios.post(`${API}/quotes/save-draft`, {
+        quote: draftQuote,
+        request: draftRequest
+      });
+
+      const projectData = {
+        project_name: draftName,
+        category: 'Draft',
+        quote_id: draftQuote.id,
+        client_name: formData.clientInfo.name,
+        total_cost: 0,
+        notes: 'Draft project - incomplete form data saved'
+      };
+
+      await axios.post(`${API}/projects/save`, projectData);
+      
+      // Clear auto-save after successful draft save
+      clearLocalStorage();
+      
+      toast.success(`Draft saved: ${draftName}`);
+      fetchSavedProjects();
+      
+    } catch (error) {
+      console.error('Error saving draft:', error);
+      toast.error('Failed to save draft project');
+    }
+  };
+
+  // Auto-save form data as user types (debounced)
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveToLocalStorage({
+        formData,
+        taskOptions,
+        userProfile
+      });
+    }, 2000); // Save 2 seconds after user stops typing
+
+    return () => clearTimeout(timeoutId);
+  }, [formData, taskOptions, userProfile]);
+
+  // Load saved draft on component mount
   React.useEffect(() => {
     fetchSavedProjects();
     fetchProjectCategories();
+    
+    // Load draft data if available
+    const savedDraft = loadFromLocalStorage();
+    if (savedDraft) {
+      setFormData(savedDraft.formData || formData);
+      setTaskOptions(savedDraft.taskOptions || taskOptions);
+      setUserProfile(savedDraft.userProfile || userProfile);
+      toast.info('Draft data restored from previous session', {
+        action: {
+          label: 'Clear',
+          onClick: () => {
+            clearLocalStorage();
+            window.location.reload();
+          },
+        },
+      });
+    }
   }, []);
 
   const SupplierDialog = ({ component, componentLabel }) => (
