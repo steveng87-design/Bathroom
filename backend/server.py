@@ -463,7 +463,7 @@ async def save_project(project: SavedProject):
         await db.saved_projects.insert_one(project_dict)
         return project
     except Exception as e:
-        logger.error(f"Error saving project: {str(e)}")
+        logging.error(f"Error saving project: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error saving project: {str(e)}")
 
 @api_router.get("/projects", response_model=List[SavedProject])
