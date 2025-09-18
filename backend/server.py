@@ -546,6 +546,23 @@ async def get_project_quote(project_id: str):
         logger.error(f"Error fetching project quote: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching project quote: {str(e)}")
 
+@api_router.post("/quotes/save-draft")
+async def save_draft_quote(draft_data: Dict[str, Any]):
+    """Save a draft quote and request for incomplete projects"""
+    try:
+        quote_dict = prepare_for_mongo(draft_data["quote"])
+        request_dict = prepare_for_mongo(draft_data["request"])
+        
+        # Store both draft quote and request
+        await db.quotes.insert_one(quote_dict)
+        await db.quote_requests.insert_one(request_dict)
+        
+        return {"message": "Draft saved successfully"}
+        
+    except Exception as e:
+        logger.error(f"Error saving draft: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error saving draft: {str(e)}")
+
 @api_router.post("/quotes/{quote_id}/generate-proposal")
 async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
     """Generate a professional scope of works PDF proposal"""
