@@ -190,6 +190,64 @@ const RenovationQuotingApp = () => {
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectCategory, setNewProjectCategory] = useState('General');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Multi-Area System States
+  const [projectAreas, setProjectAreas] = useState([
+    {
+      id: 'main',
+      name: 'Main Bathroom',
+      type: 'bathroom',
+      measurements: { length: '', width: '', height: '' },
+      components: {
+        demolition: { enabled: false, subtasks: { removal_internal_ware: false, removal_wall_linings: false, removal_ceiling_linings: false, removal_ground_tiles_screed: false, removal_old_substrate: false, supply_skip_bin: false, asbestos_removal: false } },
+        framing: { enabled: false, subtasks: { internal_wall_rectification: false, build_niches: false, recessed_mirror_cabinet: false, swing_door_materials: false, cavity_sliding_unit: false, new_window_framing: false, subfloor_replacement: false, additional_costs_allowance: false } },
+        plumbing_rough_in: { enabled: false, subtasks: { make_good_existing_feeds: false, new_inlet_feed_toilet: false, water_feeds_quantity: false, bath_inwall_mixer_outlet: false, basin_mixer_inwall: false, shower_outlet: false, floor_waste: false, new_stack_work: false, concrete_cutting_slab: false, rain_head_shower: false, inwall_cistern: false, wall_hung_toilet: false, vanity_install: false } },
+        electrical_rough_in: { enabled: false, subtasks: { make_safe_old_wiring: false, four_in_one_combo: false, power_points_quantity: false, led_strip_lighting: false, wall_lights: false, downlight: false, separate_extraction_fan: false, underfloor_heating: false, lighting_switching: false } },
+        plastering: { enabled: false, subtasks: { supply_install_ceiling_sheets: false, supply_install_wall_sheets: false, supply_compounds_finishing: false, top_coat_ceilings: false, supply_install_cornice: false } },
+        waterproofing: { enabled: false, subtasks: { shower_waterproofing: false, floor_waterproofing: false, wall_waterproofing: false, membrane_application: false, corner_sealing: false, penetration_sealing: false, compliance_certification: false } },
+        tiling: { enabled: false, subtasks: { supply_install_sand_cement_bed: false, supply_install_floor_tiles: false, supply_install_wall_tiles: false, supply_install_shower_niche: false, supply_install_bath_niche: false, supply_install_floor_ceiling: false, supply_install_half_height: false, supply_install_nib_walls: false, supply_grout_silicone: false, supply_install_shower_hob: false, supply_install_bath_hob: false, supply_install_feature_wall: false } },
+        shower_screens: { enabled: false, subtasks: { fixed_panel_install: false, frameless_shower_enclosure: false, semi_frameless_shower_enclosure: false, shower_curtain: false } },
+        pc_items_tile_supply: { enabled: false, subtasks: { pc_items_vanity_basin: false, pc_items_toilet_cistern: false, pc_items_shower_screen: false, pc_items_tapware: false, pc_items_lighting: false, pc_items_mirror_cabinet: false, pc_items_accessories: false, tiles_supply_coordination: false } },
+        fit_off: { enabled: false, subtasks: { accessories_install: false, site_clean: false, builders_clean: false, painting: false } }
+      },
+      taskOptions: {
+        skip_bin_size: '6 meter bin',
+        build_niches_quantity: 1,
+        swing_door_size: '720mm',
+        cavity_sliding_size: '720mm',
+        minor_costs_amount: 0,
+        water_feeds_type: 'single',
+        power_points_quantity: 1,
+        plasterboard_grade: 'standard',
+        cornice_type: 'standard',
+        floor_tile_grade: 'standard_ceramic',
+        wall_tile_grade: 'standard_ceramic',
+        tile_size: '300x300mm',
+        feature_tile_grade: 'premium',
+        vanity_grade: 'standard',
+        toilet_grade: 'standard',
+        shower_screen_grade: 'standard',
+        tapware_grade: 'standard',
+        lighting_grade: 'standard',
+        mirror_grade: 'standard',
+        tiles_supply_grade: 'standard'
+      },
+      additionalNotes: '',
+      quote: null
+    }
+  ]);
+  const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
+  const [showAddAreaDialog, setShowAddAreaDialog] = useState(false);
+  
+  const areaTypes = [
+    { value: 'bathroom', label: 'Bathroom', icon: '🛁' },
+    { value: 'ensuite', label: 'Ensuite', icon: '🚿' },
+    { value: 'wc', label: 'Separate Toilet (WC)', icon: '🚽' },
+    { value: 'laundry', label: 'Laundry', icon: '🧺' },
+    { value: 'powder_room', label: 'Powder Room', icon: '💄' },
+    { value: 'guest_bathroom', label: 'Guest Bathroom', icon: '🏨' },
+    { value: 'kids_bathroom', label: 'Kids Bathroom', icon: '🧸' }
+  ];
   const [taskOptions, setTaskOptions] = useState({
     // Demolition options
     skip_bin_size: '6 meter bin',
