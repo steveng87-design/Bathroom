@@ -938,6 +938,74 @@ const RenovationQuotingApp = () => {
     return () => clearTimeout(timeoutId);
   }, [formData, taskOptions, userProfile]);
 
+  // Google Maps Address Functions
+  const searchAddresses = async (query) => {
+    if (!query || query.length < 3) {
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
+      return;
+    }
+
+    try {
+      // Using a free geocoding service (you can replace with Google Places API if you have a key)
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=au&limit=5&addressdetails=1`
+      );
+      const data = await response.json();
+      
+      const suggestions = data.map(item => ({
+        display_name: item.display_name,
+        formatted_address: item.display_name,
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon),
+        place_id: item.place_id
+      }));
+
+      setAddressSuggestions(suggestions);
+      setShowAddressSuggestions(true);
+    } catch (error) {
+      console.error('Error searching addresses:', error);
+    }
+  };
+
+  const selectAddress = (address) => {
+    setSelectedAddress(address);
+    setFormData(prev => ({
+      ...prev,
+      clientInfo: {
+        ...prev.clientInfo,
+        address: address.formatted_address
+      }
+    }));
+    setShowAddressSuggestions(false);
+    toast.success('Address selected with GPS coordinates');
+  };
+
+  const openDirections = () => {
+    if (selectedAddress) {
+      // Open Google Maps with coordinates for precise navigation
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${selectedAddress.lat},${selectedAddress.lng}`;
+      window.open(url, '_blank');
+    } else if (formData.clientInfo.address) {
+      // Fallback to address string
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(formData.clientInfo.address)}`;
+      window.open(url, '_blank');
+    } else {
+      toast.error('Please enter project address first');
+    }
+  };
+
+  // Debounced address search
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (formData.clientInfo.address && !selectedAddress) {
+        searchAddresses(formData.clientInfo.address);
+      }
+    }, 500); // Search after 500ms of typing
+
+    return () => clearTimeout(timeoutId);
+  }, [formData.clientInfo.address, selectedAddress]);
+
   // Load saved draft on component mount
   React.useEffect(() => {
     fetchSavedProjects();
