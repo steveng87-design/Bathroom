@@ -588,7 +588,16 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
         
         # Generate PDF
         pdf_generator = BathroomProposalPDF()
-        pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile.dict())
+        
+        # Debug: Check if user_profile is valid
+        if user_profile is None:
+            raise HTTPException(status_code=400, detail="User profile is required")
+        
+        user_profile_dict = user_profile.dict()
+        if user_profile_dict is None:
+            raise HTTPException(status_code=400, detail="User profile data is invalid")
+        
+        pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile_dict)
         
         # Return PDF as response
         return Response(
