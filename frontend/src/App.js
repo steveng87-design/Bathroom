@@ -3186,7 +3186,7 @@ const RenovationQuotingApp = () => {
                             </div>
                           ) : (
                             <span className="text-xl font-bold text-green-600">
-                              ${item.estimated_cost.toLocaleString()}
+                              ${currentCost.toLocaleString()}
                             </span>
                           )}
                           <SupplierDialog 
