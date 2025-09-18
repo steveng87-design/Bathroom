@@ -1393,7 +1393,7 @@ const RenovationQuotingApp = () => {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {projectCategories.filter(cat => cat !== 'All').map(category => (
+                              {categories.filter(cat => cat !== 'All').map(category => (
                                 <SelectItem key={category} value={category}>{category}</SelectItem>
                               ))}
                             </SelectContent>
