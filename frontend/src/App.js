@@ -2046,7 +2046,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Unit Size:</Label>
                                           <Select
-                                            value={taskOptions.cavity_sliding_size || '720mm'}
+                                            value={getCurrentTaskOptions().cavity_sliding_size || '720mm'}
                                             onValueChange={(value) => handleTaskOptionChange('cavity_sliding_size', value)}
                                           >
                                             <SelectTrigger className="h-8 w-24">
