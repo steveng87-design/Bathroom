@@ -391,8 +391,8 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const calculateSquareMeters = () => {
-    const { length, width } = formData.roomMeasurements;
+  const calculateSquareMeters = (areaIndex = currentAreaIndex) => {
+    const { length, width } = projectAreas[areaIndex]?.measurements || {};
     if (length && width) {
       // Convert from millimetres to meters first, then calculate square meters
       const lengthInMeters = parseFloat(length) / 1000;
@@ -402,8 +402,8 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const calculateWallArea = () => {
-    const { length, width, height } = formData.roomMeasurements;
+  const calculateWallArea = (areaIndex = currentAreaIndex) => {
+    const { length, width, height } = projectAreas[areaIndex]?.measurements || {};
     if (length && width && height) {
       // Convert from millimetres to meters first
       const lengthInMeters = parseFloat(length) / 1000;
@@ -415,6 +415,28 @@ const RenovationQuotingApp = () => {
       return wallArea.toFixed(2);
     }
     return '0';
+  };
+
+  const getCurrentArea = () => projectAreas[currentAreaIndex];
+  
+  const getTotalProjectCost = () => {
+    return projectAreas.reduce((total, area) => {
+      return total + (area.quote?.total_cost || 0);
+    }, 0);
+  };
+
+  const getTotalFloorArea = () => {
+    return projectAreas.reduce((total, area, index) => {
+      const areaSize = parseFloat(calculateSquareMeters(index)) || 0;
+      return total + areaSize;
+    }, 0).toFixed(2);
+  };
+
+  const getTotalWallArea = () => {
+    return projectAreas.reduce((total, area, index) => {
+      const areaSize = parseFloat(calculateWallArea(index)) || 0;
+      return total + areaSize;
+    }, 0).toFixed(2);
   };
 
   const handleInputChange = (section, field, value, isCheckbox = false) => {
