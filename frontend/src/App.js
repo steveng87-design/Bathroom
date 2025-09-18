@@ -1963,7 +1963,7 @@ const RenovationQuotingApp = () => {
                                   <div className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-50 transition-colors duration-200">
                                     <Checkbox
                                       id={`${key}-${subtaskKey}`}
-                                      checked={formData.components[key]?.subtasks[subtaskKey] || false}
+                                      checked={getCurrentArea()?.components[key]?.subtasks[subtaskKey] || false}
                                       onCheckedChange={(checked) => handleSubtaskToggle(key, subtaskKey, checked)}
                                       className="h-4 w-4"
                                     />
