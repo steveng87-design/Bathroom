@@ -560,7 +560,7 @@ async def save_draft_quote(draft_data: Dict[str, Any]):
         return {"message": "Draft saved successfully"}
         
     except Exception as e:
-        logger.error(f"Error saving draft: {str(e)}")
+        logging.error(f"Error saving draft: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error saving draft: {str(e)}")
 
 @api_router.post("/quotes/{quote_id}/generate-proposal")
