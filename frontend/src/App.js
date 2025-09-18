@@ -3149,12 +3149,24 @@ const RenovationQuotingApp = () => {
                         <h4 className="font-semibold text-lg">{item.component}</h4>
                         <div className="flex items-center gap-2">
                           {adjustmentMode ? (
-                            <Input
-                              type="number"
-                              value={adjustedCosts[index] || item.estimated_cost}
-                              onChange={(e) => handleAdjustCost(index, e.target.value)}
-                              className="w-32"
-                            />
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-500">$</span>
+                              <Input
+                                type="text"
+                                placeholder="0"
+                                value={adjustedCosts[index] !== undefined ? adjustedCosts[index].toString() : item.estimated_cost.toString()}
+                                onChange={(e) => {
+                                  // Remove non-numeric characters except decimal
+                                  const value = e.target.value.replace(/[^\d.]/g, '');
+                                  handleAdjustCost(index, value);
+                                }}
+                                onFocus={(e) => {
+                                  // Select all text when focused for easy editing
+                                  e.target.select();
+                                }}
+                                className="w-24 text-right"
+                              />
+                            </div>
                           ) : (
                             <span className="text-xl font-bold text-green-600">
                               ${item.estimated_cost.toLocaleString()}
