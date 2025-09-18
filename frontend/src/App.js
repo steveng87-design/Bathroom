@@ -1126,38 +1126,17 @@ const RenovationQuotingApp = () => {
             </SheetHeader>
             
             <div className="space-y-4 mt-6">
-              {/* Save Current Project */}
+              {/* Save Current Project - Simplified */}
               {quote && (
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
                   <h4 className="font-semibold text-green-800 flex items-center mb-3">
                     <Save className="w-4 h-4 mr-2" />
                     Save Current Project
                   </h4>
-                  <div className="space-y-2">
-                    <Input
-                      placeholder={`${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`}
-                      value={newProjectName}
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                      className="text-sm"
-                    />
-                    <Select value={newProjectCategory} onValueChange={setNewProjectCategory}>
-                      <SelectTrigger className="h-8">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="General">General</SelectItem>
-                        <SelectItem value="Residential">Residential</SelectItem>
-                        <SelectItem value="Commercial">Commercial</SelectItem>
-                        <SelectItem value="Renovation">Renovation</SelectItem>
-                        <SelectItem value="New Build">New Build</SelectItem>
-                        <SelectItem value="Premium">Premium</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Button onClick={saveCurrentProject} size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                      <Save className="w-4 h-4 mr-1" />
-                      Save Project
-                    </Button>
-                  </div>
+                  <Button onClick={saveCurrentProject} size="sm" className="w-full bg-green-600 hover:bg-green-700">
+                    <Save className="w-4 h-4 mr-1" />
+                    Save Project
+                  </Button>
                 </div>
               )}
 
