@@ -524,6 +524,16 @@ const RenovationQuotingApp = () => {
     }));
   };
 
+  const handleInputChange = (section, field, value, isCheckbox = false) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: isCheckbox ? value : value
+      }
+    }));
+  };
+
   const handleAreaMeasurementChange = (field, value) => {
     setProjectAreas(prev => prev.map((area, index) => {
       if (index === currentAreaIndex) {
