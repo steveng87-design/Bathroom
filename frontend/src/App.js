@@ -1822,7 +1822,7 @@ const RenovationQuotingApp = () => {
                         id="length"
                         type="number"
                         step="1"
-                        value={getCurrentArea()?.measurements.length || ''}
+                        value={formData.roomMeasurements.length}
                         onChange={(e) => handleInputChange('roomMeasurements', 'length', e.target.value)}
                         placeholder="3500"
                         required
