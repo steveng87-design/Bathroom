@@ -418,6 +418,7 @@ const RenovationQuotingApp = () => {
   };
 
   const getCurrentArea = () => projectAreas[currentAreaIndex];
+  const getCurrentTaskOptions = () => getCurrentArea()?.taskOptions || {};
   
   const getTotalProjectCost = () => {
     return projectAreas.reduce((total, area) => {
