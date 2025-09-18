@@ -224,14 +224,16 @@ class BathroomProposalPDF:
         
         # Selected components
         selected_components = []
-        for component, details in quote_data.get('detailed_components', {}).items():
-            if details.get('enabled'):
+        detailed_components = quote_data.get('detailed_components') or {}
+        for component, details in detailed_components.items():
+            if details and details.get('enabled'):
                 component_name = component.replace('_', ' ').title()
                 selected_components.append(component_name)
                 
                 # Add selected subtasks
                 subtasks = []
-                for subtask_key, selected in details.get('subtasks', {}).items():
+                subtasks_dict = details.get('subtasks') or {}
+                for subtask_key, selected in subtasks_dict.items():
                     if selected:
                         subtask_name = subtask_key.replace('_', ' ').title()
                         subtasks.append(f"  → {subtask_name}")
