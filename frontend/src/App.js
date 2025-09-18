@@ -1932,7 +1932,7 @@ const RenovationQuotingApp = () => {
                             )}
                           </div>
                           
-                          {formData.components[key].enabled && (
+                          {getCurrentArea()?.components[key]?.enabled && (
                             <Button
                               type="button"
                               variant="ghost"
