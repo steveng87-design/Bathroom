@@ -919,7 +919,7 @@ const RenovationQuotingApp = () => {
 
       await axios.post(`${API}/projects/save`, projectData);
       toast.success('Project saved successfully!');
-      loadSavedProjects(); // Refresh the projects list
+      fetchSavedProjects(); // Refresh the projects list
     } catch (error) {
       console.error('Error saving project:', error);
       toast.error('Failed to save project');
