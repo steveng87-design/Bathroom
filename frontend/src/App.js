@@ -785,7 +785,7 @@ const RenovationQuotingApp = () => {
     if (!quote) return;
 
     try {
-      const totalAdjusted = Object.values(adjustedCosts).reduce((sum, cost) => sum + parseFloat(cost), 0);
+      const totalAdjusted = getTotalAdjustedCost();
       
       const adjustmentData = {
         original_cost: quote.total_cost,
@@ -794,16 +794,25 @@ const RenovationQuotingApp = () => {
         component_adjustments: adjustedCosts
       };
 
+      console.log('Submitting adjustments:', adjustmentData);
+      console.log('Original total:', quote.total_cost);
+      console.log('New total:', totalAdjusted);
+
       await axios.post(`${API}/quotes/${quote.id}/adjust`, adjustmentData);
       
+      // Update the quote with new total and individual costs
       setQuote(prev => ({
         ...prev,
-        total_cost: totalAdjusted
+        total_cost: totalAdjusted,
+        cost_breakdown: prev.cost_breakdown.map((item, index) => ({
+          ...item,
+          estimated_cost: adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost
+        }))
       }));
       
       setAdjustmentMode(false);
       setAdjustedCosts({});
-      toast.success('Quote adjusted successfully! The system has learned from your changes.');
+      toast.success(`Quote adjusted successfully! New total: $${totalAdjusted.toLocaleString()}. The system has learned from your changes.`);
     } catch (error) {
       console.error('Error adjusting quote:', error);
       toast.error('Failed to adjust quote');
