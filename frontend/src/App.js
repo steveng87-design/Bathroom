@@ -525,13 +525,36 @@ const RenovationQuotingApp = () => {
   };
 
   const handleInputChange = (section, field, value, isCheckbox = false) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section],
+    if (section === 'clientInfo') {
+      // Update client info in formData (keep for compatibility)
+      setFormData(prev => ({
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [field]: isCheckbox ? value : value
+        }
+      }));
+    } else if (section === 'additionalNotes') {
+      // Update additional notes in formData
+      setFormData(prev => ({
+        ...prev,
         [field]: isCheckbox ? value : value
-      }
-    }));
+      }));
+    } else {
+      // Update other sections in current area of projectAreas
+      setProjectAreas(prev => prev.map((area, index) => {
+        if (index === currentAreaIndex) {
+          return {
+            ...area,
+            [section]: {
+              ...area[section],
+              [field]: isCheckbox ? value : value
+            }
+          };
+        }
+        return area;
+      }));
+    }
   };
 
   const handleAreaMeasurementChange = (field, value) => {
