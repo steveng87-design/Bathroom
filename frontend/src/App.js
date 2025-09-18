@@ -1797,6 +1797,33 @@ const RenovationQuotingApp = () => {
                 </div>
 
                 <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-8 rounded-2xl border border-blue-100">
+                  
+                  {/* Auto-save status indicator */}
+                  <div className="mb-4 text-center">
+                    <div className="inline-flex items-center bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                      Auto-saving your progress...
+                    </div>
+                  </div>
+
+                  {/* Save Draft Button */}
+                  <div className="mb-6">
+                    <Button 
+                      type="button"
+                      onClick={saveDraftProject}
+                      className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white py-4 text-lg font-semibold mb-4"
+                      disabled={!formData.clientInfo.name}
+                    >
+                      <Save className="w-5 h-5 mr-2" />
+                      Save Draft Project Now
+                      <span className="text-sm opacity-90 ml-2">(works even if phone sleeps)</span>
+                    </Button>
+                    <p className="text-center text-orange-700 text-sm">
+                      💡 Save incomplete projects anytime • Never lose your work • Continue later
+                    </p>
+                  </div>
+
+                  {/* Generate Quote Button */}
                   <Button 
                     type="submit" 
                     className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white py-8 text-xl font-bold shadow-2xl transform hover:scale-105 transition-all duration-300"
