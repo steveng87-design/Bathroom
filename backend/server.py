@@ -477,7 +477,7 @@ async def get_saved_projects(category: Optional[str] = None):
         projects = await db.saved_projects.find(query).sort("updated_at", -1).to_list(1000)
         return [SavedProject(**parse_from_mongo(project)) for project in projects]
     except Exception as e:
-        logger.error(f"Error fetching projects: {str(e)}")
+        logging.error(f"Error fetching projects: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching projects: {str(e)}")
 
 @api_router.put("/projects/{project_id}")
