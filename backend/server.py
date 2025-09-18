@@ -543,7 +543,7 @@ async def get_project_quote(project_id: str):
             "request": parse_from_mongo(request_data) if request_data else None
         }
     except Exception as e:
-        logger.error(f"Error fetching project quote: {str(e)}")
+        logging.error(f"Error fetching project quote: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching project quote: {str(e)}")
 
 @api_router.post("/quotes/save-draft")
