@@ -224,6 +224,190 @@ class BathroomRenovationAPITester:
             404
         )[0]
 
+    def test_create_quote_with_detailed_components(self):
+        """Test creating a quote with detailed component toggles and task options"""
+        quote_data = {
+            "client_info": {
+                "name": "Sarah Wilson",
+                "email": "sarah.wilson@example.com",
+                "phone": "02-5555-1234",
+                "address": "789 Component St, Brisbane QLD 4000"
+            },
+            "room_measurements": {
+                "length": 4.0,
+                "width": 3.0,
+                "height": 2.7
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": True,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "remove_existing_tiles": True,
+                        "remove_fixtures": True,
+                        "remove_vanity": True,
+                        "remove_toilet": False,
+                        "remove_shower_screen": True
+                    }
+                },
+                "framing": {
+                    "enabled": True,
+                    "subtasks": {
+                        "build_stud_walls": True,
+                        "build_niches": True,
+                        "install_door_frame": True,
+                        "install_window_frame": False
+                    }
+                },
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": True,
+                        "supply_install_wall_tiles": True,
+                        "supply_install_feature_tiles": True,
+                        "waterproof_shower_area": True
+                    }
+                }
+            },
+            "task_options": {
+                "skip_bin_size": "6m³",
+                "build_niches_quantity": 2,
+                "swing_door_size": "720mm",
+                "water_feeds_type": "thermostatic",
+                "power_points_quantity": 3,
+                "plasterboard_grade": "standard_grade",
+                "floor_tile_grade": "premium_grade",
+                "wall_tile_grade": "standard_grade",
+                "feature_tile_grade": "luxury_grade",
+                "vanity_grade": "premium_grade",
+                "toilet_grade": "standard_grade",
+                "tapware_grade": "premium_grade",
+                "lighting_grade": "standard_grade"
+            },
+            "additional_notes": "Test with detailed component toggles and task options"
+        }
+        
+        success, response = self.run_test(
+            "Create Quote - Detailed Components",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if success and isinstance(response, dict):
+            print(f"   Total Cost: ${response.get('total_cost', 'N/A')}")
+            print(f"   Confidence: {response.get('confidence_level', 'N/A')}")
+            print(f"   Components in breakdown: {len(response.get('cost_breakdown', []))}")
+            return True
+        return False
+
+    def test_save_project(self):
+        """Test saving a project"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        project_data = {
+            "project_name": "Test Bathroom Project",
+            "category": "Residential",
+            "quote_id": self.quote_id,
+            "client_name": "John Smith",
+            "total_cost": 25000,
+            "notes": "Test project for API validation"
+        }
+        
+        success, response = self.run_test(
+            "Save Project",
+            "POST",
+            "projects/save",
+            200,
+            data=project_data
+        )
+        
+        if success and isinstance(response, dict) and 'id' in response:
+            self.project_id = response['id']
+            print(f"   Project ID: {self.project_id}")
+            return True
+        return False
+
+    def test_get_saved_projects(self):
+        """Test getting all saved projects"""
+        return self.run_test(
+            "Get Saved Projects",
+            "GET",
+            "projects",
+            200
+        )[0]
+
+    def test_get_project_categories(self):
+        """Test getting project categories"""
+        return self.run_test(
+            "Get Project Categories",
+            "GET",
+            "projects/categories",
+            200
+        )[0]
+
+    def test_get_project_quote(self):
+        """Test getting project quote details"""
+        if not hasattr(self, 'project_id') or not self.project_id:
+            print("❌ Skipping - No project ID available")
+            return False
+            
+        success, response = self.run_test(
+            "Get Project Quote",
+            "GET",
+            f"projects/{self.project_id}/quote",
+            200
+        )
+        
+        if success and isinstance(response, dict):
+            print(f"   Has project data: {'project' in response}")
+            print(f"   Has quote data: {'quote' in response}")
+            print(f"   Has request data: {'request' in response}")
+            return True
+        return False
+
+    def test_generate_pdf_proposal(self):
+        """Test PDF proposal generation"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        user_profile = {
+            "company_name": "Test Renovations Pty Ltd",
+            "contact_name": "Test Manager",
+            "phone": "02-1234-5678",
+            "email": "test@renovations.com.au",
+            "license_number": "TEST-1234",
+            "years_experience": "10+",
+            "projects_completed": "200+"
+        }
+        
+        success, response = self.run_test(
+            "Generate PDF Proposal",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=user_profile
+        )
+        
+        if success:
+            print(f"   PDF generated successfully")
+            return True
+        return False
+
 def main():
     print("🚀 Starting Bathroom Renovation API Tests")
     print("=" * 50)
