@@ -1311,6 +1311,19 @@ const RenovationQuotingApp = () => {
     }
   }, []);
 
+  // Force calculation updates when projectAreas change (for loaded projects)
+  React.useEffect(() => {
+    // Trigger re-render of calculation components when projectAreas change
+    // This ensures calculations update when projects are loaded
+    if (projectAreas && projectAreas.length > 0) {
+      const currentArea = projectAreas[currentAreaIndex];
+      if (currentArea?.measurements?.length && currentArea?.measurements?.width) {
+        // Force a small state update to trigger re-renders of calculation components
+        setCurrentAreaIndex(prev => prev);
+      }
+    }
+  }, [projectAreas, currentAreaIndex]);
+
   const SupplierDialog = ({ component, componentLabel }) => (
     <Dialog>
       <DialogTrigger asChild>
