@@ -497,7 +497,7 @@ async def update_project(project_id: str, update: ProjectUpdate):
         
         return {"message": "Project updated successfully"}
     except Exception as e:
-        logger.error(f"Error updating project: {str(e)}")
+        logging.error(f"Error updating project: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error updating project: {str(e)}")
 
 @api_router.delete("/projects/{project_id}")
