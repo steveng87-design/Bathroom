@@ -11,6 +11,7 @@ class BathroomRenovationAPITester:
         self.tests_run = 0
         self.tests_passed = 0
         self.quote_id = None
+        self.project_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, timeout=30):
         """Run a single API test"""
