@@ -520,7 +520,7 @@ async def get_project_categories():
         categories = await db.saved_projects.distinct("category")
         return {"categories": ["All"] + sorted(categories)}
     except Exception as e:
-        logger.error(f"Error fetching categories: {str(e)}")
+        logging.error(f"Error fetching categories: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error fetching categories: {str(e)}")
 
 @api_router.get("/projects/{project_id}/quote")
