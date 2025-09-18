@@ -724,6 +724,92 @@ const RenovationQuotingApp = () => {
     }));
   };
 
+  // Maps Integration - Smart device detection
+  const openInMaps = (address) => {
+    if (!address.trim()) {
+      toast.error('Please enter an address first');
+      return;
+    }
+
+    const encodedAddress = encodeURIComponent(address);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isMac = /Macintosh/.test(navigator.userAgent);
+    
+    let mapsUrl;
+    
+    if (isIOS || isMac) {
+      // Apple Maps for iOS/Mac devices
+      mapsUrl = `maps://maps.apple.com/?q=${encodedAddress}`;
+      // Fallback to web version if app not installed
+      setTimeout(() => {
+        window.open(`https://maps.apple.com/?q=${encodedAddress}`, '_blank');
+      }, 500);
+    } else {
+      // Google Maps for Android/other devices
+      mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+    }
+
+    try {
+      window.open(mapsUrl, '_blank');
+      toast.success(`Opening ${isIOS || isMac ? 'Apple' : 'Google'} Maps...`);
+    } catch (error) {
+      // Fallback to Google Maps web
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, '_blank');
+      toast.success('Opening Google Maps...');
+    }
+  };
+
+  // Save current quote as project
+  const saveCurrentProject = async () => {
+    if (!quote) {
+      toast.error('Please generate a quote first');
+      return;
+    }
+
+    const projectName = `${formData.clientInfo.name} - ${formData.clientInfo.address.split(',')[0]}`;
+    
+    try {
+      const projectData = {
+        project_name: projectName,
+        category: 'Residential', // Default category
+        quote_id: quote.id,
+        client_name: formData.clientInfo.name,
+        total_cost: quote.total_cost,
+        notes: formData.additionalNotes || ''
+      };
+
+      await axios.post(`${API}/projects/save`, projectData);
+      toast.success('Project saved successfully!');
+      loadSavedProjects(); // Refresh the projects list
+    } catch (error) {
+      console.error('Error saving project:', error);
+      toast.error('Failed to save project');
+    }
+  };
+
+  // Load saved projects
+  const loadSavedProjects = async () => {
+    try {
+      const response = await axios.get(`${API}/projects`);
+      setSavedProjects(response.data);
+    } catch (error) {
+      console.error('Error loading projects:', error);
+    }
+  };
+
+  // Filter projects
+  const filteredProjects = savedProjects.filter(project => {
+    const matchesCategory = selectedCategory === 'All' || project.category === selectedCategory;
+    const matchesSearch = project.project_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         project.client_name.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  // Load projects on component mount
+  React.useEffect(() => {
+    loadSavedProjects();
+  }, []);
+
   // Project Management Functions
   const fetchSavedProjects = async () => {
     try {
