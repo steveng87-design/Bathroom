@@ -1925,7 +1925,7 @@ const RenovationQuotingApp = () => {
                             <Label htmlFor={key} className="text-lg font-semibold cursor-pointer text-gray-800">
                               {label}
                             </Label>
-                            {formData.components[key]?.enabled && (
+                            {getCurrentArea()?.components[key]?.enabled && (
                               <Badge variant="outline" className="text-xs">
                                 {getSelectedSubtasks(key).length} tasks selected
                               </Badge>
