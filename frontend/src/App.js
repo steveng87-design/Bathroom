@@ -394,8 +394,9 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const calculateSquareMeters = () => {
-    const { length, width } = formData.roomMeasurements;
+  const calculateSquareMeters = (areaIndex = null) => {
+    const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
+    const { length, width } = area?.measurements || {};
     if (length && width) {
       // Convert from millimetres to meters first, then calculate square meters
       const lengthInMeters = parseFloat(length) / 1000;
@@ -405,8 +406,9 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const calculateWallArea = () => {
-    const { length, width, height } = formData.roomMeasurements;
+  const calculateWallArea = (areaIndex = null) => {
+    const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
+    const { length, width, height } = area?.measurements || {};
     if (length && width && height) {
       // Convert from millimetres to meters first
       const lengthInMeters = parseFloat(length) / 1000;
@@ -418,6 +420,29 @@ const RenovationQuotingApp = () => {
       return wallArea.toFixed(2);
     }
     return '0';
+  };
+
+  const getCurrentArea = () => projectAreas[currentAreaIndex];
+  const getCurrentTaskOptions = () => getCurrentArea()?.taskOptions || {};
+  
+  const getTotalProjectCost = () => {
+    return projectAreas.reduce((total, area) => {
+      return total + (area.quote?.total_cost || 0);
+    }, 0);
+  };
+
+  const getTotalFloorArea = () => {
+    return projectAreas.reduce((total, area, index) => {
+      const areaSize = parseFloat(calculateSquareMeters(index)) || 0;
+      return total + areaSize;
+    }, 0).toFixed(2);
+  };
+
+  const getTotalWallArea = () => {
+    return projectAreas.reduce((total, area, index) => {
+      const areaSize = parseFloat(calculateWallArea(index)) || 0;
+      return total + areaSize;
+    }, 0).toFixed(2);
   };
 
   // Task options management for single form
