@@ -364,29 +364,6 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const getCurrentArea = () => projectAreas[currentAreaIndex];
-  const getCurrentTaskOptions = () => getCurrentArea()?.taskOptions || {};
-  
-  const getTotalProjectCost = () => {
-    return projectAreas.reduce((total, area) => {
-      return total + (area.quote?.total_cost || 0);
-    }, 0);
-  };
-
-  const getTotalFloorArea = () => {
-    return projectAreas.reduce((total, area, index) => {
-      const areaSize = parseFloat(calculateSquareMeters(index)) || 0;
-      return total + areaSize;
-    }, 0).toFixed(2);
-  };
-
-  const getTotalWallArea = () => {
-    return projectAreas.reduce((total, area, index) => {
-      const areaSize = parseFloat(calculateWallArea(index)) || 0;
-      return total + areaSize;
-    }, 0).toFixed(2);
-  };
-
   // Multi-Area Management Functions
   const addNewArea = (areaType) => {
     const newArea = {
