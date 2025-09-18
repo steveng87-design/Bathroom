@@ -3188,7 +3188,7 @@ const RenovationQuotingApp = () => {
                             <span className="text-xl font-bold text-green-600">
                               ${currentCost.toLocaleString()}
                             </span>
-                          )
+                          )}
                           <SupplierDialog 
                             component={item.component.toLowerCase().replace(' ', '_')} 
                             componentLabel={item.component}
