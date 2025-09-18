@@ -539,12 +539,17 @@ async def get_project_quote(project_id: str):
         if not quote:
             raise HTTPException(status_code=404, detail="Quote not found")
         
-        request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+        # Use stored request_data from project if available, otherwise fallback to quote_requests
+        request_data = project.get("request_data")
+        if not request_data:
+            # Fallback for legacy projects
+            request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+            request_data = parse_from_mongo(request_data) if request_data else None
         
         return {
             "project": SavedProject(**parse_from_mongo(project)),
             "quote": RenovationQuote(**parse_from_mongo(quote)),
-            "request": parse_from_mongo(request_data) if request_data else None
+            "request": request_data
         }
     except Exception as e:
         logging.error(f"Error fetching project quote: {str(e)}")
