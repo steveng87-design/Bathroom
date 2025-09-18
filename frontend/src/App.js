@@ -2554,59 +2554,169 @@ const RenovationQuotingApp = () => {
           </Card>
         ) : (
           <div className="max-w-6xl mx-auto space-y-6">
-            {/* Quote Summary */}
+            {/* Multi-Area Quote Summary */}
             <Card className="shadow-lg">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-                <CardTitle className="text-2xl flex items-center">
-                  <CheckCircle2 className="w-6 h-6 mr-2" />
-                  Renovation Quote Generated
-                </CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-2xl flex items-center">
+                    <CheckCircle2 className="w-6 h-6 mr-2" />
+                    {quote.area_quotes ? `Multi-Area Project Quote (${quote.areas_count} Areas)` : 'Renovation Quote Generated'}
+                  </CardTitle>
+                  <Button
+                    onClick={handleBackToEdit}
+                    variant="outline"
+                    className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+                  >
+                    ← Back to Edit Project
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                  <div className="text-center bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
-                    <h3 className="text-4xl font-black text-green-600">
-                      ${quote.total_cost.toLocaleString()}
-                    </h3>
-                    <p className="text-green-700 font-semibold">Total Estimated Cost</p>
-                  </div>
-                  <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
-                    <h3 className="text-3xl font-bold text-blue-600">
-                      {calculateSquareMeters()} m²
-                    </h3>
-                    <p className="text-blue-700 font-semibold">Floor Area</p>
-                    <p className="text-blue-500 text-xs">For floor materials</p>
-                  </div>
-                  <div className="text-center bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
-                    <h3 className="text-3xl font-bold text-purple-600">
-                      {calculateWallArea()} m²
-                    </h3>
-                    <p className="text-purple-700 font-semibold">Wall Area</p>
-                    <p className="text-purple-500 text-xs">For wall materials</p>
-                  </div>
-                  <div className="text-center bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
-                    <Badge 
-                      variant={quote.confidence_level === 'High' ? 'default' : quote.confidence_level === 'Medium' ? 'secondary' : 'outline'} 
-                      className="text-lg p-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold"
-                    >
-                      {quote.confidence_level} Confidence
-                    </Badge>
-                    <p className="text-yellow-700 font-semibold mt-2">AI Accuracy</p>
-                    <p className="text-yellow-600 text-xs">Learning from your style</p>
-                  </div>
-                </div>
+                {quote.area_quotes ? (
+                  <>
+                    {/* Total Project Summary */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                      <div className="text-center bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+                        <h3 className="text-4xl font-black text-green-600">
+                          ${quote.total_project_cost.toLocaleString()}
+                        </h3>
+                        <p className="text-green-700 font-semibold">Total Project Cost</p>
+                        <p className="text-green-500 text-xs">All {quote.areas_count} areas combined</p>
+                      </div>
+                      <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                        <h3 className="text-3xl font-bold text-blue-600">
+                          {getTotalFloorArea()} m²
+                        </h3>
+                        <p className="text-blue-700 font-semibold">Total Floor Area</p>
+                        <p className="text-blue-500 text-xs">Combined floor space</p>
+                      </div>
+                      <div className="text-center bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+                        <h3 className="text-3xl font-bold text-purple-600">
+                          {getTotalWallArea()} m²
+                        </h3>
+                        <p className="text-purple-700 font-semibold">Total Wall Area</p>
+                        <p className="text-purple-500 text-xs">Combined wall space</p>
+                      </div>
+                      <div className="text-center bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                        <Badge
+                          variant="outline"
+                          className="text-lg p-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold"
+                        >
+                          High Confidence
+                        </Badge>
+                        <p className="text-yellow-700 font-semibold mt-2">AI Accuracy</p>
+                        <p className="text-yellow-600 text-xs">Multi-area analysis</p>
+                      </div>
+                    </div>
 
-                <div className="bg-blue-50 p-4 rounded-lg mb-6">
-                  <div className="flex items-start">
-                    <AlertCircle className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
-                    <div>
-                      <h4 className="font-semibold text-blue-800 mb-2">AI Analysis</h4>
-                      <p className="text-blue-700">{quote.ai_analysis}</p>
+                    {/* Individual Area Breakdowns */}
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-bold text-gray-900 flex items-center">
+                        <Building className="w-5 h-5 mr-2 text-purple-600" />
+                        Individual Area Quotes
+                      </h3>
+                      
+                      {quote.area_quotes.map((areaQuote, index) => (
+                        <Card key={index} className="border-l-4 border-l-blue-500">
+                          <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <CardTitle className="text-lg flex items-center justify-between">
+                              <div className="flex items-center">
+                                <span className="text-2xl mr-3">
+                                  {areaTypes.find(t => t.value === areaQuote.area_type)?.icon || '🏠'}
+                                </span>
+                                <div>
+                                  <div>{areaQuote.area_name}</div>
+                                  <div className="text-sm font-normal text-gray-600">
+                                    {areaTypes.find(t => t.value === areaQuote.area_type)?.label}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-2xl font-bold text-green-600">
+                                  ${areaQuote.total_cost.toLocaleString()}
+                                </div>
+                                <div className="text-sm text-gray-600">Area Total</div>
+                              </div>
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="p-4">
+                            <div className="space-y-3">
+                              {areaQuote.cost_breakdown.map((item, itemIndex) => (
+                                <div key={itemIndex} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                                  <div>
+                                    <h5 className="font-medium">{item.component}</h5>
+                                    <p className="text-sm text-gray-600">{item.notes}</p>
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="font-semibold text-green-600">
+                                      ${item.estimated_cost.toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      ${item.cost_range_min.toLocaleString()} - ${item.cost_range_max.toLocaleString()}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            
+                            {areaQuote.ai_analysis && (
+                              <div className="bg-blue-50 p-3 rounded-lg mt-4">
+                                <div className="flex items-start">
+                                  <AlertCircle className="w-4 h-4 text-blue-600 mr-2 mt-0.5" />
+                                  <div>
+                                    <h6 className="font-medium text-blue-800 text-sm">Area Analysis</h6>
+                                    <p className="text-blue-700 text-sm">{areaQuote.ai_analysis}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 mt-6">
+                      <h4 className="font-semibold text-green-800 mb-2">Project Summary</h4>
+                      <p className="text-green-700">{quote.project_summary}</p>
+                    </div>
+                  </>
+                ) : (
+                  // Single area quote display (fallback)
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div className="text-center bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200">
+                      <h3 className="text-4xl font-black text-green-600">
+                        ${quote.total_cost?.toLocaleString() || '0'}
+                      </h3>
+                      <p className="text-green-700 font-semibold">Total Estimated Cost</p>
+                    </div>
+                    <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200">
+                      <h3 className="text-3xl font-bold text-blue-600">
+                        {calculateSquareMeters()} m²
+                      </h3>
+                      <p className="text-blue-700 font-semibold">Floor Area</p>
+                      <p className="text-blue-500 text-xs">For floor materials</p>
+                    </div>
+                    <div className="text-center bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-xl border border-purple-200">
+                      <h3 className="text-3xl font-bold text-purple-600">
+                        {calculateWallArea()} m²
+                      </h3>
+                      <p className="text-purple-700 font-semibold">Wall Area</p>
+                      <p className="text-purple-500 text-xs">For wall finishes</p>
+                    </div>
+                    <div className="text-center bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-xl border border-yellow-200">
+                      <Badge
+                        variant="outline"
+                        className="text-lg p-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold"
+                      >
+                        {quote.confidence_level || 'High'} Confidence
+                      </Badge>
+                      <p className="text-yellow-700 font-semibold mt-2">AI Accuracy</p>
+                      <p className="text-yellow-600 text-xs">Learning from your style</p>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
                   <Button
                     onClick={() => setAdjustmentMode(!adjustmentMode)}
                     variant={adjustmentMode ? 'destructive' : 'outline'}
