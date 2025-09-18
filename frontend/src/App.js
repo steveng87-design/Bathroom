@@ -568,10 +568,7 @@ const RenovationQuotingApp = () => {
   };
 
   const getSelectedSubtasks = (component) => {
-    const currentArea = getCurrentArea();
-    if (!currentArea?.components[component]?.subtasks) return [];
-    
-    return Object.entries(currentArea.components[component].subtasks)
+    return Object.entries(formData.components[component]?.subtasks || {})
       .filter(([key, value]) => value)
       .map(([key, value]) => key);
   };
