@@ -1178,6 +1178,141 @@ const RenovationQuotingApp = () => {
       </div>
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5"></div>
       
+      {/* Saved Projects Side Panel */}
+      <Sheet open={showProjectsPanel} onOpenChange={setShowProjectsPanel}>
+        <SheetTrigger asChild>
+          <Button 
+            className="fixed top-4 left-4 z-50 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-2xl"
+            size="lg"
+          >
+            <FolderOpen className="w-5 h-5 mr-2" />
+            Saved Projects ({savedProjects.length})
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="left" className="w-96 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="text-xl font-bold text-gray-900 flex items-center">
+              <FolderOpen className="w-6 h-6 mr-2 text-purple-600" />
+              Saved Projects
+            </SheetTitle>
+          </SheetHeader>
+          
+          <div className="space-y-4 mt-6">
+            {/* Search and Filter */}
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Search projects..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger>
+                  <SelectValue>
+                    <div className="flex items-center">
+                      <Filter className="w-4 h-4 mr-2" />
+                      {selectedCategory}
+                    </div>
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map(category => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Save Current Project Button */}
+            {quote && (
+              <Button
+                onClick={saveCurrentProject}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                Save Current Quote as Project
+              </Button>
+            )}
+
+            {/* Projects List */}
+            <div className="space-y-3">
+              {filteredProjects.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <FolderOpen className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                  <p>No saved projects yet</p>
+                  <p className="text-sm">Generate a quote and save it!</p>
+                </div>
+              ) : (
+                filteredProjects.map((project) => (
+                  <Card key={project.id} className="p-3 hover:shadow-md transition-shadow cursor-pointer">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
+                            {project.project_name}
+                          </h4>
+                          <p className="text-xs text-gray-600">
+                            {project.client_name}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {project.category}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-green-600">
+                          <DollarSign className="w-3 h-3 mr-1" />
+                          <span className="text-sm font-semibold">
+                            ${project.total_cost.toLocaleString()}
+                          </span>
+                        </div>
+                        <div className="flex items-center text-gray-400 text-xs">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {new Date(project.created_at).toLocaleDateString()}
+                        </div>
+                      </div>
+                      
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 text-xs h-7"
+                          onClick={() => {
+                            // Load project functionality will be added
+                            toast.success('Loading project...');
+                          }}
+                        >
+                          <Edit3 className="w-3 h-3 mr-1" />
+                          Load
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs h-7 text-red-600 hover:text-red-700"
+                          onClick={() => {
+                            // Delete functionality will be added
+                            toast.success('Delete feature coming soon');
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
+      
       <div className="container mx-auto px-4 py-12 relative z-10">
         
         {/* Floating Side Panel Trigger */}
