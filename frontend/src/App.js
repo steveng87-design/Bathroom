@@ -577,9 +577,17 @@ const RenovationQuotingApp = () => {
   };
 
   const handleTaskOptionChange = (optionKey, value) => {
-    setTaskOptions(prev => ({
-      ...prev,
-      [optionKey]: value
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          taskOptions: {
+            ...area.taskOptions,
+            [optionKey]: value
+          }
+        };
+      }
+      return area;
     }));
   };
 
