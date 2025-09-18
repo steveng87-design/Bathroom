@@ -1350,7 +1350,7 @@ const RenovationQuotingApp = () => {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {projectCategories.map(category => (
+                    {categories.map(category => (
                       <SelectItem key={category} value={category}>{category}</SelectItem>
                     ))}
                   </SelectContent>
