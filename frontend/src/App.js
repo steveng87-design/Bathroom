@@ -621,39 +621,74 @@ const RenovationQuotingApp = () => {
     setLoading(true);
 
     try {
-      const currentArea = getCurrentArea();
+      // Generate quotes for ALL areas that have components selected
+      const areaQuotes = [];
+      let totalProjectCost = 0;
       
-      // Transform the components structure for backend compatibility
-      const transformedComponents = {};
-      Object.entries(currentArea.components).forEach(([key, component]) => {
-        transformedComponents[key] = component.enabled;
-      });
+      for (let i = 0; i < projectAreas.length; i++) {
+        const area = projectAreas[i];
+        
+        // Check if area has any components selected
+        const hasSelectedComponents = Object.values(area.components).some(comp => comp.enabled);
+        
+        if (hasSelectedComponents && area.measurements.length && area.measurements.width && area.measurements.height) {
+          // Transform the components structure for backend compatibility
+          const transformedComponents = {};
+          Object.entries(area.components).forEach(([key, component]) => {
+            transformedComponents[key] = component.enabled;
+          });
 
-      const requestData = {
-        client_info: formData.clientInfo,
-        room_measurements: {
-          length: parseFloat(currentArea.measurements.length) / 1000, // Convert mm to meters
-          width: parseFloat(currentArea.measurements.width) / 1000,   // Convert mm to meters  
-          height: parseFloat(currentArea.measurements.height) / 1000  // Convert mm to meters
-        },
-        components: transformedComponents,
-        detailed_components: currentArea.components, // Send detailed structure for enhanced AI analysis
-        task_options: currentArea.taskOptions, // Include quantity/size selections
-        additional_notes: currentArea.additionalNotes || formData.additionalNotes
-      };
+          const requestData = {
+            client_info: formData.clientInfo,
+            room_measurements: {
+              length: parseFloat(area.measurements.length) / 1000, // Convert mm to meters
+              width: parseFloat(area.measurements.width) / 1000,   // Convert mm to meters  
+              height: parseFloat(area.measurements.height) / 1000  // Convert mm to meters
+            },
+            components: transformedComponents,
+            detailed_components: area.components, // Send detailed structure for enhanced AI analysis
+            task_options: area.taskOptions, // Include quantity/size selections
+            additional_notes: area.additionalNotes || formData.additionalNotes,
+            area_name: area.name, // Add area name for context
+            area_type: area.type
+          };
 
-      const response = await axios.post(`${API}/quotes/request`, requestData);
-      
-      // Update the current area with the quote
-      setProjectAreas(prev => prev.map((area, index) => {
-        if (index === currentAreaIndex) {
-          return { ...area, quote: response.data };
+          const response = await axios.post(`${API}/quotes/request`, requestData);
+          const areaQuote = {
+            ...response.data,
+            area_name: area.name,
+            area_type: area.type,
+            area_index: i
+          };
+          
+          areaQuotes.push(areaQuote);
+          totalProjectCost += response.data.total_cost;
         }
-        return area;
+      }
+      
+      if (areaQuotes.length === 0) {
+        toast.error('Please add measurements and select components for at least one area');
+        return;
+      }
+      
+      // Update project areas with their individual quotes
+      setProjectAreas(prev => prev.map((area, index) => {
+        const areaQuote = areaQuotes.find(q => q.area_index === index);
+        return areaQuote ? { ...area, quote: areaQuote } : area;
       }));
       
-      setQuote(response.data);
-      toast.success('Quote generated successfully!');
+      // Create combined project quote
+      const combinedQuote = {
+        id: `project_${Date.now()}`,
+        area_quotes: areaQuotes,
+        total_project_cost: totalProjectCost,
+        areas_count: areaQuotes.length,
+        project_summary: `Multi-area renovation project with ${areaQuotes.length} areas: ${areaQuotes.map(q => q.area_name).join(', ')}`,
+        created_at: new Date().toISOString()
+      };
+      
+      setQuote(combinedQuote);
+      toast.success(`Project quote generated for ${areaQuotes.length} areas!`);
     } catch (error) {
       console.error('Error generating quote:', error);
       toast.error('Failed to generate quote. Please try again.');
