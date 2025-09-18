@@ -132,6 +132,7 @@ class SavedProject(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     notes: Optional[str] = None
+    request_data: Optional[Dict[str, Any]] = None  # Store complete form data for proper loading
 
 class ProjectUpdate(BaseModel):
     project_name: Optional[str] = None
