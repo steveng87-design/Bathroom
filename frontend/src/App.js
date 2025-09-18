@@ -180,6 +180,11 @@ const RenovationQuotingApp = () => {
     years_experience: '5+',
     projects_completed: '100+'
   });
+  const [savedProjects, setSavedProjects] = useState([]);
+  const [showProjectsPanel, setShowProjectsPanel] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categories, setCategories] = useState(['All', 'Residential', 'Commercial', 'Luxury', 'Budget']);
 
   // Project Management States
   const [savedProjects, setSavedProjects] = useState([]);
