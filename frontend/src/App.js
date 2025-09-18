@@ -3200,7 +3200,8 @@ const RenovationQuotingApp = () => {
                       </div>
                       <p className="text-gray-700">{item.notes}</p>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
