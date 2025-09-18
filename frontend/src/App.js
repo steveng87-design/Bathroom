@@ -3151,10 +3151,19 @@ const RenovationQuotingApp = () => {
               </CardHeader>
               <CardContent className="p-6">
                 <div className="space-y-4">
-                  {quote.cost_breakdown.map((item, index) => (
-                    <div key={index} className="border rounded-lg p-4 hover:bg-gray-50">
+                  {quote.cost_breakdown.map((item, index) => {
+                    const isAdjusted = adjustedCosts[index] !== undefined;
+                    const currentCost = isAdjusted ? adjustedCosts[index] : item.estimated_cost;
+                    
+                    return (
+                    <div key={index} className={`border rounded-lg p-4 hover:bg-gray-50 ${isAdjusted && adjustmentMode ? 'border-blue-500 bg-blue-50' : ''}`}>
                       <div className="flex justify-between items-center mb-2">
-                        <h4 className="font-semibold text-lg">{item.component}</h4>
+                        <h4 className="font-semibold text-lg">
+                          {item.component}
+                          {isAdjusted && adjustmentMode && (
+                            <span className="ml-2 text-xs bg-blue-600 text-white px-2 py-1 rounded">ADJUSTED</span>
+                          )}
+                        </h4>
                         <div className="flex items-center gap-2">
                           {adjustmentMode ? (
                             <div className="flex items-center gap-2">
