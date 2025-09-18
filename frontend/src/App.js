@@ -701,6 +701,8 @@ const RenovationQuotingApp = () => {
     setQuote(null);
     toast.success('Returned to project editing');
   };
+
+  const fetchSuppliers = async (component) => {
     try {
       const response = await axios.get(`${API}/suppliers/${component}`);
       setSelectedSuppliers(prev => ({
