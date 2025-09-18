@@ -1920,7 +1920,7 @@ const RenovationQuotingApp = () => {
                             <Label htmlFor={key} className="text-lg font-semibold cursor-pointer text-gray-800">
                               {label}
                             </Label>
-                            {getCurrentArea()?.components[key]?.enabled && (
+                            {formData.components[key]?.enabled && (
                               <Badge variant="outline" className="text-xs">
                                 {getSelectedSubtasks(key).length} tasks selected
                               </Badge>
