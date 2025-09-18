@@ -644,77 +644,101 @@ const RenovationQuotingApp = () => {
     setLoading(true);
 
     try {
-      // Generate quotes for ALL areas that have components selected
-      const areaQuotes = [];
-      let totalProjectCost = 0;
+      console.log('=== QUOTE GENERATION DEBUG ===');
+      console.log('projectAreas:', projectAreas);
+      console.log('currentAreaIndex:', currentAreaIndex);
+      console.log('formData:', formData);
       
-      for (let i = 0; i < projectAreas.length; i++) {
-        const area = projectAreas[i];
-        
-        // Check if area has any components selected
-        const hasSelectedComponents = Object.values(area.components).some(comp => comp.enabled);
-        
-        if (hasSelectedComponents && area.measurements.length && area.measurements.width && area.measurements.height) {
-          // Transform the components structure for backend compatibility
-          const transformedComponents = {};
-          Object.entries(area.components).forEach(([key, component]) => {
-            transformedComponents[key] = component.enabled;
-          });
-
-          const requestData = {
-            client_info: formData.clientInfo,
-            room_measurements: {
-              length: parseFloat(area.measurements.length) / 1000, // Convert mm to meters
-              width: parseFloat(area.measurements.width) / 1000,   // Convert mm to meters  
-              height: parseFloat(area.measurements.height) / 1000  // Convert mm to meters
-            },
-            components: transformedComponents,
-            detailed_components: area.components, // Send detailed structure for enhanced AI analysis
-            task_options: area.taskOptions, // Include quantity/size selections
-            additional_notes: area.additionalNotes || formData.additionalNotes,
-            area_name: area.name, // Add area name for context
-            area_type: area.type
-          };
-
-          const response = await axios.post(`${API}/quotes/request`, requestData);
-          const areaQuote = {
-            ...response.data,
-            area_name: area.name,
-            area_type: area.type,
-            area_index: i
-          };
-          
-          areaQuotes.push(areaQuote);
-          totalProjectCost += response.data.total_cost;
-        }
-      }
+      const currentArea = getCurrentArea();
+      console.log('currentArea:', currentArea);
       
-      if (areaQuotes.length === 0) {
-        toast.error('Please add measurements and select components for at least one area');
+      if (!currentArea) {
+        toast.error('No area found. Please refresh the page and try again.');
         return;
       }
       
-      // Update project areas with their individual quotes
-      setProjectAreas(prev => prev.map((area, index) => {
-        const areaQuote = areaQuotes.find(q => q.area_index === index);
-        return areaQuote ? { ...area, quote: areaQuote } : area;
-      }));
+      if (!currentArea.components) {
+        toast.error('No components structure found. Please refresh the page and try again.');
+        return;
+      }
       
-      // Create combined project quote
-      const combinedQuote = {
-        id: `project_${Date.now()}`,
-        area_quotes: areaQuotes,
-        total_project_cost: totalProjectCost,
-        areas_count: areaQuotes.length,
-        project_summary: `Multi-area renovation project with ${areaQuotes.length} areas: ${areaQuotes.map(q => q.area_name).join(', ')}`,
-        created_at: new Date().toISOString()
+      if (!currentArea.measurements) {
+        toast.error('No measurements found. Please add room measurements.');
+        return;
+      }
+      
+      // Check if area has any components selected
+      const hasSelectedComponents = Object.values(currentArea.components).some(comp => comp && comp.enabled);
+      console.log('hasSelectedComponents:', hasSelectedComponents);
+      
+      if (!hasSelectedComponents) {
+        toast.error('Please select at least one renovation component (Demolition, Tiling, etc.)');
+        return;
+      }
+      
+      const { length, width, height } = currentArea.measurements;
+      if (!length || !width || !height) {
+        toast.error('Please fill in all room measurements (length, width, height)');
+        return;
+      }
+      
+      console.log('Validation passed, generating quote...');
+      
+      // Generate quote for current area only (simplified approach)
+      const transformedComponents = {};
+      Object.entries(currentArea.components).forEach(([key, component]) => {
+        transformedComponents[key] = component && component.enabled;
+      });
+      
+      console.log('transformedComponents:', transformedComponents);
+
+      const requestData = {
+        client_info: formData.clientInfo,
+        room_measurements: {
+          length: parseFloat(length) / 1000, // Convert mm to meters
+          width: parseFloat(width) / 1000,   // Convert mm to meters  
+          height: parseFloat(height) / 1000  // Convert mm to meters
+        },
+        components: transformedComponents,
+        detailed_components: currentArea.components,
+        task_options: currentArea.taskOptions || {},
+        additional_notes: currentArea.additionalNotes || formData.additionalNotes || '',
+        area_name: currentArea.name,
+        area_type: currentArea.type
       };
       
-      setQuote(combinedQuote);
-      toast.success(`Project quote generated for ${areaQuotes.length} areas!`);
+      console.log('requestData:', requestData);
+      
+      const response = await axios.post(`${API}/quotes/request`, requestData);
+      console.log('API response:', response.data);
+      
+      // Update the current area with the quote
+      setProjectAreas(prev => prev.map((area, index) => {
+        if (index === currentAreaIndex) {
+          return { ...area, quote: response.data };
+        }
+        return area;
+      }));
+      
+      setQuote(response.data);
+      toast.success('Quote generated successfully!');
+      
     } catch (error) {
-      console.error('Error generating quote:', error);
-      toast.error('Failed to generate quote. Please try again.');
+      console.error('=== QUOTE GENERATION ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error message:', error.message);
+      console.error('Error response:', error.response?.data);
+      
+      let errorMessage = 'Failed to generate quote. ';
+      if (error.response?.data?.detail) {
+        errorMessage += error.response.data.detail;
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'Please check your inputs and try again.';
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
