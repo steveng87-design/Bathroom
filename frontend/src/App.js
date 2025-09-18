@@ -822,31 +822,7 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const saveCurrentProject = async () => {
-    if (!quote || !formData.clientInfo.name) return;
-
-    const projectName = newProjectName || `${formData.clientInfo.name} - ${new Date().toLocaleDateString()}`;
-    
-    try {
-      const projectData = {
-        project_name: projectName,
-        category: newProjectCategory,
-        quote_id: quote.id,
-        client_name: formData.clientInfo.name,
-        total_cost: quote.total_cost,
-        notes: formData.additionalNotes
-      };
-
-      await axios.post(`${API}/projects/save`, projectData);
-      toast.success(`Project "${projectName}" saved successfully!`);
-      fetchSavedProjects();
-      setNewProjectName('');
-      setNewProjectCategory('General');
-    } catch (error) {
-      console.error('Error saving project:', error);
-      toast.error('Failed to save project');
-    }
-  };
+  // Duplicate function removed
 
   const loadProject = async (projectId) => {
     try {
