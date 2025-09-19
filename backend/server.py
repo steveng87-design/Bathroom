@@ -840,6 +840,203 @@ async def generate_combined_pdf(quote_id: str, user_profile: UserProfile):
         logging.error(f"Error generating combined PDF: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating combined PDF: {str(e)}")
 
+@api_router.post("/quotes/{quote_id}/learn-adjustment")
+async def learn_from_cost_adjustment(quote_id: str, adjustment: CostAdjustment):
+    """Learn from user's cost adjustments to improve future quotes"""
+    try:
+        # Store the adjustment for learning
+        adjustment_data = adjustment.dict()
+        adjustment_data['id'] = str(uuid.uuid4())
+        
+        await db.cost_adjustments.insert_one(adjustment_data)
+        
+        # Get user's learning profile
+        learning_profile = await get_or_create_learning_profile(adjustment.user_id)
+        
+        # Calculate adjustment insights
+        insights = await calculate_learning_insights(adjustment.user_id, adjustment.component)
+        
+        return {
+            "status": "success", 
+            "message": "Cost adjustment learned successfully",
+            "insights": insights,
+            "total_adjustments": learning_profile.get("total_adjustments", 0) + 1
+        }
+        
+    except Exception as e:
+        logging.error(f"Error learning from adjustment: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error learning from adjustment: {str(e)}")
+
+@api_router.get("/user/{user_id}/learning-insights")
+async def get_user_learning_insights(user_id: str = "default"):
+    """Get personalized learning insights for improved quote accuracy"""
+    try:
+        # Get all user adjustments
+        adjustments = await db.cost_adjustments.find({"user_id": user_id}).to_list(length=None)
+        
+        if not adjustments:
+            return {
+                "status": "learning",
+                "message": "No adjustments yet. Start adjusting quotes to build your personalized AI!",
+                "insights": [],
+                "readiness": "needs_more_data"
+            }
+        
+        # Calculate insights by component
+        insights = {}
+        for adj in adjustments:
+            component = adj['component']
+            if component not in insights:
+                insights[component] = {
+                    'adjustments': [],
+                    'original_costs': [],
+                    'adjusted_costs': [],
+                    'ratios': []
+                }
+            
+            insights[component]['adjustments'].append(adj)
+            insights[component]['original_costs'].append(adj['original_cost'])
+            insights[component]['adjusted_costs'].append(adj['adjusted_cost'])
+            insights[component]['ratios'].append(adj['adjustment_ratio'])
+        
+        # Generate learning insights
+        learning_insights = []
+        for component, data in insights.items():
+            avg_ratio = sum(data['ratios']) / len(data['ratios'])
+            confidence = min(len(data['adjustments']) * 0.25, 1.0)  # Confidence grows with data
+            
+            trend = "accurate"
+            if avg_ratio > 1.1:
+                trend = "ai_underestimates"
+            elif avg_ratio < 0.9:
+                trend = "ai_overestimates"
+            
+            learning_insights.append(LearningInsights(
+                component=component,
+                average_adjustment_ratio=avg_ratio,
+                confidence_level=confidence,
+                adjustment_count=len(data['adjustments']),
+                cost_trend=trend
+            ))
+        
+        # Determine readiness level
+        total_adjustments = len(adjustments)
+        readiness = "learning"
+        if total_adjustments >= 10:
+            readiness = "highly_trained"
+        elif total_adjustments >= 5:
+            readiness = "well_trained"
+        elif total_adjustments >= 2:
+            readiness = "training"
+        
+        return {
+            "status": "success",
+            "message": f"Found {total_adjustments} adjustments across {len(insights)} components",
+            "insights": [insight.dict() for insight in learning_insights],
+            "readiness": readiness,
+            "total_adjustments": total_adjustments,
+            "unique_components": len(insights)
+        }
+        
+    except Exception as e:
+        logging.error(f"Error getting learning insights: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error getting learning insights: {str(e)}")
+
+@api_router.post("/quotes/generate-with-learning")
+async def generate_quote_with_learning(request: RenovationQuoteRequest, user_id: str = "default"):
+    """Generate quote with personalized AI learning applied"""
+    try:
+        # Get user's learning insights
+        insights_response = await get_user_learning_insights(user_id)
+        insights = insights_response.get("insights", [])
+        
+        # Generate base quote using existing function
+        base_quote = await create_quote_request(request)
+        
+        # Apply learning adjustments if user has sufficient data
+        if insights_response.get("readiness") in ["training", "well_trained", "highly_trained"]:
+            # Apply personalized adjustments to the quote
+            adjusted_breakdown = []
+            
+            for item in base_quote.cost_breakdown:
+                component = item.component
+                original_cost = item.estimated_cost
+                
+                # Find learning insight for this component
+                component_insight = next((i for i in insights if i["component"] == component), None)
+                
+                if component_insight and component_insight["confidence_level"] > 0.3:
+                    # Apply learned adjustment
+                    adjustment_ratio = component_insight["average_adjustment_ratio"]
+                    learned_cost = original_cost * adjustment_ratio
+                    
+                    adjusted_breakdown.append(CostBreakdown(
+                        component=component,
+                        estimated_cost=learned_cost,
+                        cost_range_min=item.cost_range_min * adjustment_ratio,
+                        cost_range_max=item.cost_range_max * adjustment_ratio,
+                        notes=f"{item.notes} (AI-learned adjustment applied: {adjustment_ratio:.2f}x based on {component_insight['adjustment_count']} previous adjustments)"
+                    ))
+                else:
+                    # No learning data, use original estimate
+                    adjusted_breakdown.append(item)
+            
+            # Recalculate total
+            new_total = sum(item.estimated_cost for item in adjusted_breakdown)
+            
+            # Create new quote with learning applied
+            learned_quote = RenovationQuote(
+                id=base_quote.id,
+                request_id=base_quote.request_id,
+                total_cost=new_total,
+                cost_breakdown=adjusted_breakdown,
+                ai_analysis=f"{base_quote.ai_analysis}\n\nLEARNING APPLIED: Quote personalized based on {insights_response.get('total_adjustments', 0)} previous cost adjustments.",
+                confidence_level=base_quote.confidence_level,
+                created_at=base_quote.created_at
+            )
+            
+            return learned_quote
+        else:
+            # Not enough data for learning, return base quote
+            return base_quote
+        
+    except Exception as e:
+        logging.error(f"Error generating quote with learning: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating quote with learning: {str(e)}")
+
+async def get_or_create_learning_profile(user_id: str):
+    """Get or create user learning profile"""
+    profile = await db.user_learning_profiles.find_one({"user_id": user_id})
+    if not profile:
+        profile = {
+            "user_id": user_id,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "total_adjustments": 0,
+            "last_updated": datetime.now(timezone.utc).isoformat()
+        }
+        await db.user_learning_profiles.insert_one(profile)
+    return profile
+
+async def calculate_learning_insights(user_id: str, component: str):
+    """Calculate learning insights for a specific component"""
+    adjustments = await db.cost_adjustments.find({
+        "user_id": user_id, 
+        "component": component
+    }).to_list(length=None)
+    
+    if not adjustments:
+        return {"message": "First adjustment for this component"}
+    
+    ratios = [adj["adjustment_ratio"] for adj in adjustments]
+    avg_ratio = sum(ratios) / len(ratios)
+    
+    return {
+        "component": component,
+        "adjustment_count": len(adjustments),
+        "average_ratio": avg_ratio,
+        "trend": "higher" if avg_ratio > 1.1 else "lower" if avg_ratio < 0.9 else "accurate"
+    }
+
 @api_router.get("/")
 async def root():
     return {"message": "Bathroom Renovation Quoting API"}
