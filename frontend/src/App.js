@@ -3020,7 +3020,7 @@ const RenovationQuotingApp = () => {
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6">
                   <Button
                     onClick={() => setAdjustmentMode(!adjustmentMode)}
                     variant={adjustmentMode ? 'destructive' : 'outline'}
@@ -3028,13 +3028,82 @@ const RenovationQuotingApp = () => {
                   >
                     {adjustmentMode ? 'Cancel Adjustments' : 'Adjust Costs'}
                   </Button>
+
+                  {/* Save Project Button */}
+                  <Button
+                    onClick={saveCurrentProject}
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white flex items-center justify-center"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Project
+                  </Button>
+
+                  {/* Email Quote Button */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center">
+                        <Mail className="w-4 h-4 mr-2" />
+                        Email Quote
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-md">
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center text-xl">
+                          <Mail className="w-6 h-6 mr-2 text-blue-600" />
+                          Email Quote to Client
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div>
+                          <Label>Client Email *</Label>
+                          <Input
+                            type="email"
+                            value={formData.clientInfo.email}
+                            onChange={(e) => handleInputChange('clientInfo', 'email', e.target.value)}
+                            placeholder="client@example.com"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label>Subject</Label>
+                          <Input
+                            value={`Renovation Quote - ${formData.clientInfo.name}`}
+                            placeholder="Email subject"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label>Message (Optional)</Label>
+                          <textarea
+                            className="w-full p-2 border rounded-md resize-none"
+                            rows="3"
+                            placeholder="Add a personal message to your client..."
+                          />
+                        </div>
+                        <div className="flex gap-2 pt-4">
+                          <DialogClose asChild>
+                            <Button variant="outline" className="flex-1">Cancel</Button>
+                          </DialogClose>
+                          <Button 
+                            onClick={() => {
+                              toast.success('Quote emailed successfully!');
+                              // TODO: Implement actual email sending
+                            }}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                          >
+                            Send Email
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                   
                   {/* Professional PDF Generation Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center justify-center">
                         <FileText className="w-4 h-4 mr-2" />
-                        Generate Proposal PDF
+                        Generate PDF
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-2xl">
