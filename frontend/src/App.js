@@ -1593,6 +1593,14 @@ const RenovationQuotingApp = () => {
                 >
                   🗑️ Clear Drafts
                 </Button>
+                <Button
+                  onClick={testDeleteFirstProject}
+                  variant="outline"
+                  size="sm"
+                  className="text-orange-600 border-orange-300 hover:bg-orange-50"
+                >
+                  🧪 Test Delete
+                </Button>
                 <span className="text-xs text-gray-500">
                   {savedProjects.filter(p => p.total_cost === 0).length} drafts
                 </span>
