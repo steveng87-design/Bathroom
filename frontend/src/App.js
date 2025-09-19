@@ -2771,7 +2771,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Type:</Label>
                                           <Select
-                                            value={taskOptions.shower_screen_grade}
+                                            value={getCurrentTaskOptions().shower_screen_grade}
                                             onValueChange={(value) => handleTaskOptionChange('shower_screen_grade', value)}
                                           >
                                             <SelectTrigger className="h-8 w-36">
