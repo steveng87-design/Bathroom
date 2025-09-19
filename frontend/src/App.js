@@ -1213,16 +1213,33 @@ const RenovationQuotingApp = () => {
       return;
     }
     
+    // Prevent duplicate requests by checking if we're already deleting this project
+    if (deleteProject.deleting === projectId) {
+      console.log('Delete already in progress for project:', projectId);
+      return;
+    }
+    
     try {
+      // Mark as deleting to prevent duplicates
+      deleteProject.deleting = projectId;
+      
       console.log('Making API call to delete project:', projectId);
       const response = await axios.delete(`${API}/projects/${projectId}`);
       console.log('Delete API response:', response.data);
       
-      toast.success('Project deleted successfully!');
+      toast.success('Project deleted successfully');
       fetchSavedProjects();
     } catch (error) {
       console.error('Error deleting project:', error);
-      toast.error('Failed to delete project');
+      if (error.response?.status === 404) {
+        toast.info('Project was already deleted');
+        fetchSavedProjects(); // Refresh to show current state
+      } else {
+        toast.error('Failed to delete project');
+      }
+    } finally {
+      // Clear the deleting flag
+      delete deleteProject.deleting;
     }
   };
 
