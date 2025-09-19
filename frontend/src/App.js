@@ -2597,7 +2597,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Grade:</Label>
                                           <Select
-                                            value={taskOptions.plasterboard_grade}
+                                            value={getCurrentTaskOptions().plasterboard_grade}
                                             onValueChange={(value) => handleTaskOptionChange('plasterboard_grade', value)}
                                           >
                                             <SelectTrigger className="h-8 w-32">
