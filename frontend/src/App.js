@@ -2813,7 +2813,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Grade:</Label>
                                           <Select
-                                            value={taskOptions.lighting_grade}
+                                            value={getCurrentTaskOptions().lighting_grade}
                                             onValueChange={(value) => handleTaskOptionChange('lighting_grade', value)}
                                           >
                                             <SelectTrigger className="h-8 w-32">
