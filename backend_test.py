@@ -429,14 +429,14 @@ class BathroomRenovationAPITester:
             200
         )[0]
 
-    def test_get_project_quote(self):
-        """Test getting project quote details"""
+    def test_get_project_quote_detailed(self):
+        """Test getting project quote details and verify complete data restoration"""
         if not hasattr(self, 'project_id') or not self.project_id:
             print("❌ Skipping - No project ID available")
             return False
             
         success, response = self.run_test(
-            "Get Project Quote",
+            "Get Project Quote - Detailed Verification",
             "GET",
             f"projects/{self.project_id}/quote",
             200
@@ -446,7 +446,68 @@ class BathroomRenovationAPITester:
             print(f"   Has project data: {'project' in response}")
             print(f"   Has quote data: {'quote' in response}")
             print(f"   Has request data: {'request' in response}")
-            return True
+            
+            # Detailed verification of data restoration
+            if 'request' in response and response['request']:
+                request_data = response['request']
+                print(f"   ✓ Request data available")
+                
+                # Check room measurements
+                if 'room_measurements' in request_data:
+                    measurements = request_data['room_measurements']
+                    print(f"   ✓ Room measurements: {measurements.get('length')}x{measurements.get('width')}x{measurements.get('height')}mm")
+                else:
+                    print(f"   ❌ Missing room measurements")
+                    return False
+                
+                # Check components
+                if 'components' in request_data:
+                    components = request_data['components']
+                    enabled_components = [k for k, v in components.items() if v]
+                    print(f"   ✓ Components ({len(enabled_components)} enabled): {', '.join(enabled_components)}")
+                else:
+                    print(f"   ❌ Missing components data")
+                    return False
+                
+                # Check detailed components (subtasks)
+                if 'detailed_components' in request_data:
+                    detailed = request_data['detailed_components']
+                    print(f"   ✓ Detailed components available for: {', '.join(detailed.keys())}")
+                    
+                    # Verify subtask data
+                    for component, details in detailed.items():
+                        if 'subtasks' in details:
+                            enabled_subtasks = [k for k, v in details['subtasks'].items() if v]
+                            print(f"     - {component}: {len(enabled_subtasks)} subtasks enabled")
+                        else:
+                            print(f"     - {component}: No subtasks data")
+                else:
+                    print(f"   ❌ Missing detailed components (subtasks)")
+                    return False
+                
+                # Check task options
+                if 'task_options' in request_data:
+                    options = request_data['task_options']
+                    print(f"   ✓ Task options available: {len(options)} options")
+                    for key, value in options.items():
+                        if value:
+                            print(f"     - {key}: {value}")
+                else:
+                    print(f"   ❌ Missing task options")
+                    return False
+                
+                # Check client info
+                if 'client_info' in request_data:
+                    client = request_data['client_info']
+                    print(f"   ✓ Client info: {client.get('name')} ({client.get('email')})")
+                else:
+                    print(f"   ❌ Missing client info")
+                    return False
+                
+                return True
+            else:
+                print(f"   ❌ No request data available for loading")
+                return False
         return False
 
     def test_generate_pdf_proposal(self):
