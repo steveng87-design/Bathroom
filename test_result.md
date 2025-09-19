@@ -249,8 +249,7 @@ test_plan:
     - "Saved Projects Checkbox Selection"
     - "Saved Projects Loading Data"
     - "Quote Generation API"
-  stuck_tasks:
-    - "Saved Projects Loading Data"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
