@@ -182,6 +182,7 @@ const RenovationQuotingApp = () => {
   });
   // Project Management States  
   const [savedProjects, setSavedProjects] = useState([]);
+  const [selectedProjects, setSelectedProjects] = useState([]);
   const [showProjectsPanel, setShowProjectsPanel] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
