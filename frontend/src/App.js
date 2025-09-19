@@ -1682,6 +1682,31 @@ const RenovationQuotingApp = () => {
               </Button>
             )}
 
+            {/* Bulk Actions */}
+            {filteredProjects.length > 0 && (
+              <div className="flex gap-2 pb-3 border-b">
+                <Button
+                  onClick={selectAllProjects}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  {selectedProjects.length === filteredProjects.length ? 'Deselect All' : 'Select All'} 
+                  ({selectedProjects.length})
+                </Button>
+                {selectedProjects.length > 0 && (
+                  <Button
+                    onClick={deleteSelectedProjects}
+                    variant="outline"
+                    size="sm"
+                    className="text-red-600 border-red-300 hover:bg-red-50"
+                  >
+                    🗑️ Delete Selected ({selectedProjects.length})
+                  </Button>
+                )}
+              </div>
+            )}
+
             {/* Projects List */}
             <div className="space-y-3">
               {filteredProjects.length === 0 ? (
