@@ -1650,7 +1650,7 @@ const RenovationQuotingApp = () => {
               {/* Clear Drafts Button */}
               <div className="flex justify-between items-center pt-2">
                 <Button
-                  onClick={clearAllDrafts}
+                  onClick={clearDraftProjects}
                   variant="outline"
                   size="sm"
                   className="text-red-600 border-red-300 hover:bg-red-50"
