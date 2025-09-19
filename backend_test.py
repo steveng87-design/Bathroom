@@ -510,6 +510,322 @@ class BathroomRenovationAPITester:
                 return False
         return False
 
+    def test_create_multiple_test_projects(self):
+        """Create multiple test projects with different data for checkbox testing"""
+        self.test_project_ids = []
+        
+        # Project 1: John Smith
+        quote_data_1 = {
+            "client_info": {
+                "name": "John Smith",
+                "email": "john@test.com",
+                "phone": "0412345678",
+                "address": "123 Test St, Sydney"
+            },
+            "room_measurements": {
+                "length": 3.0,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": False,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "remove_existing_tiles": True,
+                        "remove_fixtures": True,
+                        "remove_vanity": False,
+                        "remove_toilet": True
+                    }
+                },
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": True,
+                        "supply_install_wall_tiles": True,
+                        "supply_install_feature_tiles": False
+                    }
+                }
+            },
+            "task_options": {
+                "skip_bin_size": "6m³",
+                "build_niches_quantity": 2,
+                "plasterboard_grade": "standard_grade",
+                "floor_tile_grade": "premium_grade",
+                "vanity_grade": "premium_grade"
+            }
+        }
+        
+        # Create quote 1
+        success_1, response_1 = self.run_test(
+            "Create Quote for Project 1 (John Smith)",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data_1,
+            timeout=60
+        )
+        
+        if success_1 and 'id' in response_1:
+            quote_id_1 = response_1['id']
+            
+            # Save project 1
+            project_data_1 = {
+                "project_name": "John Smith Bathroom Renovation",
+                "category": "Residential",
+                "quote_id": quote_id_1,
+                "client_name": "John Smith",
+                "total_cost": response_1.get('total_cost', 25000),
+                "notes": "Standard residential bathroom with premium finishes",
+                "request_data": quote_data_1
+            }
+            
+            success_save_1, response_save_1 = self.run_test(
+                "Save Project 1 (John Smith)",
+                "POST",
+                "projects/save",
+                200,
+                data=project_data_1
+            )
+            
+            if success_save_1 and 'id' in response_save_1:
+                self.test_project_ids.append(response_save_1['id'])
+                print(f"   ✓ Project 1 saved: {response_save_1['id']}")
+        
+        # Project 2: Jane Doe
+        quote_data_2 = {
+            "client_info": {
+                "name": "Jane Doe",
+                "email": "jane@test.com",
+                "phone": "0498765432",
+                "address": "456 Demo Ave, Melbourne"
+            },
+            "room_measurements": {
+                "length": 4.0,
+                "width": 3.0,
+                "height": 2.7
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": True,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "remove_existing_tiles": True,
+                        "remove_fixtures": True,
+                        "remove_vanity": True,
+                        "remove_toilet": True,
+                        "remove_shower_screen": True
+                    }
+                },
+                "framing": {
+                    "enabled": True,
+                    "subtasks": {
+                        "build_stud_walls": True,
+                        "build_niches": True,
+                        "install_door_frame": True
+                    }
+                },
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": True,
+                        "supply_install_wall_tiles": True,
+                        "supply_install_feature_tiles": True,
+                        "waterproof_shower_area": True
+                    }
+                }
+            },
+            "task_options": {
+                "skip_bin_size": "8m³",
+                "build_niches_quantity": 3,
+                "swing_door_size": "820mm",
+                "water_feeds_type": "thermostatic",
+                "power_points_quantity": 4,
+                "plasterboard_grade": "premium_grade",
+                "floor_tile_grade": "luxury_grade",
+                "wall_tile_grade": "premium_grade",
+                "feature_tile_grade": "luxury_grade",
+                "vanity_grade": "luxury_grade",
+                "toilet_grade": "premium_grade",
+                "tapware_grade": "luxury_grade"
+            }
+        }
+        
+        # Create quote 2
+        success_2, response_2 = self.run_test(
+            "Create Quote for Project 2 (Jane Doe)",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data_2,
+            timeout=60
+        )
+        
+        if success_2 and 'id' in response_2:
+            quote_id_2 = response_2['id']
+            
+            # Save project 2
+            project_data_2 = {
+                "project_name": "Jane Doe Luxury Bathroom",
+                "category": "Luxury",
+                "quote_id": quote_id_2,
+                "client_name": "Jane Doe",
+                "total_cost": response_2.get('total_cost', 45000),
+                "notes": "Large luxury bathroom with all premium components",
+                "request_data": quote_data_2
+            }
+            
+            success_save_2, response_save_2 = self.run_test(
+                "Save Project 2 (Jane Doe)",
+                "POST",
+                "projects/save",
+                200,
+                data=project_data_2
+            )
+            
+            if success_save_2 and 'id' in response_save_2:
+                self.test_project_ids.append(response_save_2['id'])
+                print(f"   ✓ Project 2 saved: {response_save_2['id']}")
+        
+        print(f"   Total test projects created: {len(self.test_project_ids)}")
+        return len(self.test_project_ids) >= 2
+
+    def test_project_loading_functionality(self):
+        """Test the critical project loading functionality that user reported as broken"""
+        if not hasattr(self, 'test_project_ids') or len(self.test_project_ids) == 0:
+            print("❌ Skipping - No test projects available")
+            return False
+        
+        all_passed = True
+        
+        for i, project_id in enumerate(self.test_project_ids, 1):
+            print(f"\n   Testing Project {i} Loading (ID: {project_id})")
+            
+            success, response = self.run_test(
+                f"Load Project {i} Data",
+                "GET",
+                f"projects/{project_id}/quote",
+                200
+            )
+            
+            if not success:
+                all_passed = False
+                continue
+            
+            # Critical verification: Check if measurements and selected tasks are properly loaded
+            if 'request' not in response or not response['request']:
+                print(f"   ❌ Project {i}: No request data available for loading")
+                all_passed = False
+                continue
+            
+            request_data = response['request']
+            
+            # Verify room measurements restoration
+            if 'room_measurements' not in request_data:
+                print(f"   ❌ Project {i}: Room measurements missing")
+                all_passed = False
+            else:
+                measurements = request_data['room_measurements']
+                if not all(key in measurements for key in ['length', 'width', 'height']):
+                    print(f"   ❌ Project {i}: Incomplete room measurements")
+                    all_passed = False
+                else:
+                    print(f"   ✓ Project {i}: Room measurements restored ({measurements['length']}x{measurements['width']}x{measurements['height']})")
+            
+            # Verify component selection restoration
+            if 'components' not in request_data:
+                print(f"   ❌ Project {i}: Components missing")
+                all_passed = False
+            else:
+                components = request_data['components']
+                enabled_count = sum(1 for v in components.values() if v)
+                print(f"   ✓ Project {i}: Components restored ({enabled_count} enabled)")
+            
+            # Verify detailed components (subtasks) restoration
+            if 'detailed_components' not in request_data:
+                print(f"   ❌ Project {i}: Detailed components (subtasks) missing")
+                all_passed = False
+            else:
+                detailed = request_data['detailed_components']
+                subtask_count = 0
+                for component, details in detailed.items():
+                    if 'subtasks' in details:
+                        subtask_count += sum(1 for v in details['subtasks'].values() if v)
+                print(f"   ✓ Project {i}: Subtasks restored ({subtask_count} enabled)")
+            
+            # Verify task options restoration
+            if 'task_options' not in request_data:
+                print(f"   ❌ Project {i}: Task options missing")
+                all_passed = False
+            else:
+                options = request_data['task_options']
+                option_count = sum(1 for v in options.values() if v)
+                print(f"   ✓ Project {i}: Task options restored ({option_count} options)")
+            
+            # Verify client info restoration
+            if 'client_info' not in request_data:
+                print(f"   ❌ Project {i}: Client info missing")
+                all_passed = False
+            else:
+                client = request_data['client_info']
+                print(f"   ✓ Project {i}: Client info restored ({client.get('name')})")
+        
+        return all_passed
+
+    def test_project_deletion(self):
+        """Test project deletion functionality for checkbox selection"""
+        if not hasattr(self, 'test_project_ids') or len(self.test_project_ids) == 0:
+            print("❌ Skipping - No test projects available")
+            return False
+        
+        # Test deleting the first project
+        project_to_delete = self.test_project_ids[0]
+        
+        success, response = self.run_test(
+            "Delete Project",
+            "DELETE",
+            f"projects/{project_to_delete}",
+            200
+        )
+        
+        if success:
+            print(f"   ✓ Project deleted successfully: {project_to_delete}")
+            
+            # Verify project is actually deleted
+            success_verify, response_verify = self.run_test(
+                "Verify Project Deletion",
+                "GET",
+                f"projects/{project_to_delete}/quote",
+                404  # Should return 404 now
+            )
+            
+            if success_verify:
+                print(f"   ✓ Project deletion verified - returns 404")
+                return True
+            else:
+                print(f"   ❌ Project deletion failed - still accessible")
+                return False
+        
+        return False
+
     def test_generate_pdf_proposal(self):
         """Test PDF proposal generation"""
         if not self.quote_id:
