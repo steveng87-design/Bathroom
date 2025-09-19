@@ -508,13 +508,20 @@ async def update_project(project_id: str, update: ProjectUpdate):
 async def delete_project(project_id: str):
     """Delete a saved project"""
     try:
+        logging.info(f"Attempting to delete project: {project_id}")
         result = await db.saved_projects.delete_one({"id": project_id})
+        
         if result.deleted_count == 0:
+            logging.warning(f"Project not found for deletion: {project_id}")
             raise HTTPException(status_code=404, detail="Project not found")
         
+        logging.info(f"Successfully deleted project: {project_id}")
         return {"message": "Project deleted successfully"}
+    except HTTPException:
+        # Re-raise HTTP exceptions (like 404) without modification
+        raise
     except Exception as e:
-        logging.error(f"Error deleting project: {str(e)}")
+        logging.error(f"Error deleting project {project_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error deleting project: {str(e)}")
 
 @api_router.get("/projects/categories")
