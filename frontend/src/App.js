@@ -830,19 +830,70 @@ const RenovationQuotingApp = () => {
     try {
       const totalAdjusted = getTotalAdjustedCost();
       
-      const adjustmentData = {
-        original_cost: quote.total_cost,
-        adjusted_cost: totalAdjusted,
-        adjustment_reason: 'Manual adjustment based on project specifics',
-        component_adjustments: adjustedCosts
-      };
+      // Submit individual component adjustments for AI learning
+      const learningPromises = quote.cost_breakdown.map(async (item, index) => {
+        if (adjustedCosts[index] !== undefined && adjustedCosts[index] !== item.estimated_cost) {
+          const adjustmentRatio = adjustedCosts[index] / item.estimated_cost;
+          
+          const learningData = {
+            quote_id: quote.id,
+            user_id: userProfile.contact_name || "default",
+            component: item.component,
+            original_cost: item.estimated_cost,
+            adjusted_cost: adjustedCosts[index],
+            adjustment_ratio: adjustmentRatio,
+            project_size: getCurrentArea()?.measurements ? 
+              (parseFloat(getCurrentArea().measurements.length) / 1000 * parseFloat(getCurrentArea().measurements.width) / 1000) : null,
+            location: formData.clientInfo.address || null,
+            notes: `User adjustment: ${adjustmentRatio > 1 ? 'increased' : 'decreased'} by ${Math.abs((adjustmentRatio - 1) * 100).toFixed(1)}%`
+          };
+          
+          return axios.post(`${API}/quotes/${quote.id}/learn-adjustment`, learningData);
+        }
+        return null;
+      });
 
-      console.log('Submitting adjustments:', adjustmentData);
-      console.log('Original total:', quote.total_cost);
-      console.log('New total:', totalAdjusted);
-
-      await axios.post(`${API}/quotes/${quote.id}/adjust`, adjustmentData);
+      // Wait for all learning submissions
+      const learningResults = await Promise.all(learningPromises.filter(p => p !== null));
       
+      // Update the quote with new total and individual costs
+      setQuote(prev => ({
+        ...prev,
+        total_cost: totalAdjusted,
+        cost_breakdown: prev.cost_breakdown.map((item, index) => ({
+          ...item,
+          estimated_cost: adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost
+        }))
+      }));
+      
+      // Show success message with learning info
+      const adjustmentCount = learningResults.length;
+      toast.success(
+        `💡 Adjustments saved! AI learned from ${adjustmentCount} cost changes. ` +
+        `Your future quotes will be more accurate based on these insights.`
+      );
+      
+      setAdjustmentMode(false);
+      setAdjustedCosts({});
+      
+    } catch (error) {
+      console.error('Error submitting adjustments:', error);
+      toast.error('Failed to save adjustments. Please try again.');
+    }
+  };
+
+  // Get AI Learning Insights
+  const [learningInsights, setLearningInsights] = useState(null);
+  
+  const fetchLearningInsights = async () => {
+    try {
+      const userId = userProfile.contact_name || "default";
+      const response = await axios.get(`${API}/user/${userId}/learning-insights`);
+      setLearningInsights(response.data);
+    } catch (error) {
+      console.error('Error fetching learning insights:', error);
+    }
+  };
       // Update the quote with new total and individual costs
       setQuote(prev => ({
         ...prev,
