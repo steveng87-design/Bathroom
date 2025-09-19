@@ -313,23 +313,92 @@ class BathroomRenovationAPITester:
             return True
         return False
 
-    def test_save_project(self):
-        """Test saving a project"""
+    def test_save_project_with_complete_data(self):
+        """Test saving a project with complete request data for proper loading"""
         if not self.quote_id:
             print("❌ Skipping - No quote ID available")
             return False
             
+        # Complete request data that should be saved for proper loading
+        complete_request_data = {
+            "client_info": {
+                "name": "John Smith",
+                "email": "john@test.com",
+                "phone": "0412345678",
+                "address": "123 Test St, Sydney"
+            },
+            "room_measurements": {
+                "length": 3.0,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": False,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "remove_existing_tiles": True,
+                        "remove_fixtures": True,
+                        "remove_vanity": False,
+                        "remove_toilet": True,
+                        "remove_shower_screen": True
+                    }
+                },
+                "framing": {
+                    "enabled": True,
+                    "subtasks": {
+                        "build_stud_walls": True,
+                        "build_niches": True,
+                        "install_door_frame": False,
+                        "install_window_frame": False
+                    }
+                },
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": True,
+                        "supply_install_wall_tiles": True,
+                        "supply_install_feature_tiles": False,
+                        "waterproof_shower_area": True
+                    }
+                }
+            },
+            "task_options": {
+                "skip_bin_size": "6m³",
+                "build_niches_quantity": 2,
+                "swing_door_size": "720mm",
+                "water_feeds_type": "thermostatic",
+                "power_points_quantity": 3,
+                "plasterboard_grade": "standard_grade",
+                "floor_tile_grade": "premium_grade",
+                "wall_tile_grade": "standard_grade",
+                "vanity_grade": "premium_grade",
+                "toilet_grade": "standard_grade",
+                "tapware_grade": "premium_grade"
+            }
+        }
+        
         project_data = {
-            "project_name": "Test Bathroom Project",
+            "project_name": "John Smith Bathroom Renovation",
             "category": "Residential",
             "quote_id": self.quote_id,
             "client_name": "John Smith",
             "total_cost": 25000,
-            "notes": "Test project for API validation"
+            "notes": "Complete test project with all form data",
+            "request_data": complete_request_data  # This is critical for proper loading
         }
         
         success, response = self.run_test(
-            "Save Project",
+            "Save Project with Complete Data",
             "POST",
             "projects/save",
             200,
