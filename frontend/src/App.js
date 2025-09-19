@@ -1634,10 +1634,7 @@ const RenovationQuotingApp = () => {
                           size="sm"
                           variant="outline"
                           className="text-xs h-7 text-red-600 hover:text-red-700"
-                          onClick={() => {
-                            // Delete functionality will be added
-                            toast.success('Delete feature coming soon');
-                          }}
+                          onClick={() => deleteProject(project.id)}
                         >
                           <Trash2 className="w-3 h-3" />
                         </Button>
