@@ -2834,7 +2834,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Type:</Label>
                                           <Select
-                                            value={taskOptions.mirror_grade}
+                                            value={getCurrentTaskOptions().mirror_grade}
                                             onValueChange={(value) => handleTaskOptionChange('mirror_grade', value)}
                                           >
                                             <SelectTrigger className="h-8 w-36">
