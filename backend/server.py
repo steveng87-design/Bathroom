@@ -147,7 +147,25 @@ class MaterialSupplier(BaseModel):
     specialties: List[str]
     estimated_distance: str
 
-# Email Models
+# Cost Adjustment Learning Models
+class CostAdjustment(BaseModel):
+    quote_id: str = Field(..., description="Quote ID this adjustment belongs to")
+    user_id: str = Field(default="default", description="User identifier for personalized learning")
+    component: str = Field(..., description="Component name that was adjusted")
+    original_cost: float = Field(..., description="AI's original estimated cost")
+    adjusted_cost: float = Field(..., description="User's adjusted cost")
+    adjustment_ratio: float = Field(..., description="Ratio of adjusted/original cost")
+    project_size: Optional[float] = Field(None, description="Project area in sqm for context")
+    location: Optional[str] = Field(None, description="Project location for regional learning")
+    timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    notes: Optional[str] = Field(None, description="User notes about the adjustment")
+
+class LearningInsights(BaseModel):
+    component: str
+    average_adjustment_ratio: float
+    confidence_level: float
+    adjustment_count: int
+    cost_trend: str  # "higher", "lower", "accurate"
 class EmailOptions(BaseModel):
     include_breakdown: bool = True
     include_pdf: bool = False
