@@ -895,6 +895,106 @@ const RenovationQuotingApp = () => {
     }
   };
 
+  // Generate quote with AI learning applied
+  const handleSubmitWithLearning = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      // Validate required fields
+      if (!formData.clientInfo.name || !formData.clientInfo.email) {
+        toast.error('Please fill in client name and email');
+        setLoading(false);
+        return;
+      }
+
+      // Collect all selected components across all areas
+      const allSelectedComponents = [];
+      const validAreas = projectAreas.filter(area => {
+        const measurements = area.measurements;
+        return measurements && 
+               parseFloat(measurements.length) > 0 && 
+               parseFloat(measurements.width) > 0 && 
+               parseFloat(measurements.height) > 0;
+      });
+
+      if (validAreas.length === 0) {
+        toast.error('Please add at least one area with valid measurements');
+        setLoading(false);
+        return;
+      }
+
+      validAreas.forEach(area => {
+        Object.entries(area.components).forEach(([component, isSelected]) => {
+          if (isSelected) {
+            allSelectedComponents.push(component);
+          }
+        });
+      });
+
+      if (allSelectedComponents.length === 0) {
+        toast.error('Please select at least one component to quote');
+        setLoading(false);
+        return;
+      }
+
+      // Use the first area's data as representative (can be enhanced)
+      const primaryArea = validAreas[0];
+      const requestData = {
+        client_info: formData.clientInfo,
+        measurements: primaryArea.measurements,
+        selected_components: allSelectedComponents,
+        task_options: primaryArea.taskOptions,
+        total_floor_area: getTotalFloorArea(),
+        total_wall_area: getTotalWallArea(),
+        project_summary: `${validAreas.length} area renovation: ${validAreas.map(a => a.name).join(', ')}`
+      };
+
+      // Generate quote with learning
+      const userId = userProfile.contact_name || "default";
+      const response = await axios.post(`${API}/quotes/generate-with-learning?user_id=${userId}`, requestData);
+      
+      const enhancedQuote = {
+        ...response.data,
+        total_floor_area: getTotalFloorArea(),
+        total_wall_area: getTotalWallArea(),
+        project_summary: `${validAreas.length} area renovation: ${validAreas.map(a => a.name).join(', ')}`
+      };
+      
+      setQuote(enhancedQuote);
+      
+      // Show success message with learning info
+      const learningInfo = enhancedQuote.learning_info;
+      if (learningInfo?.learning_applied) {
+        toast.success(
+          `🧠 ${learningInfo.message} Quote personalized based on your pricing history!`
+        );
+      } else {
+        toast.success(
+          `💡 Quote generated! Complete 2-3 quotes with cost adjustments to unlock personalized AI pricing.`
+        );
+      }
+      
+    } catch (error) {
+      console.error('=== QUOTE GENERATION ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error response:', error.response?.data);
+      
+      let errorMessage = 'Failed to generate quote. ';
+      if (error.response?.data?.detail) {
+        errorMessage += error.response.data.detail;
+      } else if (error.message) {
+        errorMessage += error.message;
+      } else {
+        errorMessage += 'Please check your inputs and try again.';
+      }
+      
+      toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const generateProposalPDF = async () => {
     if (!quote) return;
 
