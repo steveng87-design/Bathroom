@@ -1289,6 +1289,8 @@ const RenovationQuotingApp = () => {
       fetchSavedProjects(); // Refresh to show current state
     }
   };
+
+  const clearDraftProjects = async () => {
     if (!window.confirm('Are you sure you want to delete all draft projects with $0 cost? This cannot be undone.')) {
       return;
     }
