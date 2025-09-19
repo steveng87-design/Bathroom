@@ -787,6 +787,41 @@ async def generate_quote_summary_pdf(quote_id: str, user_profile: UserProfile):
         logging.error(f"Error generating quote summary PDF: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating quote summary: {str(e)}")
 
+@api_router.post("/quotes/{quote_id}/generate-combined-pdf")
+async def generate_combined_pdf(quote_id: str, user_profile: UserProfile):
+    """Generate a combined PDF with both quote summary and scope of works"""
+    try:
+        # Get the quote and request data
+        quote = await db.quotes.find_one({"id": quote_id})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+        if not request_data:
+            raise HTTPException(status_code=404, detail="Quote request data not found")
+        
+        # Generate the combined PDF using the existing PDF generator
+        combined_data = {
+            **parse_from_mongo(quote),
+            **parse_from_mongo(request_data)
+        }
+        
+        # Create a combined document with both quote summary and detailed scope
+        pdf_generator = BathroomProposalPDF()
+        pdf_bytes = pdf_generator.create_combined_proposal(combined_data, user_profile.dict())
+        
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=Complete_Quote_Package_{quote_id[:8]}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        logging.error(f"Error generating combined PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating combined PDF: {str(e)}")
+
 @api_router.get("/")
 async def root():
     return {"message": "Bathroom Renovation Quoting API"}
