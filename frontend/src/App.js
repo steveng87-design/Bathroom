@@ -1163,6 +1163,32 @@ const RenovationQuotingApp = () => {
     }
   };
 
+  const clearAllDrafts = async () => {
+    if (!window.confirm('Are you sure you want to delete all draft projects with $0 cost? This cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const draftProjects = savedProjects.filter(project => project.total_cost === 0 || project.category === 'Draft');
+      
+      if (draftProjects.length === 0) {
+        toast.info('No draft projects to delete');
+        return;
+      }
+
+      // Delete all draft projects
+      await Promise.all(draftProjects.map(project => 
+        axios.delete(`${API}/projects/${project.id}`)
+      ));
+      
+      toast.success(`Deleted ${draftProjects.length} draft projects successfully`);
+      fetchSavedProjects();
+    } catch (error) {
+      console.error('Error clearing drafts:', error);
+      toast.error('Failed to clear draft projects');
+    }
+  };
+
   // Auto-save functionality
   const saveToLocalStorage = (data) => {
     try {
