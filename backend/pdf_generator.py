@@ -116,6 +116,101 @@ class BathroomProposalPDF:
         buffer.seek(0)
         return buffer.getvalue()
     
+    def create_combined_proposal(self, quote_data: Dict[str, Any], user_profile: Dict[str, Any]) -> bytes:
+        """Generate a combined PDF with both quote summary and detailed scope of works"""
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=25*mm,
+            leftMargin=25*mm,
+            topMargin=25*mm,
+            bottomMargin=25*mm
+        )
+        
+        story = []
+        
+        # Page 1: Quote Summary
+        story.append(Paragraph("BATHROOM RENOVATION QUOTE", self.styles['CustomTitle']))
+        story.append(Spacer(1, 10*mm))
+        
+        # Client Info
+        client_info = quote_data['client_info']
+        client_table_data = [
+            ['Client Name:', client_info['name']],
+            ['Email:', client_info['email']],
+            ['Phone:', client_info['phone']],
+            ['Address:', client_info['address']],
+            ['Quote Date:', datetime.now().strftime('%B %d, %Y')]
+        ]
+        
+        client_table = Table(client_table_data, colWidths=[50*mm, 100*mm])
+        client_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f3f4f6')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('PADDING', (0, 0), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb'))
+        ]))
+        
+        story.append(client_table)
+        story.append(Spacer(1, 20*mm))
+        
+        # Total Cost (Prominent)
+        total_cost = quote_data['total_cost']
+        total_style = ParagraphStyle(
+            'TotalCost',
+            parent=self.styles['Heading1'],
+            fontSize=32,
+            textColor=colors.HexColor('#16a34a'),
+            alignment=TA_CENTER,
+            spaceAfter=20
+        )
+        story.append(Paragraph(f"TOTAL: ${total_cost:,.2f}", total_style))
+        
+        # Cost Breakdown
+        cost_breakdown = quote_data.get('cost_breakdown', [])
+        if cost_breakdown:
+            breakdown_data = [['Component', 'Estimated Cost', 'Range']]
+            for item in cost_breakdown:
+                breakdown_data.append([
+                    item['component'],
+                    f"${item['estimated_cost']:,.2f}",
+                    f"${item['cost_range_min']:,.2f} - ${item['cost_range_max']:,.2f}"
+                ])
+            
+            breakdown_table = Table(breakdown_data, colWidths=[60*mm, 40*mm, 50*mm])
+            breakdown_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('PADDING', (0, 0), (-1, -1), 8),
+                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f9fafb')])
+            ]))
+            
+            story.append(breakdown_table)
+        
+        # Page break to detailed scope
+        story.append(PageBreak())
+        
+        # Page 2+: Detailed Scope of Works (use existing method)
+        story.extend(self._create_cover_page(quote_data, user_profile))
+        story.append(PageBreak())
+        story.extend(self._create_scope_of_works(quote_data))
+        story.append(PageBreak())
+        story.extend(self._create_terms_conditions())
+        story.extend(self._create_contact_info(user_profile))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer.getvalue()
+    
     def _create_cover_page(self, quote_data: Dict[str, Any], user_profile: Dict[str, Any]) -> List:
         """Create professional cover page"""
         elements = []
