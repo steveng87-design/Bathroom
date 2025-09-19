@@ -653,6 +653,82 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
 async def root():
     return {"message": "Bathroom Renovation Quoting API"}
 
+@api_router.post("/quotes/{quote_id}/send-email", response_model=EmailResponse)
+async def send_quote_email(quote_id: str, email_request: SendQuoteEmailRequest):
+    """Send a quote via email with optional PDF attachment"""
+    try:
+        # Get the quote data
+        quote = await db.quotes.find_one({"id": quote_id})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        # Get the original request data
+        request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+        if not request_data:
+            raise HTTPException(status_code=404, detail="Quote request data not found")
+        
+        # Prepare quote data for email
+        quote_data = {
+            "total_cost": quote.get("total_cost", 0),
+            "project_name": f"{email_request.client_name} Bathroom Renovation",
+            "created_at": quote.get("created_at", datetime.now().isoformat()),
+            "components": {}
+        }
+        
+        # Add component costs if breakdown is requested
+        if email_request.options.include_breakdown:
+            cost_breakdown = quote.get("cost_breakdown", [])
+            for item in cost_breakdown:
+                quote_data["components"][item["component"]] = item["estimated_cost"]
+        
+        # Generate PDF if requested
+        pdf_content = None
+        pdf_filename = None
+        
+        if email_request.options.include_pdf:
+            try:
+                # Generate PDF using the existing PDF generator
+                combined_data = {
+                    **parse_from_mongo(quote),
+                    **parse_from_mongo(request_data)
+                }
+                
+                # Use a default user profile for email PDFs (can be made configurable)
+                default_profile = UserProfile()
+                
+                pdf_generator = BathroomProposalPDF()
+                pdf_content = pdf_generator.create_proposal(combined_data, default_profile.dict())
+                pdf_filename = f"Bathroom_Quote_{email_request.client_name.replace(' ', '_')}_{quote_id[:8]}.pdf"
+                
+            except Exception as pdf_error:
+                logging.warning(f"PDF generation failed: {pdf_error}. Sending email without PDF.")
+                # Continue without PDF if generation fails
+                email_request.options.include_pdf = False
+        
+        # Send the email
+        success = email_service.send_quote_email(
+            recipient_email=email_request.recipient_email,
+            client_name=email_request.client_name,
+            quote_data=quote_data,
+            options=email_request.options.dict(),
+            pdf_content=pdf_content,
+            pdf_filename=pdf_filename
+        )
+        
+        if success:
+            return EmailResponse(
+                status="success",
+                message=f"Quote email sent successfully to {email_request.recipient_email}"
+            )
+        else:
+            raise EmailDeliveryError("Email delivery failed")
+            
+    except EmailDeliveryError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        logging.error(f"Error sending quote email: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error sending quote email: {str(e)}")
+
 # Include the router in the main app
 app.include_router(api_router)
 
