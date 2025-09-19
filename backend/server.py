@@ -649,6 +649,144 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
         logging.error(f"Error generating proposal PDF: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating proposal: {str(e)}")
 
+@api_router.post("/quotes/{quote_id}/generate-quote-summary")
+async def generate_quote_summary_pdf(quote_id: str, user_profile: UserProfile):
+    """Generate a simple quote summary PDF (separate from detailed scope of works)"""
+    try:
+        # Get the quote data
+        quote = await db.quotes.find_one({"id": quote_id})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        # Get the original request data
+        request_data = await db.quote_requests.find_one({"id": quote.get("request_id")})
+        if not request_data:
+            raise HTTPException(status_code=404, detail="Quote request data not found")
+        
+        # Generate simplified quote summary PDF
+        from io import BytesIO
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib import colors
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+        from reportlab.lib.units import inch
+        
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        # Title
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=30,
+            textColor=colors.HexColor('#2563eb'),
+            alignment=1
+        )
+        story.append(Paragraph("BATHROOM RENOVATION QUOTE", title_style))
+        
+        # Client Info
+        client_info = parse_from_mongo(request_data).get('client_info', {})
+        quote_data = parse_from_mongo(quote)
+        
+        client_table_data = [
+            ['Client Name:', client_info.get('name', 'N/A')],
+            ['Email:', client_info.get('email', 'N/A')],
+            ['Phone:', client_info.get('phone', 'N/A')],
+            ['Address:', client_info.get('address', 'N/A')],
+            ['Quote Date:', quote_data.get('created_at', '').split('T')[0] if quote_data.get('created_at') else 'N/A']
+        ]
+        
+        client_table = Table(client_table_data, colWidths=[2*inch, 4*inch])
+        client_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f3f4f6')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 0), (1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb'))
+        ]))
+        
+        story.append(client_table)
+        story.append(Spacer(1, 20))
+        
+        # Total Cost (Prominent)
+        total_cost = quote_data.get('total_cost', 0)
+        total_style = ParagraphStyle(
+            'TotalCost',
+            parent=styles['Heading1'],
+            fontSize=32,
+            textColor=colors.HexColor('#16a34a'),
+            alignment=1,
+            spaceAfter=20
+        )
+        story.append(Paragraph(f"TOTAL: ${total_cost:,.2f}", total_style))
+        
+        # Cost Breakdown Table (if available)
+        cost_breakdown = quote_data.get('cost_breakdown', [])
+        if cost_breakdown:
+            story.append(Paragraph("Cost Breakdown:", styles['Heading2']))
+            
+            breakdown_data = [['Component', 'Estimated Cost', 'Range']]
+            for item in cost_breakdown:
+                breakdown_data.append([
+                    item.get('component', 'N/A'),
+                    f"${item.get('estimated_cost', 0):,.2f}",
+                    f"${item.get('cost_range_min', 0):,.2f} - ${item.get('cost_range_max', 0):,.2f}"
+                ])
+            
+            breakdown_table = Table(breakdown_data, colWidths=[2.5*inch, 1.5*inch, 2*inch])
+            breakdown_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2563eb')),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+                ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#e5e7eb')),
+                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f9fafb')])
+            ]))
+            
+            story.append(breakdown_table)
+            story.append(Spacer(1, 20))
+        
+        # Footer
+        footer_text = f"""
+        <para align="center">
+        <b>{user_profile.company_name}</b><br/>
+        {user_profile.contact_name} | {user_profile.phone}<br/>
+        {user_profile.email}<br/><br/>
+        <i>Quote valid for 30 days. Generated by Bathroom Quote Saver.AI</i>
+        </para>
+        """
+        story.append(Paragraph(footer_text, styles['Normal']))
+        
+        # Build PDF
+        doc.build(story)
+        buffer.seek(0)
+        pdf_bytes = buffer.getvalue()
+        buffer.close()
+        
+        # Return PDF as response
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=Quote_Summary_{quote_id[:8]}.pdf"
+            }
+        )
+        
+    except Exception as e:
+        logging.error(f"Error generating quote summary PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generating quote summary: {str(e)}")
+
 @api_router.get("/")
 async def root():
     return {"message": "Bathroom Renovation Quoting API"}
