@@ -217,3 +217,5 @@ test_plan:
 agent_communication:
   - agent: "main"
     message: "Successfully resolved deployment inconsistency by removing multi-area system complexity. Application now displays correct single-form interface. Fixed calculation functions and component toggles. Ready for comprehensive backend testing to verify all API endpoints and functionality work correctly with the simplified frontend structure."
+  - agent: "main"
+    message: "COMPLETED Saved Projects rebuild: Fixed parsing error (missing function declaration for clearDraftProjects). Successfully implemented checkbox-based selection system with bulk actions (Select All, Delete Selected). Added checkboxes to each project item and updated Load button to properly call loadProject function. Ready for backend testing to verify project saving/loading functionality and create test data for checkbox testing."
