@@ -3172,6 +3172,7 @@ const RenovationQuotingApp = () => {
                   </Button>
 
                   {/* Email Quote Button */}
+                  {/* Email Quote Dialog */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white flex items-center justify-center">
@@ -3197,34 +3198,66 @@ const RenovationQuotingApp = () => {
                             className="mt-1"
                           />
                         </div>
-                        <div>
-                          <Label>Subject</Label>
-                          <Input
-                            value={`Renovation Quote - ${formData.clientInfo.name}`}
-                            placeholder="Email subject"
-                            className="mt-1"
-                          />
+                        
+                        {/* Email Options */}
+                        <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+                          <Label className="text-sm font-medium">Email Options</Label>
+                          
+                          {/* Cost Breakdown Option */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="include-breakdown"
+                                checked={emailOptions.includeBreakdown}
+                                onCheckedChange={(checked) => setEmailOptions(prev => ({...prev, includeBreakdown: checked}))}
+                              />
+                              <Label htmlFor="include-breakdown" className="text-sm">Include detailed cost breakdown</Label>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 ml-6">Show individual component costs vs total price only</p>
+                          
+                          {/* PDF Attachment Option */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="include-pdf"
+                                checked={emailOptions.includePdf}
+                                onCheckedChange={(checked) => setEmailOptions(prev => ({...prev, includePdf: checked}))}
+                              />
+                              <Label htmlFor="include-pdf" className="text-sm">Attach AI Scope of Works PDF</Label>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 ml-6">Include professional PDF proposal as attachment</p>
                         </div>
-                        <div>
-                          <Label>Message (Optional)</Label>
-                          <textarea
-                            className="w-full p-2 border rounded-md resize-none"
-                            rows="3"
-                            placeholder="Add a personal message to your client..."
-                          />
+                        
+                        {/* Email Preview */}
+                        <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                          <p className="text-sm text-blue-800">
+                            <strong>Preview:</strong> Email will include {emailOptions.includeBreakdown ? 'detailed cost breakdown' : 'total price only'}
+                            {emailOptions.includePdf ? ' + PDF attachment' : ''}
+                          </p>
                         </div>
+                        
                         <div className="flex gap-2 pt-4">
                           <DialogClose asChild>
                             <Button variant="outline" className="flex-1">Cancel</Button>
                           </DialogClose>
                           <Button 
-                            onClick={() => {
-                              toast.success('Quote emailed successfully!');
-                              // TODO: Implement actual email sending
-                            }}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                            onClick={handleSendQuoteEmail}
+                            disabled={sendingEmail || !formData.clientInfo.email}
+                            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white disabled:bg-gray-400"
                           >
-                            Send Email
+                            {sendingEmail ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                                Sending...
+                              </>
+                            ) : (
+                              <>
+                                <Mail className="w-4 h-4 mr-2" />
+                                Send Email
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>
