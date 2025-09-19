@@ -199,6 +199,33 @@ frontend:
         agent: "main"
         comment: "FIXED: Updated handleTaskOptionChange to use taskOptions state directly instead of projectAreas. All option selectors now reference taskOptions."
 
+  - task: "Saved Projects Checkbox Selection"
+    implemented: true
+    working: true
+    file: "App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "REBUILT: Implemented checkbox-based selection system for saved projects. Added toggleProjectSelection, selectAllProjects, deleteSelectedProjects functions. UI shows checkboxes, Select All/Delete Selected buttons."
+
+  - task: "Saved Projects Loading Data"
+    implemented: true
+    working: "unknown"
+    file: "App.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that loading saved projects fails to restore measurements and selected tasks. Need to verify loadProject function properly loads all saved data."
+      - working: "unknown"
+        agent: "main"
+        comment: "loadProject function looks comprehensive with multi-area support, but needs testing to verify complete data restoration including measurements, components, and task options."
+
 metadata:
   created_by: "main_agent"
   version: "2.0"
