@@ -1519,6 +1519,21 @@ const RenovationQuotingApp = () => {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* Clear Drafts Button */}
+              <div className="flex justify-between items-center pt-2">
+                <Button
+                  onClick={clearAllDrafts}
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 border-red-300 hover:bg-red-50"
+                >
+                  🗑️ Clear Drafts
+                </Button>
+                <span className="text-xs text-gray-500">
+                  {savedProjects.filter(p => p.total_cost === 0).length} drafts
+                </span>
+              </div>
             </div>
 
             {/* Save Current Project Button */}
