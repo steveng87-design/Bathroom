@@ -950,9 +950,21 @@ const RenovationQuotingApp = () => {
         project_summary: `${validAreas.length} area renovation: ${validAreas.map(a => a.name).join(', ')}`
       };
 
-      // Generate quote with learning
-      const userId = userProfile.contact_name || "default";
-      const response = await axios.post(`${API}/quotes/generate-with-learning?user_id=${userId}`, requestData);
+      // Try to generate quote with learning first, fallback to standard if no learning data
+      let response;
+      try {
+        const userId = userProfile.contact_name || "default";
+        response = await axios.post(`${API}/quotes/generate-with-learning?user_id=${userId}`, requestData);
+        
+        // Check if learning was applied
+        const learningInfo = response.data.learning_info;
+        if (learningInfo?.learning_applied) {
+          console.log("🧠 AI Learning applied:", learningInfo);
+        }
+      } catch (learningError) {
+        console.log("Learning not available, using standard quote generation");
+        response = await axios.post(`${API}/quotes`, requestData);
+      }
       
       const enhancedQuote = {
         ...response.data,
@@ -963,16 +975,14 @@ const RenovationQuotingApp = () => {
       
       setQuote(enhancedQuote);
       
-      // Show success message with learning info
+      // Show success message with learning info if available
       const learningInfo = enhancedQuote.learning_info;
       if (learningInfo?.learning_applied) {
         toast.success(
-          `🧠 ${learningInfo.message} Quote personalized based on your pricing history!`
+          `🧠 Quote generated with AI learning! Personalized based on ${learningInfo.total_adjustments || 0} previous adjustments.`
         );
       } else {
-        toast.success(
-          `💡 Quote generated! Complete 2-3 quotes with cost adjustments to unlock personalized AI pricing.`
-        );
+        toast.success(`Combined quote generated for ${validAreas.length} areas: $${response.data.total_cost.toLocaleString()}`);
       }
       
     } catch (error) {
