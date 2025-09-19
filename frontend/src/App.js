@@ -1181,11 +1181,43 @@ const RenovationQuotingApp = () => {
     }
   };
 
+  const testDeleteFirstProject = async () => {
+    try {
+      console.log('Testing delete functionality...');
+      const projects = await axios.get(`${API}/projects`);
+      console.log('Projects retrieved:', projects.data.length);
+      
+      if (projects.data.length > 0) {
+        const firstProjectId = projects.data[0].id;
+        console.log('Deleting project:', firstProjectId);
+        
+        const response = await axios.delete(`${API}/projects/${firstProjectId}`);
+        console.log('Delete response:', response.data);
+        
+        fetchSavedProjects(); // Refresh the list
+        toast.success('TEST: Project deleted successfully!');
+      } else {
+        toast.info('No projects to delete');
+      }
+    } catch (error) {
+      console.error('TEST Delete error:', error);
+      toast.error('TEST: Delete failed - ' + error.message);
+    }
+  };
+
   const deleteProject = async (projectId) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    console.log('deleteProject called with ID:', projectId);
+    
+    if (!window.confirm('Are you sure you want to delete this project? This cannot be undone.')) {
+      console.log('Delete cancelled by user');
+      return;
+    }
     
     try {
-      await axios.delete(`${API}/projects/${projectId}`);
+      console.log('Making API call to delete project:', projectId);
+      const response = await axios.delete(`${API}/projects/${projectId}`);
+      console.log('Delete API response:', response.data);
+      
       toast.success('Project deleted successfully!');
       fetchSavedProjects();
     } catch (error) {
