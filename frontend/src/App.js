@@ -2618,7 +2618,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Type:</Label>
                                           <Select
-                                            value={taskOptions.cornice_type}
+                                            value={getCurrentTaskOptions().cornice_type}
                                             onValueChange={(value) => handleTaskOptionChange('cornice_type', value)}
                                           >
                                             <SelectTrigger className="h-8 w-32">
