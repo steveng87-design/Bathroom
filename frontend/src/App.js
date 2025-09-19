@@ -894,24 +894,6 @@ const RenovationQuotingApp = () => {
       console.error('Error fetching learning insights:', error);
     }
   };
-      // Update the quote with new total and individual costs
-      setQuote(prev => ({
-        ...prev,
-        total_cost: totalAdjusted,
-        cost_breakdown: prev.cost_breakdown.map((item, index) => ({
-          ...item,
-          estimated_cost: adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost
-        }))
-      }));
-      
-      setAdjustmentMode(false);
-      setAdjustedCosts({});
-      toast.success(`Quote adjusted successfully! New total: $${totalAdjusted.toLocaleString()}. The system has learned from your changes.`);
-    } catch (error) {
-      console.error('Error adjusting quote:', error);
-      toast.error('Failed to adjust quote');
-    }
-  };
 
   const generateProposalPDF = async () => {
     if (!quote) return;
