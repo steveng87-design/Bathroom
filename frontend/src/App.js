@@ -2557,7 +2557,7 @@ const RenovationQuotingApp = () => {
                                         <div className="flex items-center space-x-2">
                                           <Label className="text-xs text-gray-600">Type:</Label>
                                           <Select
-                                            value={taskOptions.water_feeds_type}
+                                            value={getCurrentTaskOptions().water_feeds_type}
                                             onValueChange={(value) => handleTaskOptionChange('water_feeds_type', value)}
                                           >
                                             <SelectTrigger className="h-8 w-32">
