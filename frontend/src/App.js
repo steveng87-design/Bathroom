@@ -1244,7 +1244,51 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const clearAllDrafts = async () => {
+  // Project selection functions
+  const toggleProjectSelection = (projectId) => {
+    setSelectedProjects(prev => 
+      prev.includes(projectId) 
+        ? prev.filter(id => id !== projectId)
+        : [...prev, projectId]
+    );
+  };
+
+  const selectAllProjects = () => {
+    const filteredProjectIds = filteredProjects.map(p => p.id);
+    setSelectedProjects(prev => 
+      prev.length === filteredProjectIds.length 
+        ? [] // Deselect all if all are selected
+        : filteredProjectIds // Select all
+    );
+  };
+
+  const deleteSelectedProjects = async () => {
+    if (selectedProjects.length === 0) {
+      toast.error('No projects selected');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete ${selectedProjects.length} selected projects? This cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      console.log('Deleting selected projects:', selectedProjects);
+      
+      // Delete all selected projects in parallel
+      await Promise.all(selectedProjects.map(projectId => 
+        axios.delete(`${API}/projects/${projectId}`)
+      ));
+      
+      toast.success(`Successfully deleted ${selectedProjects.length} projects`);
+      setSelectedProjects([]); // Clear selection
+      fetchSavedProjects(); // Refresh the list
+    } catch (error) {
+      console.error('Error deleting selected projects:', error);
+      toast.error('Failed to delete some projects');
+      fetchSavedProjects(); // Refresh to show current state
+    }
+  };
     if (!window.confirm('Are you sure you want to delete all draft projects with $0 cost? This cannot be undone.')) {
       return;
     }
