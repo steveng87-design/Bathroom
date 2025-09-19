@@ -147,6 +147,21 @@ class MaterialSupplier(BaseModel):
     specialties: List[str]
     estimated_distance: str
 
+# Email Models
+class EmailOptions(BaseModel):
+    include_breakdown: bool = True
+    include_pdf: bool = False
+
+class SendQuoteEmailRequest(BaseModel):
+    recipient_email: EmailStr
+    client_name: str
+    quote_id: str
+    options: EmailOptions = EmailOptions()
+    
+class EmailResponse(BaseModel):
+    status: str
+    message: str
+
 # Static material suppliers data (MVP approach)
 MATERIAL_SUPPLIERS = {
     "demolition": [
