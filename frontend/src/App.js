@@ -1717,56 +1717,63 @@ const RenovationQuotingApp = () => {
                 </div>
               ) : (
                 filteredProjects.map((project) => (
-                  <Card key={project.id} className="p-3 hover:shadow-md transition-shadow cursor-pointer">
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
-                            {project.project_name}
-                          </h4>
-                          <p className="text-xs text-gray-600">
-                            {project.client_name}
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {project.category}
-                        </Badge>
-                      </div>
+                  <Card key={project.id} className="p-3 hover:shadow-md transition-shadow">
+                    <div className="flex items-start gap-3">
+                      {/* Checkbox */}
+                      <Checkbox
+                        checked={selectedProjects.includes(project.id)}
+                        onCheckedChange={() => toggleProjectSelection(project.id)}
+                        className="mt-1"
+                      />
                       
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-green-600">
-                          <DollarSign className="w-3 h-3 mr-1" />
-                          <span className="text-sm font-semibold">
-                            ${project.total_cost.toLocaleString()}
-                          </span>
+                      {/* Project Content */}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm text-gray-900 line-clamp-1">
+                              {project.project_name}
+                            </h4>
+                            <p className="text-xs text-gray-600">
+                              {project.client_name}
+                            </p>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {project.category}
+                          </Badge>
                         </div>
-                        <div className="flex items-center text-gray-400 text-xs">
-                          <Calendar className="w-3 h-3 mr-1" />
-                          {new Date(project.created_at).toLocaleDateString()}
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center text-green-600">
+                            <DollarSign className="w-3 h-3 mr-1" />
+                            <span className="text-sm font-semibold">
+                              ${project.total_cost.toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="flex items-center text-gray-400 text-xs">
+                            <Calendar className="w-3 h-3 mr-1" />
+                            {new Date(project.created_at).toLocaleDateString()}
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="flex gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 text-xs h-7"
-                          onClick={() => {
-                            // Load project functionality will be added
-                            toast.success('Loading project...');
-                          }}
-                        >
-                          <Edit3 className="w-3 h-3 mr-1" />
-                          Load
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-xs h-7 text-red-600 hover:text-red-700"
-                          onClick={() => deleteProject(project.id)}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        
+                        <div className="flex gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 text-xs h-7"
+                            onClick={() => loadProject(project.id)}
+                          >
+                            <Edit3 className="w-3 h-3 mr-1" />
+                            Load
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-xs h-7 text-red-600 hover:text-red-700"
+                            onClick={() => deleteProject(project.id)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </Card>
