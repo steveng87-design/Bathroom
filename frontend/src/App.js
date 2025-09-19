@@ -995,6 +995,50 @@ const RenovationQuotingApp = () => {
     }
   };
 
+  // Send Quote Email function
+  const handleSendQuoteEmail = async () => {
+    if (!quote || !formData.clientInfo.email) {
+      toast.error('Missing quote or client email');
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const emailRequest = {
+        recipient_email: formData.clientInfo.email,
+        client_name: formData.clientInfo.name || 'Client',
+        quote_id: quote.id,
+        options: {
+          include_breakdown: emailOptions.includeBreakdown,
+          include_pdf: emailOptions.includePdf
+        }
+      };
+
+      await axios.post(`${API}/quotes/${quote.id}/send-email`, emailRequest);
+      
+      toast.success(
+        `Quote email sent successfully to ${formData.clientInfo.email}! ${
+          emailOptions.includePdf ? 'PDF attachment included.' : ''
+        }`
+      );
+      
+      // Close dialog
+      document.querySelector('[data-state="open"] button[aria-label="Close"]')?.click();
+      
+    } catch (error) {
+      console.error('Error sending email:', error);
+      const errorMessage = error.response?.data?.detail || 'Failed to send email';
+      
+      if (errorMessage.includes('not configured')) {
+        toast.error('Email service not configured. Please set up SendGrid API key and sender email.');
+      } else {
+        toast.error(`Failed to send email: ${errorMessage}`);
+      }
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
   // Load saved projects
   const loadSavedProjects = async () => {
     try {
