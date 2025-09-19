@@ -190,6 +190,13 @@ const RenovationQuotingApp = () => {
   const [editingProject, setEditingProject] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   
+  // Email functionality states
+  const [emailOptions, setEmailOptions] = useState({
+    includeBreakdown: true,
+    includePdf: false
+  });
+  const [sendingEmail, setSendingEmail] = useState(false);
+  
   // Google Maps Integration
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
