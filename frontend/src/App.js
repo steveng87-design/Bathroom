@@ -656,7 +656,15 @@ const RenovationQuotingApp = () => {
     setLoading(true);
 
     try {
+      // Validate required client information first
+      if (!formData.clientInfo.name?.trim() || !formData.clientInfo.email?.trim()) {
+        toast.error('Please fill in client name and email address');
+        setLoading(false);
+        return;
+      }
+      
       console.log('=== MULTI-AREA COMBINED QUOTE GENERATION ===');
+      console.log('Client info:', formData.clientInfo);
       console.log('projectAreas:', projectAreas);
       
       // Collect all areas with selected components and measurements
