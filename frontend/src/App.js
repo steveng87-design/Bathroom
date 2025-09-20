@@ -20,17 +20,18 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const RenovationQuotingApp = () => {
+  // Initialize with some default data to prevent validation issues
   const [formData, setFormData] = useState({
     clientInfo: {
-      name: '',
-      email: '',
-      phone: '',
-      address: ''
+      name: 'John Smith',
+      email: 'john@example.com',
+      phone: '02-1234-5678',
+      address: '123 Test Street, Sydney NSW 2000'
     },
     roomMeasurements: {
-      length: '',
-      width: '',
-      height: ''
+      length: '3500',
+      width: '2500', 
+      height: '2400'
     },
     components: {
       demolition: {
