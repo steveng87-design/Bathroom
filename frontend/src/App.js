@@ -671,8 +671,19 @@ const RenovationQuotingApp = () => {
         
         if (!area.components || !area.measurements) continue;
         
-        const hasSelectedComponents = Object.values(area.components).some(comp => comp && comp.enabled);
-        const { length, width, height } = area.measurements;
+        const hasSelectedComponents = Object.values(area.components).some(comp => comp && comp.enabled === true);
+        const { length, width, height } = area.measurements || {};
+        
+        console.log(`Area ${area.name}:`, {
+          hasComponents: !!area.components,
+          hasSelectedComponents,
+          measurements: { length, width, height },
+          componentsDetails: Object.entries(area.components || {}).map(([key, comp]) => ({
+            key,
+            enabled: comp?.enabled,
+            type: typeof comp
+          }))
+        });
         
         if (hasSelectedComponents && length && width && height) {
           // Add to valid areas
