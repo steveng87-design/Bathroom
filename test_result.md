@@ -119,6 +119,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "TESTED: Quote generation API working correctly. Successfully created multiple quotes with different configurations including detailed components and task options. AI integration functional with proper cost breakdowns. One test failed due to LLM budget limit exceeded, but API functionality confirmed working."
+      - working: true
+        agent: "testing"
+        comment: "CRITICAL ISSUE RE-TESTED: User reported quote generation not working, but extensive testing shows BOTH endpoints working perfectly. POST /api/quotes/request: ✅ Generated quotes successfully ($13,800-$48,000 range). POST /api/quotes/generate-with-learning: ✅ AI learning functionality working. All quote generation functionality is operational. Issue may be frontend-related or resolved."
 
   - task: "PDF Generation"
     implemented: true
