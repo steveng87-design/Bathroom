@@ -409,18 +409,40 @@ const RenovationQuotingApp = () => {
   const calculateSquareMeters = (areaIndex = null) => {
     const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
     const { length, width } = area?.measurements || {};
+    
+    console.log('calculateSquareMeters debug:', {
+      areaIndex,
+      area: area?.name,
+      measurements: area?.measurements,
+      length,
+      width
+    });
+    
     if (length && width) {
       // Convert from millimetres to meters first, then calculate square meters
       const lengthInMeters = parseFloat(length) / 1000;
       const widthInMeters = parseFloat(width) / 1000;
-      return (lengthInMeters * widthInMeters).toFixed(2);
+      const result = (lengthInMeters * widthInMeters).toFixed(2);
+      console.log('Floor area calculated:', result, 'm²');
+      return result;
     }
+    console.log('Floor area: No valid measurements');
     return '0';
   };
 
   const calculateWallArea = (areaIndex = null) => {
     const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
     const { length, width, height } = area?.measurements || {};
+    
+    console.log('calculateWallArea debug:', {
+      areaIndex,  
+      area: area?.name,
+      measurements: area?.measurements,
+      length,
+      width,
+      height
+    });
+    
     if (length && width && height) {
       // Convert from millimetres to meters first
       const lengthInMeters = parseFloat(length) / 1000;
@@ -429,8 +451,11 @@ const RenovationQuotingApp = () => {
       
       // Calculate wall area: (2 × length × height) + (2 × width × height)
       const wallArea = (2 * lengthInMeters * heightInMeters) + (2 * widthInMeters * heightInMeters);
-      return wallArea.toFixed(2);
+      const result = wallArea.toFixed(2);
+      console.log('Wall area calculated:', result, 'm²');
+      return result;
     }
+    console.log('Wall area: No valid measurements');
     return '0';
   };
 
