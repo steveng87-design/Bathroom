@@ -174,9 +174,9 @@ frontend:
 
   - task: "Real-time Calculations"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -186,6 +186,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "FIXED: Corrected calculation functions to use formData.roomMeasurements instead of projectAreas. Verified calculations working: 4000mm×3000mm = 12.00m² floor, 37.80m² wall area."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE CONFIRMED: Area calculations are completely broken. When filling measurements 3500×2500×2400mm, the display shows 'Floor: 0 m²' and 'Wall: 0 m²' instead of expected Floor: 8.75 m² and Wall: 28.8 m². The calculation functions are not working at all. This is a blocking issue preventing quote generation."
 
   - task: "Component Toggle System"
     implemented: true
