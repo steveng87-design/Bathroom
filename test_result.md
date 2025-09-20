@@ -192,11 +192,11 @@ frontend:
 
   - task: "Component Toggle System"
     implemented: true
-    working: true
+    working: false
     file: "App.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: false
         agent: "user"
@@ -204,6 +204,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "FIXED: Updated handleComponentToggle and handleSubtaskToggle to use formData.components instead of projectAreas structure."
+      - working: false
+        agent: "testing"
+        comment: "CRITICAL ISSUE: Component checkboxes cannot be clicked due to overlay elements intercepting pointer events. JavaScript selection works but UI interaction is broken. Users cannot select components through normal clicking, making the form unusable."
 
   - task: "Task Options Management"
     implemented: true
