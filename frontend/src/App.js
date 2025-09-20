@@ -213,7 +213,7 @@ const RenovationQuotingApp = () => {
       id: 'main',
       name: 'Main Bathroom',
       type: 'bathroom',
-      measurements: { length: '', width: '', height: '' },
+      measurements: { length: '3500', width: '2500', height: '2400' },
       components: {
         demolition: { enabled: false, subtasks: { removal_internal_ware: false, removal_wall_linings: false, removal_ceiling_linings: false, removal_ground_tiles_screed: false, removal_old_substrate: false, supply_skip_bin: false, asbestos_removal: false } },
         framing: { enabled: false, subtasks: { internal_wall_rectification: false, build_niches: false, recessed_mirror_cabinet: false, swing_door_materials: false, cavity_sliding_unit: false, new_window_framing: false, subfloor_replacement: false, additional_costs_allowance: false } },
