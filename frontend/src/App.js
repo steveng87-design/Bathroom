@@ -570,27 +570,18 @@ const RenovationQuotingApp = () => {
   };
 
   const handleAreaMeasurementChange = (field, value) => {
-    console.log('handleAreaMeasurementChange:', { field, value, currentAreaIndex });
-    
-    setProjectAreas(prev => {
-      const updated = prev.map((area, index) => {
-        if (index === currentAreaIndex) {
-          const updatedArea = {
-            ...area,
-            measurements: {
-              ...area.measurements,
-              [field]: value
-            }
-          };
-          console.log('Updated area measurements:', updatedArea.measurements);
-          return updatedArea;
-        }
-        return area;
-      });
-      
-      console.log('All project areas after update:', updated);
-      return updated;
-    });
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          measurements: {
+            ...area.measurements,
+            [field]: value
+          }
+        };
+      }
+      return area;
+    }));
   };
 
   const handleComponentToggle = (component, enabled) => {
