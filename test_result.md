@@ -261,10 +261,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Saved Projects Checkbox Selection"
-    - "Saved Projects Loading Data"
-    - "Quote Generation API"
-  stuck_tasks: []
+    - "Real-time Calculations"
+    - "Component Toggle System"
+    - "Quote Generation Frontend Integration"
+  stuck_tasks:
+    - "Real-time Calculations"
+    - "Component Toggle System"
   test_all: false
   test_priority: "high_first"
 
