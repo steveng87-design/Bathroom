@@ -761,7 +761,7 @@ const RenovationQuotingApp = () => {
           height: parseFloat(primaryArea.measurements.height) / 1000
         },
         components: Object.keys(combinedComponents).reduce((acc, key) => {
-          acc[key] = { enabled: true };
+          acc[key] = true;  // Backend expects boolean values, not objects
           return acc;
         }, {}),
         detailed_components: combinedComponents,
