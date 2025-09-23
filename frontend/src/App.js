@@ -939,24 +939,48 @@ const RenovationQuotingApp = () => {
 
     setGeneratingPDF(true);
     try {
+      // Prepare adjusted costs for PDF generation if user has made adjustments
+      const pdfRequestData = {
+        user_profile: userProfile,
+        adjusted_costs: null,
+        adjusted_total: null
+      };
+      
+      // If user has made cost adjustments, prepare the adjusted costs data
+      if (Object.keys(adjustedCosts).length > 0) {
+        const adjustedCostsByComponent = {};
+        const finalTotalCost = getTotalAdjustedCost();
+        
+        quote.cost_breakdown.forEach((item, index) => {
+          if (adjustedCosts[index] !== undefined) {
+            adjustedCostsByComponent[item.component] = adjustedCosts[index];
+          }
+        });
+        
+        pdfRequestData.adjusted_costs = adjustedCostsByComponent;
+        pdfRequestData.adjusted_total = finalTotalCost;
+      }
+
       const response = await axios.post(
         `${API}/quotes/${quote.id}/generate-proposal`,
-        userProfile,
+        pdfRequestData,
         { responseType: 'blob' }
       );
 
       // Create download link
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `Bathroom_Proposal_${quote.id.substring(0, 8)}.pdf`;
+      link.download = `Scope_of_Works_${formData.clientInfo.name.replace(/\s+/g, '_')}_${quote.id.substring(0, 8)}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      toast.success('Professional proposal PDF generated successfully!');
+      const adjustmentMessage = Object.keys(adjustedCosts).length > 0 
+        ? ' with your cost adjustments applied!' 
+        : '!';
+      toast.success(`Professional proposal PDF generated successfully${adjustmentMessage}`);
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast.error('Failed to generate proposal PDF');
