@@ -658,25 +658,12 @@ const RenovationQuotingApp = () => {
     setLoading(true);
 
     try {
-      // Debug: Log the exact state we're checking
-      console.log('=== QUOTE GENERATION DEBUG ===');
-      console.log('formData.clientInfo:', formData.clientInfo);
-      console.log('projectAreas:', projectAreas);
-      console.log('currentAreaIndex:', currentAreaIndex);
-      console.log('getCurrentArea():', getCurrentArea());
-      console.log('getCurrentArea()?.measurements:', getCurrentArea()?.measurements);
-      
       // Validate required client information first
       if (!formData.clientInfo.name?.trim() || !formData.clientInfo.email?.trim()) {
-        console.log('❌ Validation failed: Missing client info');
         toast.error('Please fill in client name and email address');
         setLoading(false);
         return;
       }
-      
-      console.log('✅ Client info validation passed');
-      console.log('Client info:', formData.clientInfo);
-      console.log('projectAreas:', projectAreas);
 
       // Collect and validate areas
       let combinedComponents = {};
