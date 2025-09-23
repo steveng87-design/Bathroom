@@ -828,32 +828,135 @@ class BathroomRenovationAPITester:
         
         return False
 
-    def test_generate_pdf_proposal(self):
-        """Test PDF proposal generation"""
+    def test_generate_pdf_proposal_original_costs(self):
+        """Test PDF proposal generation with original costs (no adjustments)"""
         if not self.quote_id:
             print("❌ Skipping - No quote ID available")
             return False
             
-        user_profile = {
-            "company_name": "Test Renovations Pty Ltd",
-            "contact_name": "Test Manager",
-            "phone": "02-1234-5678",
-            "email": "test@renovations.com.au",
-            "license_number": "TEST-1234",
-            "years_experience": "10+",
-            "projects_completed": "200+"
+        pdf_request = {
+            "user_profile": {
+                "company_name": "Test Company",
+                "contact_name": "Test User",
+                "phone": "02-1234-5678",
+                "email": "test@company.com",
+                "license_number": "12345"
+            },
+            "adjusted_costs": None,
+            "adjusted_total": None
         }
         
         success, response = self.run_test(
-            "Generate PDF Proposal",
+            "Generate PDF Proposal - Original Costs",
             "POST",
             f"quotes/{self.quote_id}/generate-proposal",
             200,
-            data=user_profile
+            data=pdf_request
         )
         
         if success:
-            print(f"   PDF generated successfully")
+            print(f"   PDF generated successfully with original costs")
+            return True
+        return False
+
+    def test_generate_pdf_proposal_adjusted_costs(self):
+        """Test PDF proposal generation with adjusted costs"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        pdf_request = {
+            "user_profile": {
+                "company_name": "Test Company",
+                "contact_name": "Test User",
+                "phone": "02-1234-5678",
+                "email": "test@company.com",
+                "license_number": "12345"
+            },
+            "adjusted_costs": {
+                "Demolition": 1300.00,
+                "Plumbing Rough In": 4500.00,
+                "Tiling": 3200.00
+            },
+            "adjusted_total": 8950.00
+        }
+        
+        success, response = self.run_test(
+            "Generate PDF Proposal - Adjusted Costs",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request
+        )
+        
+        if success:
+            print(f"   PDF generated successfully with adjusted costs")
+            return True
+        return False
+
+    def test_generate_quote_summary_original_costs(self):
+        """Test quote summary PDF generation with original costs (no adjustments)"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        pdf_request = {
+            "user_profile": {
+                "company_name": "Test Company",
+                "contact_name": "Test User",
+                "phone": "02-1234-5678",
+                "email": "test@company.com",
+                "license_number": "12345"
+            },
+            "adjusted_costs": None,
+            "adjusted_total": None
+        }
+        
+        success, response = self.run_test(
+            "Generate Quote Summary PDF - Original Costs",
+            "POST",
+            f"quotes/{self.quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request
+        )
+        
+        if success:
+            print(f"   Quote summary PDF generated successfully with original costs")
+            return True
+        return False
+
+    def test_generate_quote_summary_adjusted_costs(self):
+        """Test quote summary PDF generation with adjusted costs"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+            
+        pdf_request = {
+            "user_profile": {
+                "company_name": "Test Company",
+                "contact_name": "Test User",
+                "phone": "02-1234-5678",
+                "email": "test@company.com",
+                "license_number": "12345"
+            },
+            "adjusted_costs": {
+                "Demolition": 1300.00,
+                "Plumbing Rough In": 4500.00,
+                "Tiling": 3200.00
+            },
+            "adjusted_total": 8950.00
+        }
+        
+        success, response = self.run_test(
+            "Generate Quote Summary PDF - Adjusted Costs",
+            "POST",
+            f"quotes/{self.quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request
+        )
+        
+        if success:
+            print(f"   Quote summary PDF generated successfully with adjusted costs")
             return True
         return False
 
