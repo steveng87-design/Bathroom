@@ -731,6 +731,18 @@ const RenovationQuotingApp = () => {
         });
       });
 
+      // TEMPORARY: Add demolition component for testing if no components selected
+      if (Object.keys(combinedComponents).length === 0) {
+        combinedComponents.demolition = { 
+          enabled: true, 
+          subtasks: { 
+            ceiling_removal: true,
+            floor_removal: true
+          } 
+        };
+        console.log("🔧 No components selected, added demolition for testing");
+      }
+
       console.log('Combined components:', combinedComponents);
 
       if (Object.keys(combinedComponents).length === 0) {
