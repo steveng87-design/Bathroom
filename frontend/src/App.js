@@ -1115,9 +1115,11 @@ const RenovationQuotingApp = () => {
         }
       }
 
-      // Create email content
+      // Create email content using ADJUSTED costs (not original AI costs)
       const subject = `Bathroom Renovation Quote - ${formData.clientInfo.name}`;
-      const totalCost = quote.total_cost || 0;
+      
+      // Use adjusted total cost if user has made adjustments, otherwise original cost
+      const finalTotalCost = Object.keys(adjustedCosts).length > 0 ? getTotalAdjustedCost() : (quote.total_cost || 0);
       
       let emailBody = `Dear ${formData.clientInfo.name},
 
@@ -1129,17 +1131,20 @@ PROJECT DETAILS:
 📞 Phone: ${formData.clientInfo.phone}
 
 QUOTE SUMMARY:
-💰 Total Estimated Cost: $${totalCost.toLocaleString()}
+💰 Total Estimated Cost: $${finalTotalCost.toLocaleString()}
 🤖 Generated using AI-powered precision analysis
 📊 Based on ${getCurrentArea()?.measurements ? `${(parseFloat(getCurrentArea().measurements.length) / 1000 * parseFloat(getCurrentArea().measurements.width) / 1000).toFixed(1)}m²` : 'your'} bathroom specifications
 
 `;
 
+      // Only include breakdown if user specifically requested it
       if (emailOptions.includeBreakdown && quote.cost_breakdown) {
         emailBody += `COST BREAKDOWN:
 `;
-        quote.cost_breakdown.forEach(item => {
-          emailBody += `• ${item.component}: $${item.estimated_cost.toLocaleString()}
+        quote.cost_breakdown.forEach((item, index) => {
+          // Use adjusted cost if available, otherwise original cost
+          const finalCost = adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost;
+          emailBody += `• ${item.component}: $${finalCost.toLocaleString()}
 `;
         });
         emailBody += `
