@@ -1029,9 +1029,10 @@ def main():
     
     tester = BathroomRenovationAPITester()
     
-    # Test sequence - Focus on project management functionality
+    # Test sequence - URGENT: Focus on HTTP 422 validation debugging first
     tests = [
         ("Root Endpoint", tester.test_root_endpoint),
+        ("🚨 URGENT: HTTP 422 Validation Debugging", tester.test_validation_error_debugging),
         ("Small Bathroom Quote", tester.test_create_quote_small_bathroom),
         ("Save Project with Complete Data", tester.test_save_project_with_complete_data),
         ("Get Project Quote - Detailed", tester.test_get_project_quote_detailed),
