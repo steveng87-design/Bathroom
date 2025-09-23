@@ -586,27 +586,36 @@ const RenovationQuotingApp = () => {
   };
 
   const handleComponentToggle = (component, enabled) => {
-    setProjectAreas(prev => prev.map((area, index) => {
-      if (index === currentAreaIndex) {
-        return {
-          ...area,
-          components: {
-            ...area.components,
-            [component]: {
-              ...area.components[component],
-              enabled: enabled,
-              // If disabling main component, disable all subtasks
-              subtasks: enabled ? area.components[component].subtasks : 
-                Object.keys(area.components[component].subtasks).reduce((acc, key) => {
-                  acc[key] = false;
-                  return acc;
-                }, {})
+    console.log('🔧 handleComponentToggle called:', { component, enabled, currentAreaIndex });
+    
+    setProjectAreas(prev => {
+      const updated = prev.map((area, index) => {
+        if (index === currentAreaIndex) {
+          const updatedArea = {
+            ...area,
+            components: {
+              ...area.components,
+              [component]: {
+                ...area.components[component],
+                enabled: enabled,
+                // If disabling main component, disable all subtasks
+                subtasks: enabled ? area.components[component].subtasks : 
+                  Object.keys(area.components[component].subtasks).reduce((acc, key) => {
+                    acc[key] = false;
+                    return acc;
+                  }, {})
+              }
             }
-          }
-        };
-      }
-      return area;
-    }));
+          };
+          console.log('🔧 Updated area components:', updatedArea.components[component]);
+          return updatedArea;
+        }
+        return area;
+      });
+      
+      console.log('🔧 All project areas after component toggle:', updated);
+      return updated;
+    });
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
