@@ -273,6 +273,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "EXACT FAILURE POINT IDENTIFIED: Quote generation fails at component validation step. Form data is perfect (client info populated, measurements correct: 8.75m² floor, 28.80m² wall), but handleSubmit logs 'Combined components: {}' indicating zero components selected. Validation correctly shows toast message 'Please select at least one component to quote'. The Generate button works, form validation works, but component selection is completely broken preventing any quote generation. No API calls are made due to early validation failure."
+      - working: false
+        agent: "testing"
+        comment: "🚨 HTTP 422 VALIDATION ERROR ROOT CAUSE IDENTIFIED: Frontend sends components as {demolition: {enabled: true}} but backend RenovationComponent model expects {demolition: true}. Pydantic validation error: 'Input should be a valid boolean'. ✅ BACKEND CONFIRMED WORKING: Both /api/quotes/request and /api/quotes/generate-with-learning work perfectly with correct boolean structure (generated quotes $950-$28,000). ❌ FRONTEND PAYLOAD FIX REQUIRED: Components structure must be changed from object format {component: {enabled: boolean}} to direct boolean format {component: boolean}. This is the exact cause of user's reported HTTP 422 errors."
 
 metadata:
   created_by: "main_agent"
