@@ -1471,34 +1471,23 @@ class BathroomRenovationAPITester:
         return all_tests_passed
 
 def main():
-    print("🚀 Starting Bathroom Renovation API Tests")
-    print("=" * 50)
+    print("🚀 URGENT: Debugging 'Method Not Allowed' Error in Quote Generation")
+    print("=" * 70)
     
     tester = BathroomRenovationAPITester()
     
-    # Test sequence - Focus on PDF generation with adjusted costs
+    # URGENT TEST SEQUENCE - Focus on Method Not Allowed debugging
     tests = [
+        ("🚨 URGENT: Method Not Allowed Debugging", tester.test_method_not_allowed_debugging),
         ("Root Endpoint", tester.test_root_endpoint),
         ("Small Bathroom Quote", tester.test_create_quote_small_bathroom),
-        ("🔍 PDF Proposal - Original Costs", tester.test_generate_pdf_proposal_original_costs),
-        ("🔍 PDF Proposal - Adjusted Costs", tester.test_generate_pdf_proposal_adjusted_costs),
-        ("🔍 Quote Summary PDF - Original Costs", tester.test_generate_quote_summary_original_costs),
-        ("🔍 Quote Summary PDF - Adjusted Costs", tester.test_generate_quote_summary_adjusted_costs),
-        ("🔍 COMPREHENSIVE PDF ADJUSTED COSTS TEST", tester.test_comprehensive_pdf_adjusted_costs),
+        ("🚨 HTTP 422 Validation Debugging", tester.test_validation_error_debugging),
         ("Large Bathroom Quote", tester.test_create_quote_large_bathroom),
         ("Get Quote by ID", tester.test_get_quote),
-        ("Get All Quotes", tester.test_get_all_quotes),
         ("Detailed Components Quote", tester.test_create_quote_with_detailed_components),
-        ("Save Project with Complete Data", tester.test_save_project_with_complete_data),
-        ("Get Project Quote - Detailed", tester.test_get_project_quote_detailed),
-        ("Create Multiple Test Projects", tester.test_create_multiple_test_projects),
-        ("Project Loading Functionality", tester.test_project_loading_functionality),
-        ("Get Saved Projects", tester.test_get_saved_projects),
-        ("Get Project Categories", tester.test_get_project_categories),
-        ("Project Deletion", tester.test_project_deletion),
+        ("Get All Quotes", tester.test_get_all_quotes),
         ("Supplier Endpoints", tester.test_suppliers_endpoints),
         ("Invalid Supplier", tester.test_invalid_supplier_component),
-        ("🚨 HTTP 422 Validation Debugging", tester.test_validation_error_debugging),
     ]
     
     for test_name, test_func in tests:
