@@ -300,11 +300,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Component Toggle System"
-    - "Quote Generation Frontend Integration"
-  stuck_tasks:
-    - "Component Toggle System"
-    - "Quote Generation Frontend Integration"
+    - "Task Options Management"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
