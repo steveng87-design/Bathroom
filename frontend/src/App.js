@@ -1080,12 +1080,34 @@ const RenovationQuotingApp = () => {
 
     setSendingEmail(true);
     try {
-      // Generate the PDFs first
+      // Generate PDFs if requested
       const pdfFiles = [];
+      
+      // Prepare adjusted costs for PDF generation if user has made adjustments
+      const pdfRequestData = {
+        user_profile: userProfile,
+        adjusted_costs: null,
+        adjusted_total: null
+      };
+      
+      // If user has made cost adjustments, prepare the adjusted costs data
+      if (Object.keys(adjustedCosts).length > 0) {
+        const adjustedCostsByComponent = {};
+        const finalTotalCost = getTotalAdjustedCost();
+        
+        quote.cost_breakdown.forEach((item, index) => {
+          if (adjustedCosts[index] !== undefined) {
+            adjustedCostsByComponent[item.component] = adjustedCosts[index];
+          }
+        });
+        
+        pdfRequestData.adjusted_costs = adjustedCostsByComponent;
+        pdfRequestData.adjusted_total = finalTotalCost;
+      }
       
       // Always generate quote summary PDF
       try {
-        const quoteResponse = await axios.post(`${API}/quotes/${quote.id}/generate-quote-summary`, userProfile, {
+        const quoteResponse = await axios.post(`${API}/quotes/${quote.id}/generate-quote-summary`, pdfRequestData, {
           responseType: 'blob'
         });
         
@@ -1101,7 +1123,7 @@ const RenovationQuotingApp = () => {
       // Generate scope of works PDF if requested
       if (emailOptions.includePdf) {
         try {
-          const scopeResponse = await axios.post(`${API}/quotes/${quote.id}/generate-proposal`, userProfile, {
+          const scopeResponse = await axios.post(`${API}/quotes/${quote.id}/generate-proposal`, pdfRequestData, {
             responseType: 'blob'
           });
           
