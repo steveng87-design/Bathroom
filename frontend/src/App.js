@@ -771,7 +771,7 @@ const RenovationQuotingApp = () => {
         }
       } catch (learningError) {
         console.log("Learning not available, using standard quote generation");
-        response = await axios.post(`${API}/quotes`, requestData);
+        response = await axios.post(`${API}/quotes/request`, requestData);
       }
       
       const enhancedQuote = {
