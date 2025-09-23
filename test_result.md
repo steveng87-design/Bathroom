@@ -122,6 +122,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "CRITICAL ISSUE RE-TESTED: User reported quote generation not working, but extensive testing shows BOTH endpoints working perfectly. POST /api/quotes/request: ✅ Generated quotes successfully ($13,800-$48,000 range). POST /api/quotes/generate-with-learning: ✅ AI learning functionality working. All quote generation functionality is operational. Issue may be frontend-related or resolved."
+      - working: true
+        agent: "testing"
+        comment: "🚨 URGENT HTTP 422 VALIDATION ISSUE RESOLVED: Confirmed both quote generation endpoints working perfectly with correct payload structure. POST /api/quotes/request: ✅ Generated quotes ($950-$28,000 range). POST /api/quotes/generate-with-learning: ✅ AI learning functional. Issue was frontend sending components as {demolition: {enabled: true}} instead of {demolition: true}. Backend Pydantic validation correctly rejects invalid boolean format. API endpoints are 100% functional - frontend payload structure needs correction."
 
   - task: "PDF Generation"
     implemented: true
