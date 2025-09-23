@@ -131,7 +131,7 @@ backend:
     working: true
     file: "server.py, pdf_generator.py"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
       - working: true
@@ -140,6 +140,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "TESTED: PDF generation endpoint available and functional. API accepts user profile data and returns proper response. Endpoint tested successfully with comprehensive user profile data."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE PDF ADJUSTED COSTS TESTING COMPLETED: Both PDF generation endpoints working perfectly with new PDFGenerationRequest format. POST /api/quotes/{quote_id}/generate-proposal: ✅ Generates PDFs with original costs (adjusted_costs: null), ✅ Generates PDFs with full adjusted costs (5 components adjusted), ✅ Generates PDFs with partial adjustments (2 components). POST /api/quotes/{quote_id}/generate-quote-summary: ✅ All scenarios working perfectly. User profile data correctly extracted from new structure. PDF filenames match expected format. Adjusted costs properly applied when provided, original costs used when no adjustments. Critical for user satisfaction - cost adjustments now reflect in both emails and PDFs as requested. Success rate: 100% (7/7 tests passed)."
 
   - task: "Project Management API"
     implemented: true
