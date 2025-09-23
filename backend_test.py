@@ -960,6 +960,200 @@ class BathroomRenovationAPITester:
             return True
         return False
 
+    def test_method_not_allowed_debugging(self):
+        """URGENT: Debug 'Method Not Allowed' error in quote generation"""
+        print("\n🚨 DEBUGGING 'METHOD NOT ALLOWED' ERROR")
+        print("=" * 60)
+        
+        # Test 1: Check if endpoints exist and accept correct methods
+        print("\n--- TEST 1: Endpoint Method Verification ---")
+        
+        # Test GET on quote generation endpoints (should fail with 405 Method Not Allowed)
+        print("Testing GET on quote generation endpoints (should return 405)...")
+        
+        success_get_1, response_get_1 = self.run_test(
+            "GET /api/quotes/request (should be 405)",
+            "GET",
+            "quotes/request",
+            405  # Expecting Method Not Allowed
+        )
+        
+        success_get_2, response_get_2 = self.run_test(
+            "GET /api/quotes/generate-with-learning (should be 405)",
+            "GET", 
+            "quotes/generate-with-learning?user_id=default",
+            405  # Expecting Method Not Allowed
+        )
+        
+        # Test 2: Verify POST methods work with minimal payload
+        print("\n--- TEST 2: POST Method Verification ---")
+        
+        minimal_payload = {
+            "client_info": {
+                "name": "Test User",
+                "email": "test@example.com",
+                "phone": "02-1234-5678",
+                "address": "123 Test St, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": False,
+                "electrical_rough_in": False,
+                "plastering": False,
+                "waterproofing": False,
+                "tiling": False,
+                "fit_off": False
+            }
+        }
+        
+        print("Testing POST /api/quotes/request...")
+        success_post_1, response_post_1 = self.run_test(
+            "POST /api/quotes/request",
+            "POST",
+            "quotes/request",
+            200,
+            data=minimal_payload,
+            timeout=60
+        )
+        
+        print("Testing POST /api/quotes/generate-with-learning...")
+        success_post_2, response_post_2 = self.run_test(
+            "POST /api/quotes/generate-with-learning",
+            "POST",
+            "quotes/generate-with-learning?user_id=default",
+            200,
+            data=minimal_payload,
+            timeout=60
+        )
+        
+        # Test 3: Check backend service status
+        print("\n--- TEST 3: Backend Service Status ---")
+        
+        success_root, response_root = self.run_test(
+            "GET /api/ (root endpoint)",
+            "GET",
+            "",
+            200
+        )
+        
+        # Test 4: Test with exact payload from review request
+        print("\n--- TEST 4: Exact Payload from Review Request ---")
+        
+        review_payload = {
+            "client_info": {
+                "name": "John Smith",
+                "email": "john@example.com",
+                "phone": "02-1234-5678", 
+                "address": "123 Test Street, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": False,
+                "electrical_rough_in": False,
+                "plastering": False,
+                "waterproofing": False,
+                "tiling": False,
+                "fit_off": False
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "ceiling_removal": True,
+                        "floor_removal": True
+                    }
+                }
+            },
+            "task_options": {}
+        }
+        
+        print("Testing with exact payload from review request...")
+        success_exact, response_exact = self.run_test(
+            "POST /api/quotes/generate-with-learning (exact payload)",
+            "POST",
+            "quotes/generate-with-learning?user_id=default",
+            200,
+            data=review_payload,
+            timeout=60
+        )
+        
+        # Test 5: Check for routing conflicts
+        print("\n--- TEST 5: Routing Conflict Check ---")
+        
+        # Test if recent PDF endpoint changes affected routing
+        if hasattr(self, 'quote_id') and self.quote_id:
+            pdf_request = {
+                "user_profile": {
+                    "company_name": "Test Company",
+                    "contact_name": "Test User",
+                    "phone": "02-1234-5678",
+                    "email": "test@company.com"
+                }
+            }
+            
+            success_pdf_1, response_pdf_1 = self.run_test(
+                "POST /api/quotes/{quote_id}/generate-proposal",
+                "POST",
+                f"quotes/{self.quote_id}/generate-proposal",
+                200,
+                data=pdf_request
+            )
+            
+            success_pdf_2, response_pdf_2 = self.run_test(
+                "POST /api/quotes/{quote_id}/generate-quote-summary",
+                "POST",
+                f"quotes/{self.quote_id}/generate-quote-summary",
+                200,
+                data=pdf_request
+            )
+        else:
+            print("   Skipping PDF endpoint tests - no quote ID available")
+            success_pdf_1 = success_pdf_2 = True  # Don't fail the test
+        
+        # Summary and diagnosis
+        print("\n" + "=" * 60)
+        print("METHOD NOT ALLOWED ERROR ANALYSIS:")
+        print("=" * 60)
+        
+        if not success_post_1 or not success_post_2:
+            print("❌ CRITICAL: POST methods failing on quote generation endpoints")
+            if not success_post_1:
+                print(f"   /api/quotes/request failed: {response_post_1}")
+            if not success_post_2:
+                print(f"   /api/quotes/generate-with-learning failed: {response_post_2}")
+            
+            if not success_root:
+                print("❌ Backend service appears to be down or misconfigured")
+                print("🔧 SOLUTION: Check backend service status and restart if needed")
+            else:
+                print("✅ Backend service is responding")
+                print("🔍 ISSUE: Specific quote generation endpoints have routing problems")
+                print("🔧 SOLUTION: Check FastAPI route definitions and method decorators")
+            
+            return False
+        else:
+            print("✅ POST methods working correctly on quote generation endpoints")
+            if success_exact:
+                print("✅ Exact payload from review request works fine")
+                print("🤔 DIAGNOSIS: Issue may be intermittent or frontend-related")
+            else:
+                print("❌ Exact payload from review request fails")
+                print("🔍 ISSUE: Payload structure or validation problem")
+            
+            return True
+
     def test_validation_error_debugging(self):
         """URGENT: Test HTTP 422 validation errors on quote generation APIs"""
         print("\n🔍 DEBUGGING HTTP 422 VALIDATION ERRORS")
