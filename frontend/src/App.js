@@ -743,17 +743,18 @@ const RenovationQuotingApp = () => {
       const primaryArea = validAreas[0];
       const requestData = {
         client_info: formData.clientInfo,
-        measurements: {
+        room_measurements: {
           length: parseFloat(primaryArea.measurements.length) / 1000,
           width: parseFloat(primaryArea.measurements.width) / 1000,
           height: parseFloat(primaryArea.measurements.height) / 1000
         },
-        selected_components: Object.keys(combinedComponents),
+        components: Object.keys(combinedComponents).reduce((acc, key) => {
+          acc[key] = { enabled: true };
+          return acc;
+        }, {}),
         detailed_components: combinedComponents,
         task_options: primaryArea.taskOptions,
-        total_floor_area: totalFloorArea,
-        total_wall_area: totalWallArea,
-        project_summary: `${validAreas.length} area renovation: ${validAreas.map(a => a.name).join(', ')}`
+        additional_notes: `Multi-area project: ${validAreas.length} areas (${validAreas.map(a => a.name).join(', ')}). Total floor area: ${totalFloorArea.toFixed(2)}m². Total wall area: ${totalWallArea.toFixed(2)}m².`
       };
 
       console.log('Sending quote request:', requestData);
