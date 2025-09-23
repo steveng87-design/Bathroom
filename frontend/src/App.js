@@ -716,11 +716,8 @@ const RenovationQuotingApp = () => {
 
       // Collect selected components across all valid areas
       validAreas.forEach(area => {
-        console.log('🔧 Checking area components:', area.name, area.components);
         Object.entries(area.components).forEach(([component, comp]) => {
-          console.log(`🔧 Component ${component}:`, comp);
           if (comp && comp.enabled) {
-            console.log(`🔧 ✅ Found enabled component: ${component}`);
             if (!combinedComponents[component]) {
               combinedComponents[component] = { enabled: true, subtasks: {} };
             }
@@ -730,8 +727,6 @@ const RenovationQuotingApp = () => {
                 combinedComponents[component].subtasks[subtask] = true;
               }
             });
-          } else {
-            console.log(`🔧 ❌ Component ${component} not enabled:`, { comp, enabled: comp?.enabled });
           }
         });
       });
