@@ -282,12 +282,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Real-time Calculations"
     - "Component Toggle System"
     - "Quote Generation Frontend Integration"
   stuck_tasks:
-    - "Real-time Calculations"
     - "Component Toggle System"
+    - "Quote Generation Frontend Integration"
   test_all: false
   test_priority: "high_first"
 
