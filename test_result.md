@@ -125,6 +125,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "🚨 URGENT HTTP 422 VALIDATION ISSUE RESOLVED: Confirmed both quote generation endpoints working perfectly with correct payload structure. POST /api/quotes/request: ✅ Generated quotes ($950-$28,000 range). POST /api/quotes/generate-with-learning: ✅ AI learning functional. Issue was frontend sending components as {demolition: {enabled: true}} instead of {demolition: true}. Backend Pydantic validation correctly rejects invalid boolean format. API endpoints are 100% functional - frontend payload structure needs correction."
+      - working: true
+        agent: "testing"
+        comment: "🚨 URGENT METHOD NOT ALLOWED ERROR INVESTIGATION COMPLETE: User's reported 'Method Not Allowed' error is actually HTTP 422 validation error. BACKEND ENDPOINTS CONFIRMED WORKING: ✅ POST /api/quotes/request (200 OK), ✅ POST /api/quotes/generate-with-learning (200 OK), ✅ Backend service healthy. ROOT CAUSE: Frontend sends {demolition: {enabled: true}} but backend expects {demolition: true}. Backend logs confirm: '422 Unprocessable Entity' not '405 Method Not Allowed'. SOLUTION: Frontend components structure must change from object format to boolean format. Backend APIs are 100% functional - no backend changes needed."
 
   - task: "PDF Generation"
     implemented: true
