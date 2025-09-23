@@ -857,6 +857,172 @@ class BathroomRenovationAPITester:
             return True
         return False
 
+    def test_validation_error_debugging(self):
+        """URGENT: Test HTTP 422 validation errors on quote generation APIs"""
+        print("\n🔍 DEBUGGING HTTP 422 VALIDATION ERRORS")
+        print("=" * 60)
+        
+        # Exact payload format from the review request
+        test_payload = {
+            "client_info": {
+                "name": "John Smith",
+                "email": "john@example.com", 
+                "phone": "02-1234-5678",
+                "address": "123 Test Street, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": {"enabled": True}
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "ceiling_removal": True,
+                        "floor_removal": True
+                    }
+                }
+            },
+            "task_options": {}
+        }
+        
+        print("Testing with EXACT payload format from frontend...")
+        print(f"Payload structure: {json.dumps(test_payload, indent=2)}")
+        
+        # Test 1: POST /api/quotes/request
+        print("\n--- TEST 1: POST /api/quotes/request ---")
+        success_1, response_1 = self.run_test(
+            "Quote Request - Validation Debug",
+            "POST",
+            "quotes/request",
+            200,  # Expected success
+            data=test_payload,
+            timeout=60
+        )
+        
+        if not success_1:
+            print("❌ VALIDATION ERROR FOUND!")
+            if isinstance(response_1, dict) and 'detail' in response_1:
+                print(f"   Validation Details: {json.dumps(response_1['detail'], indent=2)}")
+            else:
+                print(f"   Error Response: {response_1}")
+        
+        # Test 2: POST /api/quotes/generate-with-learning?user_id=default
+        print("\n--- TEST 2: POST /api/quotes/generate-with-learning ---")
+        success_2, response_2 = self.run_test(
+            "Quote Generation with Learning - Validation Debug",
+            "POST",
+            "quotes/generate-with-learning?user_id=default",
+            200,  # Expected success
+            data=test_payload,
+            timeout=60
+        )
+        
+        if not success_2:
+            print("❌ VALIDATION ERROR FOUND!")
+            if isinstance(response_2, dict) and 'detail' in response_2:
+                print(f"   Validation Details: {json.dumps(response_2['detail'], indent=2)}")
+            else:
+                print(f"   Error Response: {response_2}")
+        
+        # Test 3: Try with corrected components structure (backend expects boolean, not object)
+        print("\n--- TEST 3: Corrected Components Structure ---")
+        corrected_payload = test_payload.copy()
+        corrected_payload["components"] = {
+            "demolition": True,  # Boolean instead of {"enabled": True}
+            "framing": False,
+            "plumbing_rough_in": False,
+            "electrical_rough_in": False,
+            "plastering": False,
+            "waterproofing": False,
+            "tiling": False,
+            "fit_off": False
+        }
+        
+        print("Testing with corrected components structure...")
+        success_3, response_3 = self.run_test(
+            "Quote Request - Corrected Structure",
+            "POST",
+            "quotes/request",
+            200,
+            data=corrected_payload,
+            timeout=60
+        )
+        
+        if success_3:
+            print("✅ SUCCESS with corrected structure!")
+            print(f"   Total Cost: ${response_3.get('total_cost', 'N/A')}")
+        else:
+            print("❌ Still failing with corrected structure")
+            if isinstance(response_3, dict) and 'detail' in response_3:
+                print(f"   Validation Details: {json.dumps(response_3['detail'], indent=2)}")
+        
+        # Test 4: Minimal valid payload
+        print("\n--- TEST 4: Minimal Valid Payload ---")
+        minimal_payload = {
+            "client_info": {
+                "name": "Test User",
+                "email": "test@example.com",
+                "phone": "02-1234-5678",
+                "address": "123 Test St, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.0,
+                "width": 2.0,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": False,
+                "electrical_rough_in": False,
+                "plastering": False,
+                "waterproofing": False,
+                "tiling": False,
+                "fit_off": False
+            }
+        }
+        
+        print("Testing with minimal required fields...")
+        success_4, response_4 = self.run_test(
+            "Quote Request - Minimal Payload",
+            "POST",
+            "quotes/request",
+            200,
+            data=minimal_payload,
+            timeout=60
+        )
+        
+        if success_4:
+            print("✅ SUCCESS with minimal payload!")
+            print(f"   Total Cost: ${response_4.get('total_cost', 'N/A')}")
+        else:
+            print("❌ Minimal payload also failing")
+            if isinstance(response_4, dict) and 'detail' in response_4:
+                print(f"   Validation Details: {json.dumps(response_4['detail'], indent=2)}")
+        
+        # Summary
+        print("\n" + "=" * 60)
+        print("VALIDATION ERROR ANALYSIS SUMMARY:")
+        print("=" * 60)
+        
+        if not success_1 and not success_2:
+            print("❌ BOTH endpoints failing with HTTP 422")
+            print("🔍 ROOT CAUSE: Frontend payload structure mismatch")
+            print("💡 SOLUTION: Components field expects boolean values, not objects")
+            return False
+        elif success_3 or success_4:
+            print("✅ ISSUE IDENTIFIED: Components structure mismatch")
+            print("🔧 FRONTEND FIX NEEDED: Change components from {demolition: {enabled: true}} to {demolition: true}")
+            return True
+        else:
+            print("❌ VALIDATION ERRORS PERSIST - Need deeper investigation")
+            return False
+
 def main():
     print("🚀 Starting Bathroom Renovation API Tests")
     print("=" * 50)
