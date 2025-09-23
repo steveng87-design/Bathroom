@@ -619,8 +619,8 @@ async def save_draft_quote(draft_data: Dict[str, Any]):
         raise HTTPException(status_code=500, detail=f"Error saving draft: {str(e)}")
 
 @api_router.post("/quotes/{quote_id}/generate-proposal")
-async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
-    """Generate a professional scope of works PDF proposal"""
+async def generate_proposal_pdf(quote_id: str, pdf_request: PDFGenerationRequest):
+    """Generate a professional scope of works PDF proposal with optional adjusted costs"""
     try:
         # Get the quote data
         quote = await db.quotes.find_one({"id": quote_id})
@@ -638,33 +638,40 @@ async def generate_proposal_pdf(quote_id: str, user_profile: UserProfile):
             **parse_from_mongo(request_data)
         }
         
-        # Debug: Log the combined data structure
-        logging.info(f"Combined data keys: {list(combined_data.keys())}")
-        logging.info(f"Has detailed_components: {'detailed_components' in combined_data}")
-        if 'detailed_components' in combined_data:
-            logging.info(f"detailed_components type: {type(combined_data['detailed_components'])}")
+        # Apply adjusted costs if provided
+        if pdf_request.adjusted_costs and 'cost_breakdown' in combined_data:
+            adjusted_breakdown = []
+            for item in combined_data['cost_breakdown']:
+                component_name = item.get('component', '')
+                if component_name in pdf_request.adjusted_costs:
+                    # Use adjusted cost
+                    adjusted_item = {
+                        **item,
+                        'estimated_cost': pdf_request.adjusted_costs[component_name],
+                        'cost_adjusted': True
+                    }
+                    adjusted_breakdown.append(adjusted_item)
+                else:
+                    # Use original cost
+                    adjusted_breakdown.append({**item, 'cost_adjusted': False})
+            
+            combined_data['cost_breakdown'] = adjusted_breakdown
+            
+            # Update total cost if provided
+            if pdf_request.adjusted_total:
+                combined_data['total_cost'] = pdf_request.adjusted_total
         
         # Generate PDF
         pdf_generator = BathroomProposalPDF()
         
-        # Debug: Check if user_profile is valid
-        if user_profile is None:
-            raise HTTPException(status_code=400, detail="User profile is required")
-        
-        user_profile_dict = user_profile.dict()
-        if user_profile_dict is None:
-            raise HTTPException(status_code=400, detail="User profile data is invalid")
-        
-        logging.info(f"User profile keys: {list(user_profile_dict.keys())}")
-        
+        user_profile_dict = pdf_request.user_profile.dict()
         pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile_dict)
         
-        # Return PDF as response
         return Response(
             content=pdf_bytes,
             media_type="application/pdf",
             headers={
-                "Content-Disposition": f"attachment; filename=Bathroom_Proposal_{quote_id[:8]}.pdf"
+                "Content-Disposition": f"attachment; filename=Scope_of_Works_{quote_id[:8]}.pdf"
             }
         )
         
