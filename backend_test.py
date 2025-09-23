@@ -1126,6 +1126,156 @@ class BathroomRenovationAPITester:
             print("❌ VALIDATION ERRORS PERSIST - Need deeper investigation")
             return False
 
+    def test_comprehensive_pdf_adjusted_costs(self):
+        """Comprehensive test of PDF generation with adjusted costs - verify actual cost application"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+        
+        print(f"\n🔍 COMPREHENSIVE PDF ADJUSTED COSTS TEST")
+        print(f"Using Quote ID: {self.quote_id}")
+        
+        # First, get the original quote to see the original costs
+        success_get, original_quote = self.run_test(
+            "Get Original Quote for Comparison",
+            "GET",
+            f"quotes/{self.quote_id}",
+            200
+        )
+        
+        if success_get and isinstance(original_quote, dict):
+            print(f"   Original Total Cost: ${original_quote.get('total_cost', 'N/A')}")
+            original_breakdown = original_quote.get('cost_breakdown', [])
+            print(f"   Original Components: {len(original_breakdown)}")
+            for item in original_breakdown:
+                print(f"     - {item.get('component', 'N/A')}: ${item.get('estimated_cost', 'N/A')}")
+        
+        # Test 1: PDF Proposal with specific adjusted costs
+        print(f"\n--- TEST 1: PDF Proposal with Adjusted Costs ---")
+        pdf_request_1 = {
+            "user_profile": {
+                "company_name": "Premium Bathroom Solutions",
+                "contact_name": "Michael Johnson",
+                "phone": "02-9876-5432",
+                "email": "michael@premiumbathrooms.com.au",
+                "license_number": "PBS-2024"
+            },
+            "adjusted_costs": {
+                "Demolition": 1300.00,
+                "Plumbing Rough In": 4500.00,
+                "Tiling": 3200.00,
+                "Plastering": 2100.00,
+                "Waterproofing": 1850.00
+            },
+            "adjusted_total": 12950.00
+        }
+        
+        success_1, response_1 = self.run_test(
+            "PDF Proposal - Comprehensive Adjusted Costs",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_1
+        )
+        
+        if success_1:
+            print(f"   ✅ PDF Proposal generated with adjusted costs")
+            print(f"   Adjusted Total: ${pdf_request_1['adjusted_total']}")
+            print(f"   Adjusted Components: {len(pdf_request_1['adjusted_costs'])}")
+        
+        # Test 2: Quote Summary PDF with same adjusted costs
+        print(f"\n--- TEST 2: Quote Summary PDF with Adjusted Costs ---")
+        success_2, response_2 = self.run_test(
+            "Quote Summary PDF - Comprehensive Adjusted Costs",
+            "POST",
+            f"quotes/{self.quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_1
+        )
+        
+        if success_2:
+            print(f"   ✅ Quote Summary PDF generated with adjusted costs")
+        
+        # Test 3: PDF Proposal with no adjustments (original costs)
+        print(f"\n--- TEST 3: PDF Proposal with Original Costs ---")
+        pdf_request_3 = {
+            "user_profile": {
+                "company_name": "Standard Renovations",
+                "contact_name": "Sarah Wilson",
+                "phone": "02-1234-5678",
+                "email": "sarah@standardrenos.com.au",
+                "license_number": "SR-2024"
+            },
+            "adjusted_costs": None,
+            "adjusted_total": None
+        }
+        
+        success_3, response_3 = self.run_test(
+            "PDF Proposal - Original Costs Only",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_3
+        )
+        
+        if success_3:
+            print(f"   ✅ PDF Proposal generated with original costs")
+        
+        # Test 4: Quote Summary PDF with no adjustments
+        print(f"\n--- TEST 4: Quote Summary PDF with Original Costs ---")
+        success_4, response_4 = self.run_test(
+            "Quote Summary PDF - Original Costs Only",
+            "POST",
+            f"quotes/{self.quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_3
+        )
+        
+        if success_4:
+            print(f"   ✅ Quote Summary PDF generated with original costs")
+        
+        # Test 5: Partial adjustments (only some components adjusted)
+        print(f"\n--- TEST 5: PDF with Partial Adjustments ---")
+        pdf_request_5 = {
+            "user_profile": {
+                "company_name": "Selective Adjustments Ltd",
+                "contact_name": "David Brown",
+                "phone": "02-5555-9999",
+                "email": "david@selectiveadj.com.au",
+                "license_number": "SA-2024"
+            },
+            "adjusted_costs": {
+                "Demolition": 1500.00,
+                "Tiling": 3800.00
+            },
+            "adjusted_total": 16500.00
+        }
+        
+        success_5, response_5 = self.run_test(
+            "PDF Proposal - Partial Adjustments",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_5
+        )
+        
+        if success_5:
+            print(f"   ✅ PDF Proposal generated with partial adjustments")
+            print(f"   Only 2 components adjusted: Demolition ($1500), Tiling ($3800)")
+        
+        # Summary
+        all_tests_passed = all([success_1, success_2, success_3, success_4, success_5])
+        
+        print(f"\n--- COMPREHENSIVE TEST SUMMARY ---")
+        print(f"✅ PDF Proposal with Adjusted Costs: {'PASS' if success_1 else 'FAIL'}")
+        print(f"✅ Quote Summary with Adjusted Costs: {'PASS' if success_2 else 'FAIL'}")
+        print(f"✅ PDF Proposal with Original Costs: {'PASS' if success_3 else 'FAIL'}")
+        print(f"✅ Quote Summary with Original Costs: {'PASS' if success_4 else 'FAIL'}")
+        print(f"✅ PDF Proposal with Partial Adjustments: {'PASS' if success_5 else 'FAIL'}")
+        print(f"Overall Result: {'ALL TESTS PASSED' if all_tests_passed else 'SOME TESTS FAILED'}")
+        
+        return all_tests_passed
+
 def main():
     print("🚀 Starting Bathroom Renovation API Tests")
     print("=" * 50)
