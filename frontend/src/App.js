@@ -297,8 +297,8 @@ const RenovationQuotingApp = () => {
   const componentLabels = {
     demolition: 'Demolition',
     framing: 'Framing',
-    plumbing_rough_in: 'Plumbing Rough In',
-    electrical_rough_in: 'Electrical Rough In',
+    plumbing_rough_in: 'Plumbing',
+    electrical_rough_in: 'Electrical',
     plastering: 'Plastering',
     waterproofing: 'Waterproofing',
     tiling: 'Tiling',
