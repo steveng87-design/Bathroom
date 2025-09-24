@@ -173,13 +173,36 @@ const RenovationQuotingApp = () => {
   const [expandedComponents, setExpandedComponents] = useState({});
   const [generatingPDF, setGeneratingPDF] = useState(false);
   const [userProfile, setUserProfile] = useState({
+    // Business Information
     company_name: 'Professional Bathroom Renovations',
     contact_name: 'Project Manager', 
     phone: '',
     email: '',
+    website: '',
+    abn_acn: '',
     license_number: '',
+    insurance_number: '',
+    
+    // Business Address
+    business_address: '',
+    city: '',
+    state: '',
+    postal_code: '',
+    
+    // Experience & Credentials
     years_experience: '5+',
-    projects_completed: '100+'
+    projects_completed: '100+',
+    specializations: '',
+    certifications: '',
+    
+    // Quote Settings
+    quote_validity_days: '30',
+    payment_terms: 'Payment required upon completion',
+    warranty_period: '12 months',
+    
+    // Branding
+    logo_url: '',
+    brand_color: '#2563eb'
   });
   // Project Management States  
   const [savedProjects, setSavedProjects] = useState([]);
