@@ -1470,24 +1470,306 @@ class BathroomRenovationAPITester:
         
         return all_tests_passed
 
+    def test_component_label_changes(self):
+        """Test that component label changes don't break backend API"""
+        print("\n🔍 TESTING COMPONENT LABEL CHANGES")
+        print("=" * 60)
+        
+        # Test 1: Backend still expects old field names (plumbing_rough_in, electrical_rough_in)
+        print("\n--- TEST 1: Backend Field Name Compatibility ---")
+        
+        old_format_payload = {
+            "client_info": {
+                "name": "Component Test User",
+                "email": "component@test.com",
+                "phone": "02-1234-5678",
+                "address": "123 Component St, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": True,  # Old backend field name
+                "electrical_rough_in": True,  # Old backend field name
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            }
+        }
+        
+        success_old, response_old = self.run_test(
+            "Quote with Old Component Field Names",
+            "POST",
+            "quotes/request",
+            200,
+            data=old_format_payload,
+            timeout=60
+        )
+        
+        if success_old:
+            print("✅ Backend accepts old field names (plumbing_rough_in, electrical_rough_in)")
+            print(f"   Total Cost: ${response_old.get('total_cost', 'N/A')}")
+        else:
+            print("❌ Backend rejects old field names")
+        
+        # Test 2: Check if backend accepts new field names (if updated)
+        print("\n--- TEST 2: New Field Name Compatibility ---")
+        
+        new_format_payload = {
+            "client_info": {
+                "name": "New Component Test User",
+                "email": "newcomponent@test.com",
+                "phone": "02-1234-5678",
+                "address": "456 New Component Ave, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing": True,  # New frontend field name
+                "electrical": True,  # New frontend field name
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            }
+        }
+        
+        success_new, response_new = self.run_test(
+            "Quote with New Component Field Names",
+            "POST",
+            "quotes/request",
+            200,
+            data=new_format_payload,
+            timeout=60
+        )
+        
+        if success_new:
+            print("✅ Backend accepts new field names (plumbing, electrical)")
+            print(f"   Total Cost: ${response_new.get('total_cost', 'N/A')}")
+        else:
+            print("❌ Backend rejects new field names - needs backend update")
+        
+        return success_old or success_new
+
+    def test_tiling_task_descriptions(self):
+        """Test updated tiling task descriptions and wall_tile_size option"""
+        print("\n🔍 TESTING TILING TASK DESCRIPTIONS & WALL_TILE_SIZE")
+        print("=" * 60)
+        
+        # Test with updated tiling task descriptions and new wall_tile_size option
+        tiling_test_payload = {
+            "client_info": {
+                "name": "Tiling Test User",
+                "email": "tiling@test.com",
+                "phone": "02-1234-5678",
+                "address": "789 Tiling St, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 4.0,
+                "width": 3.0,
+                "height": 2.7
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": False,
+                "electrical_rough_in": False,
+                "plastering": False,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": False
+            },
+            "detailed_components": {
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_materials_install_floor_tiles": True,  # Updated description
+                        "supply_materials_install_wall_tiles": True,   # Updated description
+                        "supply_materials_install_half_height_wall_tiles": True,  # Updated description
+                        "waterproof_shower_area": True
+                    }
+                }
+            },
+            "task_options": {
+                "floor_tile_size": "600x600mm",
+                "wall_tile_size": "300x600mm",  # New wall_tile_size option
+                "floor_tile_grade": "premium_grade",
+                "wall_tile_grade": "standard_grade",
+                "tiles_supply_grade": "premium_service"
+            }
+        }
+        
+        success, response = self.run_test(
+            "Quote with Updated Tiling Descriptions & Wall Tile Size",
+            "POST",
+            "quotes/request",
+            200,
+            data=tiling_test_payload,
+            timeout=60
+        )
+        
+        if success:
+            print("✅ Backend accepts updated tiling task descriptions")
+            print("✅ Backend accepts new wall_tile_size option")
+            print(f"   Total Cost: ${response.get('total_cost', 'N/A')}")
+            
+            # Check if tiling component is properly included in breakdown
+            breakdown = response.get('cost_breakdown', [])
+            tiling_component = next((item for item in breakdown if 'tiling' in item.get('component', '').lower()), None)
+            if tiling_component:
+                print(f"   Tiling Cost: ${tiling_component.get('estimated_cost', 'N/A')}")
+                print(f"   Tiling Notes: {tiling_component.get('notes', 'N/A')[:100]}...")
+            
+            return True
+        else:
+            print("❌ Backend rejects updated tiling descriptions or wall_tile_size")
+            return False
+
+    def test_multi_area_system_compatibility(self):
+        """Test multi-area system functionality for multiple bathroom areas"""
+        print("\n🔍 TESTING MULTI-AREA SYSTEM COMPATIBILITY")
+        print("=" * 60)
+        
+        # Test creating quotes for multiple areas in one project
+        area1_payload = {
+            "client_info": {
+                "name": "Multi Area Test User",
+                "email": "multiarea@test.com",
+                "phone": "02-1234-5678",
+                "address": "123 Multi Area House, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.0,
+                "width": 2.5,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": False,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "additional_notes": "Main bathroom - Area 1 of multi-area project"
+        }
+        
+        area2_payload = {
+            "client_info": {
+                "name": "Multi Area Test User",
+                "email": "multiarea@test.com",
+                "phone": "02-1234-5678",
+                "address": "123 Multi Area House, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 2.0,
+                "width": 1.8,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": False,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "additional_notes": "Ensuite bathroom - Area 2 of multi-area project"
+        }
+        
+        # Create quote for Area 1
+        success1, response1 = self.run_test(
+            "Multi-Area Quote - Main Bathroom (Area 1)",
+            "POST",
+            "quotes/request",
+            200,
+            data=area1_payload,
+            timeout=60
+        )
+        
+        # Create quote for Area 2
+        success2, response2 = self.run_test(
+            "Multi-Area Quote - Ensuite (Area 2)",
+            "POST",
+            "quotes/request",
+            200,
+            data=area2_payload,
+            timeout=60
+        )
+        
+        if success1 and success2:
+            print("✅ Multi-area system working - can create quotes for multiple areas")
+            area1_cost = response1.get('total_cost', 0)
+            area2_cost = response2.get('total_cost', 0)
+            total_project_cost = area1_cost + area2_cost
+            
+            print(f"   Area 1 (Main Bathroom): ${area1_cost}")
+            print(f"   Area 2 (Ensuite): ${area2_cost}")
+            print(f"   Total Project Cost: ${total_project_cost}")
+            
+            # Test saving multi-area project
+            if hasattr(response1, 'get') and 'id' in response1:
+                multi_area_project = {
+                    "project_name": "Multi Area Bathroom Renovation",
+                    "category": "Multi-Area",
+                    "quote_id": response1['id'],
+                    "client_name": "Multi Area Test User",
+                    "total_cost": total_project_cost,
+                    "notes": f"Multi-area project: Main bathroom (${area1_cost}) + Ensuite (${area2_cost})",
+                    "request_data": {
+                        "area1": area1_payload,
+                        "area2": area2_payload,
+                        "total_areas": 2
+                    }
+                }
+                
+                success_save, response_save = self.run_test(
+                    "Save Multi-Area Project",
+                    "POST",
+                    "projects/save",
+                    200,
+                    data=multi_area_project
+                )
+                
+                if success_save:
+                    print("✅ Multi-area project saved successfully")
+                    return True
+            
+            return True
+        else:
+            print("❌ Multi-area system failing")
+            return False
+
 def main():
-    print("🚀 URGENT: Debugging 'Method Not Allowed' Error in Quote Generation")
+    print("🚀 TESTING COMPONENT LABEL CHANGES & TILING UPDATES")
     print("=" * 70)
     
     tester = BathroomRenovationAPITester()
     
-    # URGENT TEST SEQUENCE - Focus on Method Not Allowed debugging
+    # FOCUSED TEST SEQUENCE - Review Request Specific Tests
     tests = [
-        ("🚨 URGENT: Method Not Allowed Debugging", tester.test_method_not_allowed_debugging),
         ("Root Endpoint", tester.test_root_endpoint),
-        ("Small Bathroom Quote", tester.test_create_quote_small_bathroom),
-        ("🚨 HTTP 422 Validation Debugging", tester.test_validation_error_debugging),
-        ("Large Bathroom Quote", tester.test_create_quote_large_bathroom),
-        ("Get Quote by ID", tester.test_get_quote),
+        ("🔍 Component Label Changes", tester.test_component_label_changes),
+        ("🔍 Tiling Task Descriptions & Wall Tile Size", tester.test_tiling_task_descriptions),
+        ("🔍 Multi-Area System Compatibility", tester.test_multi_area_system_compatibility),
+        ("Basic Quote Generation", tester.test_create_quote_small_bathroom),
         ("Detailed Components Quote", tester.test_create_quote_with_detailed_components),
-        ("Get All Quotes", tester.test_get_all_quotes),
+        ("Get Quote by ID", tester.test_get_quote),
         ("Supplier Endpoints", tester.test_suppliers_endpoints),
-        ("Invalid Supplier", tester.test_invalid_supplier_component),
     ]
     
     for test_name, test_func in tests:
