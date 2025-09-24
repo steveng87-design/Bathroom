@@ -202,6 +202,10 @@ const RenovationQuotingApp = () => {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   
+  // Sidebar and Navigation states
+  const [currentView, setCurrentView] = useState('home');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  
   // Google Maps Integration
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
