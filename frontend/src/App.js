@@ -667,6 +667,66 @@ const RenovationQuotingApp = () => {
       .map(([key, value]) => key);
   };
 
+  // New Quote Form Helper Functions
+  const toggleExpandedComponent = (componentKey) => {
+    setExpandedComponents(prev => ({
+      ...prev,
+      [componentKey]: !prev[componentKey]
+    }));
+  };
+
+  const handleFormComponentToggle = (component, enabled) => {
+    setFormData(prev => ({
+      ...prev,
+      components: {
+        ...prev.components,
+        [component]: {
+          ...prev.components[component],
+          enabled: enabled,
+          subtasks: prev.components[component]?.subtasks || {}
+        }
+      }
+    }));
+    
+    // Auto-expand when enabling a component
+    if (enabled) {
+      setExpandedComponents(prev => ({
+        ...prev,
+        [component]: true
+      }));
+    }
+  };
+
+  const handleFormSubtaskToggle = (component, subtask, enabled) => {
+    setFormData(prev => ({
+      ...prev,
+      components: {
+        ...prev.components,
+        [component]: {
+          ...prev.components[component],
+          subtasks: {
+            ...prev.components[component]?.subtasks,
+            [subtask]: enabled
+          }
+        }
+      }
+    }));
+  };
+
+  const selectAllSubtasks = (component) => {
+    const allSubtasks = Object.keys(subtaskLabels[component] || {});
+    allSubtasks.forEach(subtaskKey => {
+      handleFormSubtaskToggle(component, subtaskKey, true);
+    });
+  };
+
+  const clearAllSubtasks = (component) => {
+    const allSubtasks = Object.keys(subtaskLabels[component] || {});
+    allSubtasks.forEach(subtaskKey => {
+      handleFormSubtaskToggle(component, subtaskKey, false);
+    });
+  };
+
   const handleTaskOptionChange = (optionKey, value) => {
     setProjectAreas(prev => prev.map((area, index) => {
       if (index === currentAreaIndex) {
