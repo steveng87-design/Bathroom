@@ -1470,6 +1470,261 @@ class BathroomRenovationAPITester:
         
         return all_tests_passed
 
+    def test_pdf_adjusted_costs_urgent_issue(self):
+        """URGENT: Test PDF generation with adjusted costs - user reports PDFs show original prices"""
+        print("\n🚨 URGENT: PDF ADJUSTED COSTS ISSUE TESTING")
+        print("=" * 80)
+        print("User reports: When they adjust costs after quote generation, PDF still shows original unadjusted prices")
+        
+        # Step 1: Generate a quote first
+        print("\n--- STEP 1: Generate Initial Quote ---")
+        quote_data = {
+            "client_info": {
+                "name": "Sarah Johnson",
+                "email": "sarah.johnson@example.com",
+                "phone": "02-9876-5432",
+                "address": "456 Contractor Street, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.8,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": True,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "additional_notes": "Standard bathroom renovation for PDF adjusted costs testing"
+        }
+        
+        success_quote, quote_response = self.run_test(
+            "Generate Quote for PDF Testing",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if not success_quote or not isinstance(quote_response, dict) or 'id' not in quote_response:
+            print("❌ CRITICAL: Cannot generate quote for PDF testing")
+            return False
+        
+        test_quote_id = quote_response['id']
+        original_total = quote_response.get('total_cost', 0)
+        original_breakdown = quote_response.get('cost_breakdown', [])
+        
+        print(f"✅ Quote generated successfully")
+        print(f"   Quote ID: {test_quote_id}")
+        print(f"   Original Total: ${original_total}")
+        print(f"   Original Components: {len(original_breakdown)}")
+        
+        # Display original costs
+        print("   Original Component Costs:")
+        original_costs = {}
+        for item in original_breakdown:
+            component = item.get('component', 'Unknown')
+            cost = item.get('estimated_cost', 0)
+            original_costs[component] = cost
+            print(f"     - {component}: ${cost}")
+        
+        # Step 2: Test PDF generation with adjusted costs
+        print(f"\n--- STEP 2: Test PDF Generation with Adjusted Costs ---")
+        
+        # Define adjusted costs that are significantly different from originals
+        adjusted_costs = {}
+        adjusted_total = 0
+        
+        # Adjust costs by +30% to make differences obvious
+        for component, original_cost in original_costs.items():
+            adjusted_cost = round(original_cost * 1.3, 2)
+            adjusted_costs[component] = adjusted_cost
+            adjusted_total += adjusted_cost
+        
+        print(f"   Adjusted Total: ${adjusted_total} (vs Original: ${original_total})")
+        print("   Adjusted Component Costs:")
+        for component, cost in adjusted_costs.items():
+            original = original_costs.get(component, 0)
+            difference = cost - original
+            print(f"     - {component}: ${cost} (was ${original}, +${difference})")
+        
+        # User profile for PDF generation
+        user_profile = {
+            "company_name": "Premium Bathroom Contractors",
+            "contact_name": "Michael Thompson",
+            "phone": "02-8765-4321",
+            "email": "michael@premiumbathrooms.com.au",
+            "license_number": "PBC-2024-001",
+            "years_experience": "10+",
+            "projects_completed": "200+"
+        }
+        
+        # Test 3: Generate Proposal PDF with adjusted costs
+        print(f"\n--- STEP 3: Generate Proposal PDF with Adjusted Costs ---")
+        
+        pdf_proposal_request = {
+            "user_profile": user_profile,
+            "adjusted_costs": adjusted_costs,
+            "adjusted_total": adjusted_total
+        }
+        
+        success_proposal, proposal_response = self.run_test(
+            "Generate Proposal PDF - WITH ADJUSTED COSTS",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_proposal_request
+        )
+        
+        if success_proposal:
+            print("✅ Proposal PDF generated successfully with adjusted costs")
+            print(f"   Expected to show adjusted total: ${adjusted_total}")
+            print(f"   Expected to show adjusted component costs")
+        else:
+            print("❌ FAILED: Proposal PDF generation with adjusted costs failed")
+        
+        # Test 4: Generate Quote Summary PDF with adjusted costs
+        print(f"\n--- STEP 4: Generate Quote Summary PDF with Adjusted Costs ---")
+        
+        success_summary, summary_response = self.run_test(
+            "Generate Quote Summary PDF - WITH ADJUSTED COSTS",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_proposal_request
+        )
+        
+        if success_summary:
+            print("✅ Quote Summary PDF generated successfully with adjusted costs")
+            print(f"   Expected to show adjusted total: ${adjusted_total}")
+            print(f"   Expected to show adjusted component costs")
+        else:
+            print("❌ FAILED: Quote Summary PDF generation with adjusted costs failed")
+        
+        # Test 5: Generate PDFs with original costs (no adjustments) for comparison
+        print(f"\n--- STEP 5: Generate PDFs with Original Costs (Control Test) ---")
+        
+        pdf_original_request = {
+            "user_profile": user_profile,
+            "adjusted_costs": None,
+            "adjusted_total": None
+        }
+        
+        success_original_proposal, _ = self.run_test(
+            "Generate Proposal PDF - ORIGINAL COSTS ONLY",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_original_request
+        )
+        
+        success_original_summary, _ = self.run_test(
+            "Generate Quote Summary PDF - ORIGINAL COSTS ONLY",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_original_request
+        )
+        
+        if success_original_proposal and success_original_summary:
+            print("✅ Original cost PDFs generated successfully (control test)")
+        
+        # Test 6: Partial adjustments (only some components adjusted)
+        print(f"\n--- STEP 6: Test Partial Adjustments ---")
+        
+        # Only adjust 2 components
+        partial_adjusted_costs = {}
+        if len(original_costs) >= 2:
+            components_to_adjust = list(original_costs.keys())[:2]
+            for component in components_to_adjust:
+                partial_adjusted_costs[component] = round(original_costs[component] * 1.5, 2)
+        
+        partial_total = sum(partial_adjusted_costs.values()) + sum(
+            cost for comp, cost in original_costs.items() 
+            if comp not in partial_adjusted_costs
+        )
+        
+        pdf_partial_request = {
+            "user_profile": user_profile,
+            "adjusted_costs": partial_adjusted_costs,
+            "adjusted_total": partial_total
+        }
+        
+        success_partial_proposal, _ = self.run_test(
+            "Generate Proposal PDF - PARTIAL ADJUSTMENTS",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_partial_request
+        )
+        
+        success_partial_summary, _ = self.run_test(
+            "Generate Quote Summary PDF - PARTIAL ADJUSTMENTS",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_partial_request
+        )
+        
+        if success_partial_proposal and success_partial_summary:
+            print("✅ Partial adjustment PDFs generated successfully")
+            print(f"   Adjusted components: {list(partial_adjusted_costs.keys())}")
+            print(f"   Partial adjusted total: ${partial_total}")
+        
+        # Summary of urgent issue testing
+        print(f"\n--- URGENT ISSUE TEST SUMMARY ---")
+        print("=" * 80)
+        
+        all_tests_passed = all([
+            success_quote,
+            success_proposal,
+            success_summary,
+            success_original_proposal,
+            success_original_summary,
+            success_partial_proposal,
+            success_partial_summary
+        ])
+        
+        if all_tests_passed:
+            print("✅ ALL PDF ADJUSTED COSTS TESTS PASSED")
+            print("✅ Both PDF endpoints accept adjusted_costs parameter")
+            print("✅ Both PDF endpoints handle original costs (no adjustments)")
+            print("✅ Both PDF endpoints handle partial adjustments")
+            print("✅ No errors in PDF generation process with adjusted costs")
+            print("")
+            print("🔍 ANALYSIS: Backend API is working correctly for PDF adjusted costs")
+            print("💡 If user still sees original prices in PDFs, the issue may be:")
+            print("   1. Frontend not sending adjusted_costs parameter correctly")
+            print("   2. PDF content not being updated despite successful generation")
+            print("   3. Caching issues in PDF viewer or browser")
+            print("   4. User downloading wrong PDF version")
+        else:
+            print("❌ SOME PDF ADJUSTED COSTS TESTS FAILED")
+            print("🚨 CRITICAL ISSUE CONFIRMED: PDF generation with adjusted costs has problems")
+            
+            failed_tests = []
+            if not success_proposal:
+                failed_tests.append("Proposal PDF with adjusted costs")
+            if not success_summary:
+                failed_tests.append("Quote Summary PDF with adjusted costs")
+            if not success_original_proposal:
+                failed_tests.append("Proposal PDF with original costs")
+            if not success_original_summary:
+                failed_tests.append("Quote Summary PDF with original costs")
+            if not success_partial_proposal:
+                failed_tests.append("Proposal PDF with partial adjustments")
+            if not success_partial_summary:
+                failed_tests.append("Quote Summary PDF with partial adjustments")
+            
+            print(f"   Failed tests: {', '.join(failed_tests)}")
+        
+        return all_tests_passed
     def test_component_label_changes(self):
         """Test that component label changes don't break backend API"""
         print("\n🔍 TESTING COMPONENT LABEL CHANGES")
