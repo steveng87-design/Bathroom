@@ -948,8 +948,14 @@ const RenovationQuotingApp = () => {
           }
         });
         
+        console.log('PDF Generation - Adjusted Costs:', adjustedCosts);
+        console.log('PDF Generation - Adjusted Costs by Component:', adjustedCostsByComponent);
+        console.log('PDF Generation - Final Total:', finalTotalCost);
+        
         pdfRequestData.adjusted_costs = adjustedCostsByComponent;
         pdfRequestData.adjusted_total = finalTotalCost;
+      } else {
+        console.log('PDF Generation - No adjusted costs found');
       }
 
       const response = await axios.post(
@@ -1116,8 +1122,14 @@ const RenovationQuotingApp = () => {
           }
         });
         
+        console.log('PDF Generation - Adjusted Costs:', adjustedCosts);
+        console.log('PDF Generation - Adjusted Costs by Component:', adjustedCostsByComponent);
+        console.log('PDF Generation - Final Total:', finalTotalCost);
+        
         pdfRequestData.adjusted_costs = adjustedCostsByComponent;
         pdfRequestData.adjusted_total = finalTotalCost;
+      } else {
+        console.log('PDF Generation - No adjusted costs found');
       }
       
       // Always generate quote summary PDF
