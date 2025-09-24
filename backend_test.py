@@ -2009,6 +2009,268 @@ class BathroomRenovationAPITester:
             print("❌ Multi-area system failing")
             return False
 
+    def test_saved_project_data_structure_investigation(self):
+        """INVESTIGATION: Analyze saved project data structure to debug component loading issue"""
+        print("\n🔍 SAVED PROJECT DATA STRUCTURE INVESTIGATION")
+        print("=" * 80)
+        print("PURPOSE: Debug why loaded projects aren't showing selected components in frontend")
+        
+        # Step 1: Get list of existing saved projects
+        print("\n--- STEP 1: Get Existing Saved Projects ---")
+        success_list, projects_response = self.run_test(
+            "Get All Saved Projects",
+            "GET",
+            "projects",
+            200
+        )
+        
+        if not success_list or not isinstance(projects_response, list):
+            print("❌ Cannot retrieve saved projects list")
+            return False
+        
+        print(f"✅ Found {len(projects_response)} saved projects")
+        
+        if len(projects_response) == 0:
+            print("⚠️  No saved projects found. Creating a test project first...")
+            # Create a test project with detailed component structure
+            test_quote_data = {
+                "client_info": {
+                    "name": "Investigation Test User",
+                    "email": "test@investigation.com",
+                    "phone": "02-1111-2222",
+                    "address": "123 Investigation St, Sydney NSW 2000"
+                },
+                "room_measurements": {
+                    "length": 3.5,
+                    "width": 2.5,
+                    "height": 2.4
+                },
+                "components": {
+                    "demolition": True,
+                    "framing": True,
+                    "plumbing_rough_in": True,
+                    "electrical_rough_in": False,
+                    "plastering": True,
+                    "waterproofing": True,
+                    "tiling": True,
+                    "fit_off": True
+                },
+                "detailed_components": {
+                    "demolition": {
+                        "enabled": True,
+                        "subtasks": {
+                            "remove_existing_tiles": True,
+                            "remove_fixtures": True,
+                            "remove_vanity": False,
+                            "remove_toilet": True,
+                            "remove_shower_screen": True
+                        }
+                    },
+                    "framing": {
+                        "enabled": True,
+                        "subtasks": {
+                            "build_stud_walls": True,
+                            "build_niches": True,
+                            "install_door_frame": False,
+                            "install_window_frame": False
+                        }
+                    },
+                    "tiling": {
+                        "enabled": True,
+                        "subtasks": {
+                            "supply_install_floor_tiles": True,
+                            "supply_install_wall_tiles": True,
+                            "supply_install_feature_tiles": False,
+                            "waterproof_shower_area": True
+                        }
+                    }
+                },
+                "task_options": {
+                    "skip_bin_size": "6m³",
+                    "build_niches_quantity": 2,
+                    "swing_door_size": "720mm",
+                    "water_feeds_type": "thermostatic",
+                    "power_points_quantity": 3,
+                    "plasterboard_grade": "standard_grade",
+                    "floor_tile_grade": "premium_grade",
+                    "wall_tile_grade": "standard_grade",
+                    "vanity_grade": "premium_grade",
+                    "toilet_grade": "standard_grade",
+                    "tapware_grade": "premium_grade"
+                }
+            }
+            
+            # Create quote first
+            success_quote, quote_response = self.run_test(
+                "Create Test Quote for Investigation",
+                "POST",
+                "quotes/request",
+                200,
+                data=test_quote_data,
+                timeout=60
+            )
+            
+            if success_quote and 'id' in quote_response:
+                # Save project with complete data
+                project_data = {
+                    "project_name": "Investigation Test Project",
+                    "category": "Test",
+                    "quote_id": quote_response['id'],
+                    "client_name": "Investigation Test User",
+                    "total_cost": quote_response.get('total_cost', 25000),
+                    "notes": "Test project for data structure investigation",
+                    "request_data": test_quote_data
+                }
+                
+                success_save, save_response = self.run_test(
+                    "Save Test Project for Investigation",
+                    "POST",
+                    "projects/save",
+                    200,
+                    data=project_data
+                )
+                
+                if success_save and 'id' in save_response:
+                    projects_response = [save_response]
+                    print(f"✅ Created test project: {save_response['id']}")
+                else:
+                    print("❌ Failed to create test project")
+                    return False
+            else:
+                print("❌ Failed to create test quote")
+                return False
+        
+        # Step 2: Analyze each saved project's data structure
+        print(f"\n--- STEP 2: Analyze Project Data Structures ---")
+        
+        for i, project in enumerate(projects_response[:3], 1):  # Analyze first 3 projects
+            project_id = project.get('id')
+            project_name = project.get('project_name', 'Unknown')
+            
+            print(f"\n🔍 ANALYZING PROJECT {i}: {project_name} (ID: {project_id})")
+            print("-" * 60)
+            
+            # Get detailed project data
+            success_detail, detail_response = self.run_test(
+                f"Get Project {i} Details",
+                "GET",
+                f"projects/{project_id}/quote",
+                200
+            )
+            
+            if not success_detail or not isinstance(detail_response, dict):
+                print(f"❌ Failed to get project {i} details")
+                continue
+            
+            # Analyze the response structure
+            print("📋 RESPONSE STRUCTURE:")
+            print(f"   Top-level keys: {list(detail_response.keys())}")
+            
+            # Analyze project data
+            if 'project' in detail_response:
+                project_data = detail_response['project']
+                print(f"   Project data keys: {list(project_data.keys()) if isinstance(project_data, dict) else 'Not a dict'}")
+            
+            # Analyze quote data
+            if 'quote' in detail_response:
+                quote_data = detail_response['quote']
+                print(f"   Quote data keys: {list(quote_data.keys()) if isinstance(quote_data, dict) else 'Not a dict'}")
+            
+            # CRITICAL: Analyze request_data structure (this is what frontend needs)
+            if 'request' in detail_response and detail_response['request']:
+                request_data = detail_response['request']
+                print(f"\n🎯 REQUEST DATA STRUCTURE (Critical for Frontend Loading):")
+                print(f"   Request data keys: {list(request_data.keys()) if isinstance(request_data, dict) else 'Not a dict'}")
+                
+                # Analyze components structure (this is the key issue)
+                if 'components' in request_data:
+                    components = request_data['components']
+                    print(f"\n🔧 COMPONENTS STRUCTURE:")
+                    print(f"   Components type: {type(components)}")
+                    print(f"   Components keys: {list(components.keys()) if isinstance(components, dict) else 'Not a dict'}")
+                    
+                    # Show actual component values and structure
+                    if isinstance(components, dict):
+                        print(f"   Component values:")
+                        for comp_name, comp_value in components.items():
+                            print(f"     - {comp_name}: {comp_value} (type: {type(comp_value)})")
+                            
+                            # Check if it's the problematic nested structure
+                            if isinstance(comp_value, dict) and 'enabled' in comp_value:
+                                print(f"       ⚠️  FOUND NESTED STRUCTURE: {comp_value}")
+                                print(f"       🔍 This might be the issue - frontend expects boolean, got object")
+                
+                # Analyze detailed_components structure
+                if 'detailed_components' in request_data:
+                    detailed_components = request_data['detailed_components']
+                    print(f"\n🔧 DETAILED_COMPONENTS STRUCTURE:")
+                    print(f"   Detailed components type: {type(detailed_components)}")
+                    
+                    if isinstance(detailed_components, dict):
+                        print(f"   Detailed components keys: {list(detailed_components.keys())}")
+                        
+                        # Analyze each detailed component
+                        for comp_name, comp_details in detailed_components.items():
+                            print(f"   📦 {comp_name}:")
+                            if isinstance(comp_details, dict):
+                                print(f"     - Keys: {list(comp_details.keys())}")
+                                print(f"     - Enabled: {comp_details.get('enabled', 'Not found')}")
+                                
+                                if 'subtasks' in comp_details:
+                                    subtasks = comp_details['subtasks']
+                                    if isinstance(subtasks, dict):
+                                        enabled_subtasks = [k for k, v in subtasks.items() if v]
+                                        print(f"     - Subtasks: {len(subtasks)} total, {len(enabled_subtasks)} enabled")
+                                        print(f"     - Enabled subtasks: {enabled_subtasks}")
+                
+                # Analyze task_options structure
+                if 'task_options' in request_data:
+                    task_options = request_data['task_options']
+                    print(f"\n🔧 TASK_OPTIONS STRUCTURE:")
+                    print(f"   Task options type: {type(task_options)}")
+                    
+                    if isinstance(task_options, dict):
+                        print(f"   Task options count: {len(task_options)}")
+                        non_empty_options = {k: v for k, v in task_options.items() if v}
+                        print(f"   Non-empty options: {len(non_empty_options)}")
+                        for option_name, option_value in non_empty_options.items():
+                            print(f"     - {option_name}: {option_value}")
+                
+                # Analyze room_measurements structure
+                if 'room_measurements' in request_data:
+                    measurements = request_data['room_measurements']
+                    print(f"\n🔧 ROOM_MEASUREMENTS STRUCTURE:")
+                    print(f"   Measurements: {measurements}")
+                
+                # Analyze client_info structure
+                if 'client_info' in request_data:
+                    client_info = request_data['client_info']
+                    print(f"\n🔧 CLIENT_INFO STRUCTURE:")
+                    print(f"   Client: {client_info.get('name', 'Unknown')} ({client_info.get('email', 'No email')})")
+            
+            else:
+                print(f"\n❌ NO REQUEST DATA FOUND!")
+                print(f"   This is likely why the frontend can't load the project properly")
+                print(f"   The 'request' field is missing or null in the API response")
+        
+        # Step 3: Summary and diagnosis
+        print(f"\n--- STEP 3: DIAGNOSIS AND RECOMMENDATIONS ---")
+        print("=" * 60)
+        
+        print("🔍 KEY FINDINGS:")
+        print("1. Checking if request_data is properly stored and returned")
+        print("2. Analyzing components structure format (boolean vs object)")
+        print("3. Verifying detailed_components and subtasks structure")
+        print("4. Confirming task_options and measurements are preserved")
+        
+        print("\n💡 POTENTIAL ISSUES TO INVESTIGATE:")
+        print("- Components stored as {demolition: {enabled: true}} instead of {demolition: true}")
+        print("- Missing request_data in saved projects")
+        print("- Incorrect data types in stored vs expected format")
+        print("- Frontend expecting different structure than what's saved")
+        
+        return True
+
 def main():
     print("🚀 TESTING COMPONENT LABEL CHANGES & TILING UPDATES")
     print("=" * 70)
