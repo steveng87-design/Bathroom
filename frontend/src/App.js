@@ -372,16 +372,16 @@ const RenovationQuotingApp = () => {
     tiling: {
       supply_install_sand_cement_bed: 'Supply & Install Sand and Cement Bed (including materials, mesh)',
       supply_install_floor_tiles: 'Supply & Install Floor Tiles (including tiles, adhesive, spacers, trim)',
-      supply_install_wall_tiles: 'Supply & Install Wall Tiles (including tiles, adhesive, spacers, trim)',
-      supply_install_shower_niche: 'Supply & Install Shower Niche (including tiles, waterproof niche, trim)',
-      supply_install_bath_niche: 'Supply & Install Bath Niche (including tiles, niche box, trim)',
-      supply_install_floor_ceiling: 'Supply & Install Floor to Ceiling Tiling (including tiles, adhesive, trim)',
-      supply_install_half_height: 'Supply & Install Half Height Wall Tiles (including tiles, adhesive, trim)',
-      supply_install_nib_walls: 'Supply & Install Nib Wall Tilings (including tiles, adhesive, corner trim)',
+      supply_install_wall_tiles: 'Supply Materials and Install Wall Tiles (including adhesive, spacers, trim)',
+      supply_install_shower_niche: 'Supply Materials and Install Shower Niche (including waterproof niche, trim)',
+      supply_install_bath_niche: 'Supply Materials and Install Bath Niche (including niche box, trim)',
+      supply_install_floor_ceiling: 'Supply Materials and Install Floor to Ceiling Tiling (including adhesive, trim)',
+      supply_install_half_height: 'Supply Materials and Install Half Height Wall Tiles (including adhesive, trim)',
+      supply_install_nib_walls: 'Supply Materials and Install Nib Wall Tilings (including adhesive, corner trim)',
       supply_grout_silicone: 'Supply & Apply Grout and Silicone (including grout, silicone, sealers)',
-      supply_install_shower_hob: 'Supply & Install Shower Hob Tiling (including tiles, waterproof membrane)',
-      supply_install_bath_hob: 'Supply & Install Bath Hob Tiling (including tiles, waterproof membrane)',  
-      supply_install_feature_wall: 'Supply & Install Feature Wall (including premium tiles, adhesive, trim)'
+      supply_install_shower_hob: 'Supply Materials and Install Shower Hob Tiling (including waterproof membrane)',
+      supply_install_bath_hob: 'Supply Materials and Install Bath Hob Tiling (including waterproof membrane)',  
+      supply_install_feature_wall: 'Supply Materials and Install Feature Wall (including adhesive, trim)'
     },
     shower_screens: {
       fixed_panel_install: 'Fixed Panel Install',
