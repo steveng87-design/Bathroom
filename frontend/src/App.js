@@ -568,8 +568,8 @@ const RenovationQuotingApp = () => {
   };
 
   const handleInputChange = (section, field, value, isCheckbox = false) => {
-    if (section === 'clientInfo') {
-      // Update client info in formData (keep for compatibility)
+    if (section === 'clientInfo' || section === 'roomMeasurements') {
+      // Update client info and room measurements in formData
       setFormData(prev => ({
         ...prev,
         [section]: {
