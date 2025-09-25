@@ -1100,6 +1100,10 @@ const RenovationQuotingApp = () => {
         pdfRequestData.adjusted_total = finalTotalCost;
       } else {
         console.log('PDF Generation - No adjusted costs found (current or saved)');
+        console.log('PDF Generation - Using displayed total anyway:', getTotalAdjustedCost());
+        
+        // Even without adjustments, ensure PDF uses the displayed total
+        pdfRequestData.adjusted_total = getTotalAdjustedCost();
       }
 
       const response = await axios.post(
@@ -1226,6 +1230,10 @@ const RenovationQuotingApp = () => {
         pdfRequestData.adjusted_total = finalTotalCost;
       } else {
         console.log('PDF Generation - No adjusted costs found (current or saved)');
+        console.log('PDF Generation - Using displayed total anyway:', getTotalAdjustedCost());
+        
+        // Even without adjustments, ensure PDF uses the displayed total
+        pdfRequestData.adjusted_total = getTotalAdjustedCost();
       }
       
       // Always generate quote summary PDF
