@@ -229,6 +229,9 @@ const RenovationQuotingApp = () => {
   const [currentView, setCurrentView] = useState('home');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   
+  // Email Dialog state
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  
   // Google Maps Integration
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
