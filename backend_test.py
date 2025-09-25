@@ -2553,21 +2553,21 @@ class BathroomRenovationAPITester:
         return all_tests_passed
 
 def main():
-    print("🚀 TESTING COMPONENT LABEL CHANGES & TILING UPDATES")
+    print("🚨 URGENT: PDF PRICING MISMATCH INVESTIGATION")
     print("=" * 70)
     
     tester = BathroomRenovationAPITester()
     
-    # FOCUSED TEST SEQUENCE - Review Request Specific Tests
+    # URGENT TEST SEQUENCE - Focus on PDF pricing mismatch issue
     tests = [
         ("Root Endpoint", tester.test_root_endpoint),
-        ("🔍 Component Label Changes", tester.test_component_label_changes),
-        ("🔍 Tiling Task Descriptions & Wall Tile Size", tester.test_tiling_task_descriptions),
-        ("🔍 Multi-Area System Compatibility", tester.test_multi_area_system_compatibility),
+        ("🚨 URGENT: PDF Pricing Mismatch", tester.test_urgent_pdf_pricing_mismatch),
         ("Basic Quote Generation", tester.test_create_quote_small_bathroom),
-        ("Detailed Components Quote", tester.test_create_quote_with_detailed_components),
-        ("Get Quote by ID", tester.test_get_quote),
-        ("Supplier Endpoints", tester.test_suppliers_endpoints),
+        ("PDF Generation - Original Costs", tester.test_generate_pdf_proposal_original_costs),
+        ("PDF Generation - Adjusted Costs", tester.test_generate_pdf_proposal_adjusted_costs),
+        ("Quote Summary PDF - Original", tester.test_generate_quote_summary_original_costs),
+        ("Quote Summary PDF - Adjusted", tester.test_generate_quote_summary_adjusted_costs),
+        ("Comprehensive PDF Adjusted Costs", tester.test_comprehensive_pdf_adjusted_costs),
     ]
     
     for test_name, test_func in tests:
