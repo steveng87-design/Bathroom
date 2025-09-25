@@ -707,10 +707,10 @@ async def generate_quote_summary_pdf(quote_id: str, pdf_request: PDFGenerationRe
                 component_name = item.get('component', '')
                 if component_name in pdf_request.adjusted_costs:
                     item['estimated_cost'] = pdf_request.adjusted_costs[component_name]
-            
-            # Use adjusted total if provided
-            if pdf_request.adjusted_total:
-                final_total = pdf_request.adjusted_total
+        
+        # Use adjusted total if provided (independent of component adjustments)
+        if pdf_request.adjusted_total:
+            final_total = pdf_request.adjusted_total
         
         # Generate simplified quote summary PDF
         from io import BytesIO
