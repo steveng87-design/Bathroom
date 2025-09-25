@@ -985,7 +985,9 @@ const RenovationQuotingApp = () => {
     // If there are current adjustments, calculate from breakdown
     if (Object.keys(adjustedCosts).length > 0) {
       return quote.cost_breakdown.reduce((total, item, index) => {
-        const cost = adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost;
+        const adjustedValue = adjustedCosts[index];
+        // Handle empty string case
+        const cost = adjustedValue === '' ? 0 : (adjustedValue !== undefined ? adjustedValue : item.estimated_cost);
         return total + parseFloat(cost);
       }, 0);
     }
