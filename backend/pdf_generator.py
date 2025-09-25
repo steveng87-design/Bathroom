@@ -446,14 +446,14 @@ class BathroomProposalPDF:
             elements.append(Spacer(1, 15*mm))
             elements.append(Paragraph("<b>TOTAL PROJECT INVESTMENT</b>", self.styles['Heading2']))
             
-            total_style = self.styles.add(ParagraphStyle(
+            total_style = ParagraphStyle(
                 'TotalInvestment',
                 parent=self.styles['Heading1'],
                 fontSize=28,
                 textColor=colors.HexColor('#16a34a'),
                 alignment=1,  # Center alignment
                 spaceAfter=15
-            ))
+            )
             
             elements.append(Paragraph(f"${quote_data['total_cost']:,.2f}", total_style))
             elements.append(Paragraph("All project components and materials included", self.styles['ProfessionalBody']))
