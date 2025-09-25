@@ -1295,7 +1295,7 @@ QUOTE SUMMARY:
 `;
 
       // Only include breakdown if user specifically requested it
-      if (emailOptions.includeBreakdown && quote.cost_breakdown) {
+      if (includeBreakdown && quote.cost_breakdown) {
         emailBody += `COST BREAKDOWN:
 `;
         quote.cost_breakdown.forEach((item, index) => {
