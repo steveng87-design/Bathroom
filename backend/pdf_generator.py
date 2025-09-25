@@ -77,7 +77,7 @@ class BathroomProposalPDF:
             fontName='Helvetica'
         ))
 
-    def create_proposal(self, quote_data: Dict[str, Any], user_profile: Dict[str, Any]) -> bytes:
+    def create_proposal(self, quote_data: Dict[str, Any], user_profile: Dict[str, Any], include_breakdown: bool = True) -> bytes:
         """Generate a complete professional proposal PDF"""
         buffer = io.BytesIO()
         doc = SimpleDocTemplate(
@@ -103,7 +103,7 @@ class BathroomProposalPDF:
         story.extend(self._create_project_summary(quote_data))
         
         # Detailed Scope of Works
-        story.extend(self._create_scope_of_works(quote_data))
+        story.extend(self._create_scope_of_works(quote_data, include_breakdown))
         story.append(PageBreak())
         
         # Terms and Conditions
