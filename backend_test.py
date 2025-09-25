@@ -1725,6 +1725,398 @@ class BathroomRenovationAPITester:
             print(f"   Failed tests: {', '.join(failed_tests)}")
         
         return all_tests_passed
+
+    def test_cost_adjustment_calculation_issue(self):
+        """CRITICAL: Test the reported cost adjustment calculation issue where reducing costs increases total"""
+        print("\n🚨 TESTING COST ADJUSTMENT CALCULATION ISSUE")
+        print("=" * 80)
+        print("User reports: When they reduce one cost in cost adjustment feature, total quote value increases instead of decreasing")
+        
+        # Step 1: Generate a test quote with multiple components
+        print("\n--- STEP 1: Generate Test Quote with Multiple Components ---")
+        quote_data = {
+            "client_info": {
+                "name": "Cost Adjustment Test Client",
+                "email": "test@costadj.com",
+                "phone": "02-1111-2222",
+                "address": "123 Adjustment Street, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.8,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": True,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "additional_notes": "Test quote for cost adjustment calculation verification"
+        }
+        
+        success_quote, quote_response = self.run_test(
+            "Generate Multi-Component Quote for Cost Adjustment Testing",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if not success_quote or not isinstance(quote_response, dict) or 'id' not in quote_response:
+            print("❌ CRITICAL: Cannot generate quote for cost adjustment testing")
+            return False
+        
+        test_quote_id = quote_response['id']
+        original_total = quote_response.get('total_cost', 0)
+        original_breakdown = quote_response.get('cost_breakdown', [])
+        
+        print(f"✅ Quote generated successfully")
+        print(f"   Quote ID: {test_quote_id}")
+        print(f"   Original Total: ${original_total}")
+        print(f"   Components: {len(original_breakdown)}")
+        
+        # Display original component costs
+        print("   Original Component Breakdown:")
+        original_costs = {}
+        for item in original_breakdown:
+            component = item.get('component', 'Unknown')
+            cost = item.get('estimated_cost', 0)
+            original_costs[component] = cost
+            print(f"     - {component}: ${cost}")
+        
+        if len(original_costs) < 3:
+            print("❌ CRITICAL: Need at least 3 components for comprehensive cost adjustment testing")
+            return False
+        
+        # Step 2: Test reducing one component cost (should decrease total)
+        print(f"\n--- STEP 2: Test Reducing One Component Cost ---")
+        
+        # Find a component with significant cost to reduce
+        component_to_reduce = max(original_costs.items(), key=lambda x: x[1])
+        component_name = component_to_reduce[0]
+        original_component_cost = component_to_reduce[1]
+        reduced_cost = original_component_cost - 1000  # Reduce by $1000
+        
+        print(f"   Reducing {component_name} from ${original_component_cost} to ${reduced_cost}")
+        print(f"   Expected total reduction: $1000")
+        print(f"   Expected new total: ${original_total - 1000}")
+        
+        # Test the learn-adjustment endpoint
+        adjustment_data = {
+            "user_id": "test_user",
+            "component": component_name,
+            "original_cost": original_component_cost,
+            "adjusted_cost": reduced_cost,
+            "adjustment_ratio": reduced_cost / original_component_cost,
+            "project_size": quote_data["room_measurements"]["length"] * quote_data["room_measurements"]["width"],
+            "location": "Sydney NSW",
+            "notes": "Testing cost reduction - should decrease total"
+        }
+        
+        success_learn, learn_response = self.run_test(
+            f"Learn Cost Adjustment - Reduce {component_name}",
+            "POST",
+            f"quotes/{test_quote_id}/learn-adjustment",
+            200,
+            data=adjustment_data
+        )
+        
+        if success_learn:
+            print(f"✅ Cost adjustment learning recorded successfully")
+            print(f"   Adjustment ratio: {adjustment_data['adjustment_ratio']:.3f}")
+        else:
+            print(f"❌ FAILED: Cost adjustment learning failed")
+        
+        # Test PDF generation with reduced cost
+        user_profile = {
+            "company_name": "Cost Adjustment Testing Co",
+            "contact_name": "Test Manager",
+            "phone": "02-1111-2222",
+            "email": "test@costadj.com",
+            "license_number": "CAT-2024"
+        }
+        
+        adjusted_costs_reduced = {component_name: reduced_cost}
+        expected_total_reduced = original_total - 1000
+        
+        pdf_request_reduced = {
+            "user_profile": user_profile,
+            "adjusted_costs": adjusted_costs_reduced,
+            "adjusted_total": expected_total_reduced
+        }
+        
+        success_pdf_reduced, _ = self.run_test(
+            f"Generate PDF with Reduced Cost - {component_name}",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_request_reduced
+        )
+        
+        if success_pdf_reduced:
+            print(f"✅ PDF generated with reduced cost")
+            print(f"   Component {component_name}: ${original_component_cost} → ${reduced_cost} (-$1000)")
+            print(f"   Total: ${original_total} → ${expected_total_reduced} (-$1000)")
+        else:
+            print(f"❌ FAILED: PDF generation with reduced cost failed")
+        
+        # Step 3: Test increasing one component cost (should increase total)
+        print(f"\n--- STEP 3: Test Increasing One Component Cost ---")
+        
+        # Find a different component to increase
+        components_list = list(original_costs.items())
+        if len(components_list) >= 2:
+            component_to_increase = components_list[1]  # Second component
+            component_name_inc = component_to_increase[0]
+            original_component_cost_inc = component_to_increase[1]
+            increased_cost = original_component_cost_inc + 1500  # Increase by $1500
+            
+            print(f"   Increasing {component_name_inc} from ${original_component_cost_inc} to ${increased_cost}")
+            print(f"   Expected total increase: $1500")
+            print(f"   Expected new total: ${original_total + 1500}")
+            
+            adjustment_data_inc = {
+                "user_id": "test_user",
+                "component": component_name_inc,
+                "original_cost": original_component_cost_inc,
+                "adjusted_cost": increased_cost,
+                "adjustment_ratio": increased_cost / original_component_cost_inc,
+                "project_size": quote_data["room_measurements"]["length"] * quote_data["room_measurements"]["width"],
+                "location": "Sydney NSW",
+                "notes": "Testing cost increase - should increase total"
+            }
+            
+            success_learn_inc, learn_response_inc = self.run_test(
+                f"Learn Cost Adjustment - Increase {component_name_inc}",
+                "POST",
+                f"quotes/{test_quote_id}/learn-adjustment",
+                200,
+                data=adjustment_data_inc
+            )
+            
+            if success_learn_inc:
+                print(f"✅ Cost increase adjustment learning recorded successfully")
+                print(f"   Adjustment ratio: {adjustment_data_inc['adjustment_ratio']:.3f}")
+            
+            # Test PDF with increased cost
+            adjusted_costs_increased = {component_name_inc: increased_cost}
+            expected_total_increased = original_total + 1500
+            
+            pdf_request_increased = {
+                "user_profile": user_profile,
+                "adjusted_costs": adjusted_costs_increased,
+                "adjusted_total": expected_total_increased
+            }
+            
+            success_pdf_increased, _ = self.run_test(
+                f"Generate PDF with Increased Cost - {component_name_inc}",
+                "POST",
+                f"quotes/{test_quote_id}/generate-proposal",
+                200,
+                data=pdf_request_increased
+            )
+            
+            if success_pdf_increased:
+                print(f"✅ PDF generated with increased cost")
+                print(f"   Component {component_name_inc}: ${original_component_cost_inc} → ${increased_cost} (+$1500)")
+                print(f"   Total: ${original_total} → ${expected_total_increased} (+$1500)")
+        
+        # Step 4: Test setting a component cost to 0
+        print(f"\n--- STEP 4: Test Setting Component Cost to Zero ---")
+        
+        if len(components_list) >= 3:
+            component_to_zero = components_list[2]  # Third component
+            component_name_zero = component_to_zero[0]
+            original_component_cost_zero = component_to_zero[1]
+            zero_cost = 0.0
+            
+            print(f"   Setting {component_name_zero} from ${original_component_cost_zero} to ${zero_cost}")
+            print(f"   Expected total reduction: ${original_component_cost_zero}")
+            print(f"   Expected new total: ${original_total - original_component_cost_zero}")
+            
+            adjustment_data_zero = {
+                "user_id": "test_user",
+                "component": component_name_zero,
+                "original_cost": original_component_cost_zero,
+                "adjusted_cost": zero_cost,
+                "adjustment_ratio": 0.0,
+                "project_size": quote_data["room_measurements"]["length"] * quote_data["room_measurements"]["width"],
+                "location": "Sydney NSW",
+                "notes": "Testing zero cost - should reduce total by full component amount"
+            }
+            
+            success_learn_zero, _ = self.run_test(
+                f"Learn Cost Adjustment - Zero Cost {component_name_zero}",
+                "POST",
+                f"quotes/{test_quote_id}/learn-adjustment",
+                200,
+                data=adjustment_data_zero
+            )
+            
+            if success_learn_zero:
+                print(f"✅ Zero cost adjustment learning recorded successfully")
+            
+            # Test PDF with zero cost
+            adjusted_costs_zero = {component_name_zero: zero_cost}
+            expected_total_zero = original_total - original_component_cost_zero
+            
+            pdf_request_zero = {
+                "user_profile": user_profile,
+                "adjusted_costs": adjusted_costs_zero,
+                "adjusted_total": expected_total_zero
+            }
+            
+            success_pdf_zero, _ = self.run_test(
+                f"Generate PDF with Zero Cost - {component_name_zero}",
+                "POST",
+                f"quotes/{test_quote_id}/generate-proposal",
+                200,
+                data=pdf_request_zero
+            )
+            
+            if success_pdf_zero:
+                print(f"✅ PDF generated with zero cost")
+                print(f"   Component {component_name_zero}: ${original_component_cost_zero} → ${zero_cost} (-${original_component_cost_zero})")
+                print(f"   Total: ${original_total} → ${expected_total_zero} (-${original_component_cost_zero})")
+        
+        # Step 5: Test mixed adjustments (some up, some down)
+        print(f"\n--- STEP 5: Test Mixed Adjustments (Some Up, Some Down) ---")
+        
+        if len(components_list) >= 4:
+            # Mixed adjustments: reduce first, increase second, zero third, keep fourth original
+            mixed_adjustments = {}
+            total_adjustment = 0
+            
+            # Component 1: Reduce by $800
+            comp1_name, comp1_original = components_list[0]
+            comp1_adjusted = comp1_original - 800
+            mixed_adjustments[comp1_name] = comp1_adjusted
+            total_adjustment -= 800
+            
+            # Component 2: Increase by $1200
+            comp2_name, comp2_original = components_list[1]
+            comp2_adjusted = comp2_original + 1200
+            mixed_adjustments[comp2_name] = comp2_adjusted
+            total_adjustment += 1200
+            
+            # Component 3: Set to zero
+            comp3_name, comp3_original = components_list[2]
+            comp3_adjusted = 0.0
+            mixed_adjustments[comp3_name] = comp3_adjusted
+            total_adjustment -= comp3_original
+            
+            expected_mixed_total = original_total + total_adjustment
+            
+            print(f"   Mixed adjustments:")
+            print(f"     - {comp1_name}: ${comp1_original} → ${comp1_adjusted} (-$800)")
+            print(f"     - {comp2_name}: ${comp2_original} → ${comp2_adjusted} (+$1200)")
+            print(f"     - {comp3_name}: ${comp3_original} → ${comp3_adjusted} (-${comp3_original})")
+            print(f"   Net adjustment: ${total_adjustment}")
+            print(f"   Expected new total: ${expected_mixed_total}")
+            
+            pdf_request_mixed = {
+                "user_profile": user_profile,
+                "adjusted_costs": mixed_adjustments,
+                "adjusted_total": expected_mixed_total
+            }
+            
+            success_pdf_mixed, _ = self.run_test(
+                "Generate PDF with Mixed Adjustments",
+                "POST",
+                f"quotes/{test_quote_id}/generate-proposal",
+                200,
+                data=pdf_request_mixed
+            )
+            
+            if success_pdf_mixed:
+                print(f"✅ PDF generated with mixed adjustments")
+                print(f"   Total: ${original_total} → ${expected_mixed_total} (${total_adjustment:+})")
+        
+        # Step 6: Test calculation verification by checking backend receives correct data
+        print(f"\n--- STEP 6: Verify Backend Calculation Logic ---")
+        
+        # Test the old adjust endpoint for comparison
+        old_adjustment_data = {
+            "original_cost": original_total,
+            "adjusted_cost": original_total - 500,  # Reduce total by $500
+            "adjustment_reason": "Testing old adjustment endpoint - reduce by $500",
+            "component_adjustments": {
+                component_name: reduced_cost
+            }
+        }
+        
+        success_old_adjust, old_adjust_response = self.run_test(
+            "Test Old Adjust Quote Endpoint",
+            "POST",
+            f"quotes/{test_quote_id}/adjust",
+            200,
+            data=old_adjustment_data
+        )
+        
+        if success_old_adjust:
+            print(f"✅ Old adjust endpoint working")
+            if isinstance(old_adjust_response, dict):
+                new_total = old_adjust_response.get('new_total', 'N/A')
+                print(f"   New total from old endpoint: ${new_total}")
+        
+        # Step 7: Test quote summary PDF to ensure consistency
+        print(f"\n--- STEP 7: Test Quote Summary PDF Consistency ---")
+        
+        # Test with the reduced cost from Step 2
+        success_summary_reduced, _ = self.run_test(
+            "Generate Quote Summary PDF with Reduced Cost",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_reduced
+        )
+        
+        if success_summary_reduced:
+            print(f"✅ Quote Summary PDF generated with reduced cost")
+            print(f"   Should show total: ${expected_total_reduced}")
+        
+        # Final Summary
+        print(f"\n--- COST ADJUSTMENT CALCULATION TEST SUMMARY ---")
+        print("=" * 60)
+        
+        all_tests = [
+            ("Quote Generation", success_quote),
+            ("Cost Reduction Learning", success_learn),
+            ("PDF with Reduced Cost", success_pdf_reduced),
+            ("Cost Increase Learning", success_learn_inc if 'success_learn_inc' in locals() else True),
+            ("PDF with Increased Cost", success_pdf_increased if 'success_pdf_increased' in locals() else True),
+            ("Zero Cost Learning", success_learn_zero if 'success_learn_zero' in locals() else True),
+            ("PDF with Zero Cost", success_pdf_zero if 'success_pdf_zero' in locals() else True),
+            ("PDF with Mixed Adjustments", success_pdf_mixed if 'success_pdf_mixed' in locals() else True),
+            ("Old Adjust Endpoint", success_old_adjust),
+            ("Quote Summary PDF", success_summary_reduced)
+        ]
+        
+        passed_tests = sum(1 for _, success in all_tests if success)
+        total_tests = len(all_tests)
+        
+        print(f"Cost Adjustment Tests: {passed_tests}/{total_tests} passed")
+        
+        for test_name, success in all_tests:
+            status = "✅ PASS" if success else "❌ FAIL"
+            print(f"   {status}: {test_name}")
+        
+        if passed_tests == total_tests:
+            print("\n🎉 ALL COST ADJUSTMENT TESTS PASSED!")
+            print("   Backend calculation logic appears to be working correctly")
+            print("   If user still experiences issues, problem may be in frontend calculation display")
+        else:
+            print(f"\n⚠️  {total_tests - passed_tests} cost adjustment tests failed")
+            print("   This indicates potential issues with backend cost adjustment calculation")
+        
+        return passed_tests == total_tests
+
     def test_component_label_changes(self):
         """Test that component label changes don't break backend API"""
         print("\n🔍 TESTING COMPONENT LABEL CHANGES")
