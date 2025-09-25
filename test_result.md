@@ -360,10 +360,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Cost Adjustment Calculation Logic"
     - "Cost Adjustment Learning API"
-  stuck_tasks:
-    - "Cost Adjustment Calculation Logic"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
