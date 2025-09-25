@@ -954,6 +954,10 @@ const RenovationQuotingApp = () => {
     }));
   };
 
+  const handleCostAdjustment = (index, newCost) => {
+    handleAdjustCost(index, newCost);
+  };
+
   const getTotalAdjustedCost = () => {
     if (!quote || !quote.cost_breakdown) return 0;
     
