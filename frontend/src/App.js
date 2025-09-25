@@ -1106,6 +1106,7 @@ const RenovationQuotingApp = () => {
         
         // Even without adjustments, ensure PDF uses the displayed total
         pdfRequestData.adjusted_total = getTotalAdjustedCost();
+        pdfRequestData.include_breakdown = showBreakdown;
       }
 
       const response = await axios.post(
