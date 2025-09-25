@@ -1000,10 +1000,17 @@ const RenovationQuotingApp = () => {
       setQuote(prev => ({
         ...prev,
         total_cost: totalAdjusted,
-        cost_breakdown: prev.cost_breakdown.map((item, index) => ({
-          ...item,
-          estimated_cost: adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost
-        }))
+        cost_breakdown: prev.cost_breakdown.map((item, index) => {
+          if (adjustedCosts[index] !== undefined) {
+            return {
+              ...item,
+              estimated_cost: adjustedCosts[index],
+              adjusted_cost: adjustedCosts[index],
+              original_cost: item.original_cost || item.estimated_cost // Preserve original cost
+            };
+          }
+          return item;
+        })
       }));
       
       // Show success message with learning info
