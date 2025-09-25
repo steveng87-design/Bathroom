@@ -993,46 +993,47 @@ const RenovationQuotingApp = () => {
     
     console.log('=== DEBUGGING TOTAL CALCULATION ===');
     console.log('Quote:', quote);
-    console.log('Quote cost_breakdown:', quote.cost_breakdown);
     console.log('Current adjustedCosts state:', adjustedCosts);
     
-    // Calculate total by summing all component costs (considering adjustments)
-    let total = 0;
-    
-    quote.cost_breakdown.forEach((item, index) => {
-      let componentCost = item.estimated_cost; // Start with original estimated cost
+    // If user has made current adjustments, calculate from breakdown with adjustments
+    if (Object.keys(adjustedCosts).length > 0) {
+      console.log('User has current adjustments - calculating from breakdown...');
+      let total = 0;
       
-      console.log(`Component ${index} (${item.component}):`);
-      console.log(`  - Original estimated_cost: ${item.estimated_cost}`);
-      console.log(`  - Saved adjusted_cost: ${item.adjusted_cost}`);
-      console.log(`  - Current adjustment: ${adjustedCosts[index]}`);
-      
-      // Check if user has made a current adjustment for this component
-      if (adjustedCosts[index] !== undefined) {
-        if (adjustedCosts[index] === '') {
-          // Empty string means user cleared the field - use original cost
-          componentCost = item.estimated_cost;
-          console.log(`  - Using original cost (cleared): ${componentCost}`);
+      quote.cost_breakdown.forEach((item, index) => {
+        let componentCost = item.estimated_cost; // Start with original estimated cost
+        
+        console.log(`Component ${index} (${item.component}):`);
+        console.log(`  - Original estimated_cost: ${item.estimated_cost}`);
+        console.log(`  - Current adjustment: ${adjustedCosts[index]}`);
+        
+        // Check if user has made a current adjustment for this component
+        if (adjustedCosts[index] !== undefined) {
+          if (adjustedCosts[index] === '') {
+            // Empty string means user cleared the field - use original cost
+            componentCost = item.estimated_cost;
+            console.log(`  - Using original cost (cleared): ${componentCost}`);
+          } else {
+            // User has entered a specific adjustment
+            componentCost = parseFloat(adjustedCosts[index]) || 0;
+            console.log(`  - Using current adjustment: ${componentCost}`);
+          }
         } else {
-          // User has entered a specific adjustment
-          componentCost = parseFloat(adjustedCosts[index]) || 0;
-          console.log(`  - Using current adjustment: ${componentCost}`);
+          // No current adjustment - use original cost
+          console.log(`  - Using original cost: ${componentCost}`);
         }
-      } else if (item.adjusted_cost !== undefined) {
-        // No current adjustment, but there's a saved adjustment
-        componentCost = item.adjusted_cost;
-        console.log(`  - Using saved adjustment: ${componentCost}`);
-      } else {
-        // No adjustments, use original cost
-        console.log(`  - Using original cost: ${componentCost}`);
-      }
+        
+        total += componentCost;
+        console.log(`  - Running total: ${total}`);
+      });
       
-      total += componentCost;
-      console.log(`  - Running total: ${total}`);
-    });
+      console.log('=== FINAL TOTAL WITH ADJUSTMENTS ===', total);
+      return total;
+    }
     
-    console.log('=== FINAL TOTAL ===', total);
-    return total;
+    // If no current adjustments, use the saved project total_cost
+    console.log('No current adjustments - using saved quote total_cost:', quote.total_cost);
+    return quote.total_cost;
   };
 
   const submitAdjustments = async () => {
