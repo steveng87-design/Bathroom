@@ -1167,69 +1167,7 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  // Save current quote as project
-  const saveCurrentProject = async () => {
-    if (!quote) {
-      toast.error('Please generate a quote first');
-      return;
-    }
-
-    // Validate that we have a real quote with cost
-    const totalCost = quote.total_project_cost || quote.total_cost || 0;
-    if (totalCost === 0) {
-      toast.error('Cannot save project - quote has no cost. Please generate a valid quote first.');
-      return;
-    }
-
-    const projectName = `${formData.clientInfo.name} - ${formData.clientInfo.address.split(',')[0]}`;
-    
-    try {
-      // For multi-area projects, use the first area with a quote or the current area
-      let savedArea = getCurrentArea();
-      if (quote.area_quotes && quote.area_quotes.length > 0) {
-        // Find the area that was used for the quote
-        const areaWithQuote = projectAreas.find(area => area.quote) || getCurrentArea();
-        savedArea = areaWithQuote;
-      }
-
-      // Prepare complete project data including all form inputs
-      const projectData = {
-        project_name: projectName,
-        category: 'Residential', // Default category
-        quote_id: quote.id,
-        client_name: formData.clientInfo.name,
-        total_cost: totalCost, // Ensure we have a valid cost
-        notes: formData.additionalNotes || '',
-        // Save complete request data for proper loading
-        request_data: {
-          client_info: formData.clientInfo,
-          room_measurements: {
-            length: parseFloat(savedArea.measurements.length) / 1000, // Convert mm to meters
-            width: parseFloat(savedArea.measurements.width) / 1000,   // Convert mm to meters  
-            height: parseFloat(savedArea.measurements.height) / 1000  // Convert mm to meters
-          },
-          components: Object.fromEntries(
-            Object.entries(savedArea.components).map(([key, component]) => [key, component.enabled])
-          ),
-          detailed_components: savedArea.components,
-          task_options: savedArea.taskOptions,
-          additional_notes: savedArea.additionalNotes || formData.additionalNotes,
-          area_name: savedArea.name,
-          area_type: savedArea.type,
-          area_id: savedArea.id
-        }
-      };
-
-      console.log('Saving project with cost:', totalCost, 'projectData:', projectData);
-
-      await axios.post(`${API}/projects/save`, projectData);
-      toast.success(`Project saved successfully with cost $${totalCost.toLocaleString()}!`);
-      fetchSavedProjects(); // Refresh the projects list
-    } catch (error) {
-      console.error('Error saving project:', error);
-      toast.error('Failed to save project');
-    }
-  };
+  // Duplicate saveCurrentProject function removed - using the enhanced version below
 
   // Send Quote Email function - Updated for automatic attachment handling
   const handleSendQuoteEmail = async () => {
