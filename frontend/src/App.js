@@ -954,7 +954,7 @@ const RenovationQuotingApp = () => {
   };
 
   const handleAdjustCost = async (componentIndex, newCost) => {
-    // Handle empty string to allow clearing
+    // Handle empty string - keep it as empty string to signify "use original cost"
     if (newCost === '') {
       setAdjustedCosts(prev => ({
         ...prev,
@@ -964,7 +964,16 @@ const RenovationQuotingApp = () => {
     }
     
     // Convert to number and validate, ensuring max 2 decimal places
-    let numericCost = parseFloat(newCost) || 0;
+    let numericCost = parseFloat(newCost);
+    
+    // If parsing failed, treat as empty (revert to original)
+    if (isNaN(numericCost)) {
+      setAdjustedCosts(prev => ({
+        ...prev,
+        [componentIndex]: ''
+      }));
+      return;
+    }
     
     // Round to 2 decimal places to avoid floating point precision issues
     numericCost = Math.round(numericCost * 100) / 100;
