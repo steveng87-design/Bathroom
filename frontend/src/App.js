@@ -233,6 +233,10 @@ const RenovationQuotingApp = () => {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [includeBreakdown, setIncludeBreakdown] = useState(true);
   
+  // PDF Dialog state
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [pdfIncludeBreakdown, setPdfIncludeBreakdown] = useState(true);
+  
   // Google Maps Integration
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
