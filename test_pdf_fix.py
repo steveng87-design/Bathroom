@@ -5,7 +5,7 @@ Test script to verify the PDF adjusted_total fix
 import requests
 import json
 
-BASE_URL = "https://bathroom-quote-ai.preview.emergentagent.com/api"
+BASE_URL = "https://quote-genius-pwa.preview.emergentagent.com/api"
 
 def test_pdf_adjusted_total_fix():
     print("🔧 TESTING PDF ADJUSTED_TOTAL FIX")

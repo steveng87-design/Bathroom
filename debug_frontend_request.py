@@ -32,7 +32,7 @@ print(f"Request data: {json.dumps(frontend_request, indent=2)}")
 
 try:
     response = requests.post(
-        "https://bathroom-quote-ai.preview.emergentagent.com/api/quotes/request",
+        "https://quote-genius-pwa.preview.emergentagent.com/api/quotes/request",
         json=frontend_request,
         headers={'Content-Type': 'application/json'},
         timeout=30

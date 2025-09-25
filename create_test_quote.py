@@ -31,7 +31,7 @@ print("Creating test quote for supplier testing...")
 
 try:
     response = requests.post(
-        "https://bathroom-quote-ai.preview.emergentagent.com/api/quotes/request",
+        "https://quote-genius-pwa.preview.emergentagent.com/api/quotes/request",
         json=quote_data,
         headers={'Content-Type': 'application/json'},
         timeout=60
