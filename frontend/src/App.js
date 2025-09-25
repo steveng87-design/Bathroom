@@ -954,8 +954,21 @@ const RenovationQuotingApp = () => {
   };
 
   const handleAdjustCost = async (componentIndex, newCost) => {
-    // Convert to number and validate
-    const numericCost = parseFloat(newCost) || 0;
+    // Handle empty string to allow clearing
+    if (newCost === '') {
+      setAdjustedCosts(prev => ({
+        ...prev,
+        [componentIndex]: ''
+      }));
+      return;
+    }
+    
+    // Convert to number and validate, ensuring max 2 decimal places
+    let numericCost = parseFloat(newCost) || 0;
+    
+    // Round to 2 decimal places to avoid floating point precision issues
+    numericCost = Math.round(numericCost * 100) / 100;
+    
     setAdjustedCosts(prev => ({
       ...prev,
       [componentIndex]: numericCost
