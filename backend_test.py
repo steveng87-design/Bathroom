@@ -1883,6 +1883,7 @@ class BathroomRenovationAPITester:
             print(f"   Expected new total: ${original_total + 1500}")
             
             adjustment_data_inc = {
+                "quote_id": test_quote_id,  # Required field
                 "user_id": "test_user",
                 "component": component_name_inc,
                 "original_cost": original_component_cost_inc,
