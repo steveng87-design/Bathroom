@@ -348,7 +348,7 @@ class BathroomProposalPDF:
         
         return elements
     
-    def _create_scope_of_works(self, quote_data: Dict[str, Any]) -> List:
+    def _create_scope_of_works(self, quote_data: Dict[str, Any], include_breakdown: bool = True) -> List:
         """Create detailed scope of works section"""
         elements = []
         
@@ -409,37 +409,54 @@ class BathroomProposalPDF:
         for task in stage3_tasks:
             elements.append(Paragraph(f"• {task}", self.styles['TaskList']))
         
-        # Cost breakdown table
-        elements.append(Spacer(1, 15*mm))
-        elements.append(Paragraph("<b>INVESTMENT BREAKDOWN</b>", self.styles['Heading2']))
-        
-        if quote_data.get('cost_breakdown'):
-            cost_data = [['Component', 'Description', 'Investment']]
+        # Conditionally include cost breakdown table
+        if include_breakdown:
+            elements.append(Spacer(1, 15*mm))
+            elements.append(Paragraph("<b>INVESTMENT BREAKDOWN</b>", self.styles['Heading2']))
             
-            for item in quote_data['cost_breakdown']:
-                cost_data.append([
-                    item['component'],
-                    item['notes'][:60] + '...' if len(item['notes']) > 60 else item['notes'],
-                    f"${item['estimated_cost']:,.2f}"
-                ])
+            if quote_data.get('cost_breakdown'):
+                cost_data = [['Component', 'Description', 'Investment']]
+                
+                for item in quote_data['cost_breakdown']:
+                    cost_data.append([
+                        item['component'],
+                        item['notes'][:60] + '...' if len(item['notes']) > 60 else item['notes'],
+                        f"${item['estimated_cost']:,.2f}"
+                    ])
+                
+                # Add total row
+                cost_data.append(['', '<b>TOTAL PROJECT INVESTMENT</b>', f"<b>${quote_data['total_cost']:,.2f}</b>"])
+                
+                cost_table = Table(cost_data, colWidths=[40*mm, 90*mm, 30*mm])
+                cost_table.setStyle(TableStyle([
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e40af')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                    ('PADDING', (0, 0), (-1, -1), 6),
+                    ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#eff6ff')),
+                    ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1d5db')),
+                    ('ALIGN', (2, 0), (2, -1), 'RIGHT')
+                ]))
+                
+                elements.append(cost_table)
+        else:
+            # Show only total investment without breakdown
+            elements.append(Spacer(1, 15*mm))
+            elements.append(Paragraph("<b>TOTAL PROJECT INVESTMENT</b>", self.styles['Heading2']))
             
-            # Add total row
-            cost_data.append(['', '<b>TOTAL PROJECT INVESTMENT</b>', f"<b>${quote_data['total_cost']:,.2f}</b>"])
+            total_style = self.styles.add(ParagraphStyle(
+                'TotalInvestment',
+                parent=self.styles['Heading1'],
+                fontSize=28,
+                textColor=colors.HexColor('#16a34a'),
+                alignment=1,  # Center alignment
+                spaceAfter=15
+            ))
             
-            cost_table = Table(cost_data, colWidths=[40*mm, 90*mm, 30*mm])
-            cost_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1e40af')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, -1), 9),
-                ('PADDING', (0, 0), (-1, -1), 6),
-                ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#eff6ff')),
-                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1d5db')),
-                ('ALIGN', (2, 0), (2, -1), 'RIGHT')
-            ]))
-            
-            elements.append(cost_table)
+            elements.append(Paragraph(f"${quote_data['total_cost']:,.2f}", total_style))
+            elements.append(Paragraph("All project components and materials included", self.styles['ProfessionalBody']))
         
         return elements
     
