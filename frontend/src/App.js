@@ -804,7 +804,8 @@ const RenovationQuotingApp = () => {
         return;
       }
 
-      // Collect selected components across all valid areas
+      // Collect selected components from both multi-area system and sidebar form
+      // Check multi-area system (projectAreas)
       validAreas.forEach(area => {
         Object.entries(area.components).forEach(([component, comp]) => {
           if (comp && comp.enabled) {
@@ -820,6 +821,23 @@ const RenovationQuotingApp = () => {
           }
         });
       });
+      
+      // Also check sidebar form data (formData.components)
+      if (formData.components) {
+        Object.entries(formData.components).forEach(([component, comp]) => {
+          if (comp && comp.enabled) {
+            if (!combinedComponents[component]) {
+              combinedComponents[component] = { enabled: true, subtasks: {} };
+            }
+            // Merge subtasks
+            Object.entries(comp.subtasks || {}).forEach(([subtask, enabled]) => {
+              if (enabled) {
+                combinedComponents[component].subtasks[subtask] = true;
+              }
+            });
+          }
+        });
+      }
 
       console.log('Combined components:', combinedComponents);
 
