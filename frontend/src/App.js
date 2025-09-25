@@ -958,8 +958,13 @@ const RenovationQuotingApp = () => {
     if (!quote || !quote.cost_breakdown) return 0;
     
     return quote.cost_breakdown.reduce((total, item, index) => {
-      // Use adjusted cost if available, otherwise use original cost
-      const cost = adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost;
+      // Priority: current session adjustment > saved adjusted cost > estimated cost
+      let cost = item.estimated_cost;
+      if (adjustedCosts[index] !== undefined) {
+        cost = adjustedCosts[index];
+      } else if (item.adjusted_cost !== undefined) {
+        cost = item.adjusted_cost;
+      }
       return total + parseFloat(cost);
     }, 0);
   };
