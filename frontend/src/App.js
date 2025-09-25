@@ -1199,7 +1199,8 @@ const RenovationQuotingApp = () => {
       const pdfRequestData = {
         user_profile: userProfile,
         adjusted_costs: null,
-        adjusted_total: null
+        adjusted_total: null,
+        include_breakdown: includeBreakdown
       };
       
       // Check if user has made cost adjustments (either in current session or previously saved)
