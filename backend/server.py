@@ -656,10 +656,10 @@ async def generate_proposal_pdf(quote_id: str, pdf_request: PDFGenerationRequest
                     adjusted_breakdown.append({**item, 'cost_adjusted': False})
             
             combined_data['cost_breakdown'] = adjusted_breakdown
-            
-            # Update total cost if provided
-            if pdf_request.adjusted_total:
-                combined_data['total_cost'] = pdf_request.adjusted_total
+        
+        # Update total cost if provided (independent of component adjustments)
+        if pdf_request.adjusted_total:
+            combined_data['total_cost'] = pdf_request.adjusted_total
         
         # Generate PDF
         pdf_generator = BathroomProposalPDF()
