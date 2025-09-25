@@ -1066,7 +1066,7 @@ const RenovationQuotingApp = () => {
         user_profile: userProfile,
         adjusted_costs: null,
         adjusted_total: null,
-        include_breakdown: includeBreakdown
+        include_breakdown: showBreakdown
       };
       
       // Check if user has made cost adjustments (either in current session or previously saved)
@@ -1197,7 +1197,7 @@ const RenovationQuotingApp = () => {
         user_profile: userProfile,
         adjusted_costs: null,
         adjusted_total: null,
-        include_breakdown: includeBreakdown
+        include_breakdown: showBreakdown
       };
       
       // Check if user has made cost adjustments (either in current session or previously saved)
