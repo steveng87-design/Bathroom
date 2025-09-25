@@ -986,9 +986,17 @@ const RenovationQuotingApp = () => {
     if (Object.keys(adjustedCosts).length > 0) {
       return quote.cost_breakdown.reduce((total, item, index) => {
         const adjustedValue = adjustedCosts[index];
-        // Handle empty string case
-        const cost = adjustedValue === '' ? 0 : (adjustedValue !== undefined ? adjustedValue : item.estimated_cost);
-        return total + parseFloat(cost);
+        // Handle different cases:
+        // - If adjustedValue is undefined: use original cost
+        // - If adjustedValue is empty string: use original cost (user cleared field)
+        // - If adjustedValue is a number: use adjusted cost
+        let cost = item.estimated_cost; // Default to original cost
+        
+        if (adjustedValue !== undefined && adjustedValue !== '') {
+          cost = parseFloat(adjustedValue) || 0;
+        }
+        
+        return total + cost;
       }, 0);
     }
     
