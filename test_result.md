@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "User reported deployment inconsistency - deployed application was showing incorrect older version with 'Project Areas (1)' multi-area system instead of desired single-form 'Bathroom Quote Saver.AI' interface. Recent calculation fixes for floor/wall area calculations and input stability also needed verification."
+user_problem_statement: "User reported calculation issue in the Bathroom Quote Saver.AI app where reducing one cost in the cost adjustment feature causes the total quote value to increase instead of decreasing. Need to investigate cost adjustment APIs and verify calculation logic."
 
 backend:
   - task: "Quote Generation API"
