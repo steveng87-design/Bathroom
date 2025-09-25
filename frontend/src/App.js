@@ -1047,25 +1047,37 @@ const RenovationQuotingApp = () => {
         adjusted_total: null
       };
       
-      // If user has made cost adjustments, prepare the adjusted costs data
-      if (Object.keys(adjustedCosts).length > 0) {
+      // Check if user has made cost adjustments (either in current session or previously saved)
+      const hasCurrentAdjustments = Object.keys(adjustedCosts).length > 0;
+      const hasSavedAdjustments = quote.cost_breakdown.some(item => item.adjusted_cost !== undefined);
+      
+      if (hasCurrentAdjustments || hasSavedAdjustments) {
         const adjustedCostsByComponent = {};
         const finalTotalCost = getTotalAdjustedCost();
         
         quote.cost_breakdown.forEach((item, index) => {
+          // Use current adjustment if available, otherwise use saved adjusted cost, otherwise skip
+          let adjustedCost = null;
           if (adjustedCosts[index] !== undefined) {
-            adjustedCostsByComponent[item.component] = adjustedCosts[index];
+            adjustedCost = adjustedCosts[index];
+          } else if (item.adjusted_cost !== undefined) {
+            adjustedCost = item.adjusted_cost;
+          }
+          
+          if (adjustedCost !== null) {
+            adjustedCostsByComponent[item.component] = adjustedCost;
           }
         });
         
-        console.log('PDF Generation - Adjusted Costs:', adjustedCosts);
-        console.log('PDF Generation - Adjusted Costs by Component:', adjustedCostsByComponent);
+        console.log('PDF Generation - Current Adjustments:', adjustedCosts);
+        console.log('PDF Generation - Quote Breakdown:', quote.cost_breakdown);
+        console.log('PDF Generation - Final Adjusted Costs by Component:', adjustedCostsByComponent);
         console.log('PDF Generation - Final Total:', finalTotalCost);
         
         pdfRequestData.adjusted_costs = adjustedCostsByComponent;
         pdfRequestData.adjusted_total = finalTotalCost;
       } else {
-        console.log('PDF Generation - No adjusted costs found');
+        console.log('PDF Generation - No adjusted costs found (current or saved)');
       }
 
       const response = await axios.post(
