@@ -891,6 +891,11 @@ const RenovationQuotingApp = () => {
       };
       
       setQuote(enhancedQuote);
+      console.log('Quote set:', enhancedQuote);
+      console.log('Current view:', currentView);
+      
+      // Ensure we stay in new-quote view to see the results
+      setCurrentView('new-quote');
       
       // Show success message with learning info if available
       const learningInfo = enhancedQuote.learning_info;
