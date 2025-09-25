@@ -961,16 +961,16 @@ const RenovationQuotingApp = () => {
   const getTotalAdjustedCost = () => {
     if (!quote || !quote.cost_breakdown) return 0;
     
-    return quote.cost_breakdown.reduce((total, item, index) => {
-      // Priority: current session adjustment > saved adjusted cost > estimated cost
-      let cost = item.estimated_cost;
-      if (adjustedCosts[index] !== undefined) {
-        cost = adjustedCosts[index];
-      } else if (item.adjusted_cost !== undefined) {
-        cost = item.adjusted_cost;
-      }
-      return total + parseFloat(cost);
-    }, 0);
+    // If there are current adjustments, calculate from breakdown
+    if (Object.keys(adjustedCosts).length > 0) {
+      return quote.cost_breakdown.reduce((total, item, index) => {
+        const cost = adjustedCosts[index] !== undefined ? adjustedCosts[index] : item.estimated_cost;
+        return total + parseFloat(cost);
+      }, 0);
+    }
+    
+    // Otherwise, use the quote's saved total_cost (for loaded projects)
+    return quote.total_cost;
   };
 
   const submitAdjustments = async () => {
