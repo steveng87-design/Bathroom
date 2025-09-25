@@ -666,7 +666,8 @@ async def generate_proposal_pdf(quote_id: str, pdf_request: PDFGenerationRequest
         pdf_generator = BathroomProposalPDF()
         
         user_profile_dict = pdf_request.user_profile.dict()
-        pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile_dict)
+        include_breakdown = pdf_request.include_breakdown if pdf_request.include_breakdown is not None else True
+        pdf_bytes = pdf_generator.create_proposal(combined_data, user_profile_dict, include_breakdown)
         
         return Response(
             content=pdf_bytes,
