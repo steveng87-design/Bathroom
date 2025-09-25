@@ -350,7 +350,9 @@ metadata:
   run_ui: true
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Cost Adjustment Calculation Logic"
+    - "Cost Adjustment Learning API"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
