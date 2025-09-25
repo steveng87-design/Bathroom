@@ -991,48 +991,31 @@ const RenovationQuotingApp = () => {
   const getTotalAdjustedCost = () => {
     if (!quote || !quote.cost_breakdown) return 0;
     
-    console.log('=== DEBUGGING TOTAL CALCULATION ===');
-    console.log('Quote:', quote);
-    console.log('Current adjustedCosts state:', adjustedCosts);
-    
     // If user has made current adjustments, calculate from breakdown with adjustments
     if (Object.keys(adjustedCosts).length > 0) {
-      console.log('User has current adjustments - calculating from breakdown...');
       let total = 0;
       
       quote.cost_breakdown.forEach((item, index) => {
         let componentCost = item.estimated_cost; // Start with original estimated cost
-        
-        console.log(`Component ${index} (${item.component}):`);
-        console.log(`  - Original estimated_cost: ${item.estimated_cost}`);
-        console.log(`  - Current adjustment: ${adjustedCosts[index]}`);
         
         // Check if user has made a current adjustment for this component
         if (adjustedCosts[index] !== undefined) {
           if (adjustedCosts[index] === '') {
             // Empty string means user cleared the field - use original cost
             componentCost = item.estimated_cost;
-            console.log(`  - Using original cost (cleared): ${componentCost}`);
           } else {
             // User has entered a specific adjustment
             componentCost = parseFloat(adjustedCosts[index]) || 0;
-            console.log(`  - Using current adjustment: ${componentCost}`);
           }
-        } else {
-          // No current adjustment - use original cost
-          console.log(`  - Using original cost: ${componentCost}`);
         }
         
         total += componentCost;
-        console.log(`  - Running total: ${total}`);
       });
       
-      console.log('=== FINAL TOTAL WITH ADJUSTMENTS ===', total);
       return total;
     }
     
     // If no current adjustments, use the saved project total_cost
-    console.log('No current adjustments - using saved quote total_cost:', quote.total_cost);
     return quote.total_cost;
   };
 
