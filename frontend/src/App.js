@@ -1056,7 +1056,7 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const generateProposalPDF = async () => {
+  const generateProposalPDF = async (showBreakdown = true) => {
     if (!quote) return;
 
     setGeneratingPDF(true);
