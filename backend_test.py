@@ -1809,6 +1809,7 @@ class BathroomRenovationAPITester:
         
         # Test the learn-adjustment endpoint
         adjustment_data = {
+            "quote_id": test_quote_id,  # Required field for learn-adjustment endpoint
             "user_id": "test_user",
             "component": component_name,
             "original_cost": original_component_cost,
