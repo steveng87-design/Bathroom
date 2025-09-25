@@ -779,7 +779,7 @@ const RenovationQuotingApp = () => {
     }));
   };
 
-  // Multi-Area Combined Quote Generation
+  // Multi-Area Individual Quote Generation
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -792,173 +792,134 @@ const RenovationQuotingApp = () => {
         return;
       }
 
-      // Collect and validate areas
-      let combinedComponents = {};
-      let totalFloorArea = 0;
-      let totalWallArea = 0;
+      // Collect and validate areas - generate individual quotes for each area
+      let areaQuotes = [];
       let validAreas = [];
 
       for (let i = 0; i < projectAreas.length; i++) {
         const area = projectAreas[i];
         
-        // Check if area has valid measurements (use projectAreas, not formData.roomMeasurements)
+        // Check if area has valid measurements
         const { length, width, height } = area.measurements || {};
         const hasValidMeasurements = length && width && height && 
           parseFloat(length) > 0 && parseFloat(width) > 0 && parseFloat(height) > 0;
         
+        // Check if area has selected components
+        const areaComponents = {};
+        Object.entries(area.components || {}).forEach(([key, value]) => {
+          if (value.enabled) {
+            areaComponents[key] = value;
+          }
+        });
+        
         console.log(`Area ${area.name}:`, {
           hasValidMeasurements,
           measurements: { length, width, height },
+          selectedComponents: Object.keys(areaComponents),
           measuredFloorArea: hasValidMeasurements ? (parseFloat(length) / 1000 * parseFloat(width) / 1000).toFixed(2) : 0,
           measuredWallArea: hasValidMeasurements ? (2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000).toFixed(2) : 0
         });
 
-        if (hasValidMeasurements) {
+        if (hasValidMeasurements && Object.keys(areaComponents).length > 0) {
           // Calculate areas for this specific area
           const floorArea = parseFloat(length) / 1000 * parseFloat(width) / 1000;
           const wallArea = 2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000;
           
-          totalFloorArea += floorArea;
-          totalWallArea += wallArea;
-          
-          validAreas.push({
-            ...area,
-            calculatedFloorArea: floorArea,
-            calculatedWallArea: wallArea
-          });
+          // Prepare individual quote request for this area
+          const requestData = {
+            client_info: formData.clientInfo,
+            room_measurements: {
+              length: parseFloat(length) / 1000,
+              width: parseFloat(width) / 1000,
+              height: parseFloat(height) / 1000
+            },
+            components: Object.keys(areaComponents).reduce((acc, key) => {
+              acc[key] = true;  // Backend expects boolean values
+              return acc;
+            }, {}),
+            detailed_components: areaComponents,
+            task_options: area.taskOptions || {},
+            additional_notes: `Area: ${area.name} (${area.type}). Floor: ${floorArea.toFixed(2)}m². Wall: ${wallArea.toFixed(2)}m².`
+          };
+
+          console.log(`Generating quote for ${area.name}:`, requestData);
+
+          try {
+            // Generate individual quote for this area
+            let response;
+            try {
+              const userId = userProfile.contact_name || "default";
+              response = await axios.post(`${API}/quotes/generate-with-learning?user_id=${userId}`, requestData);
+            } catch (learningError) {
+              console.log(`Learning not available for ${area.name}, using standard generation`);
+              response = await axios.post(`${API}/quotes/request`, requestData);
+            }
+
+            // Add area context to the quote
+            const areaQuote = {
+              ...response.data,
+              area_name: area.name,
+              area_type: area.type,
+              area_floor_area: floorArea.toFixed(2),
+              area_wall_area: wallArea.toFixed(2),
+              area_measurements: area.measurements
+            };
+            
+            areaQuotes.push(areaQuote);
+            validAreas.push({
+              ...area,
+              floorArea: floorArea.toFixed(2),
+              wallArea: wallArea.toFixed(2),
+              quote: areaQuote
+            });
+          } catch (error) {
+            console.error(`Error generating quote for ${area.name}:`, error);
+            toast.error(`Failed to generate quote for ${area.name}: ${error.response?.data?.detail || error.message}`);
+            setLoading(false);
+            return;
+          }
         }
       }
-
-      console.log('Validation results:', {
-        totalValidAreas: validAreas.length,
-        totalFloorArea: totalFloorArea.toFixed(2),
-        totalWallArea: totalWallArea.toFixed(2)
-      });
 
       if (validAreas.length === 0) {
-        toast.error('Please add at least one area with valid measurements (length, width, height)');
+        toast.error('Please add at least one area with valid measurements and selected components');
         setLoading(false);
         return;
       }
 
-      // Collect selected components from both multi-area system and sidebar form
-      // Check multi-area system (projectAreas)
-      validAreas.forEach(area => {
-        Object.entries(area.components).forEach(([component, comp]) => {
-          if (comp && comp.enabled) {
-            if (!combinedComponents[component]) {
-              combinedComponents[component] = { enabled: true, subtasks: {} };
-            }
-            // Merge subtasks
-            Object.entries(comp.subtasks || {}).forEach(([subtask, enabled]) => {
-              if (enabled) {
-                combinedComponents[component].subtasks[subtask] = true;
-              }
-            });
-          }
-        });
-      });
-      
-      // Also check sidebar form data (formData.components)
-      if (formData.components) {
-        Object.entries(formData.components).forEach(([component, comp]) => {
-          if (comp && comp.enabled) {
-            if (!combinedComponents[component]) {
-              combinedComponents[component] = { enabled: true, subtasks: {} };
-            }
-            // Merge subtasks
-            Object.entries(comp.subtasks || {}).forEach(([subtask, enabled]) => {
-              if (enabled) {
-                combinedComponents[component].subtasks[subtask] = true;
-              }
-            });
-          }
-        });
-      }
+      // Calculate totals from individual area quotes
+      const totalCost = areaQuotes.reduce((sum, quote) => sum + quote.total_cost, 0);
+      const totalFloorArea = validAreas.reduce((sum, area) => sum + parseFloat(area.floorArea), 0);
+      const totalWallArea = validAreas.reduce((sum, area) => sum + parseFloat(area.wallArea), 0);
 
-      console.log('Combined components:', combinedComponents);
-
-      if (Object.keys(combinedComponents).length === 0) {
-        toast.error('Please select at least one component to quote');
-        setLoading(false);
-        return;
-      }
-
-      // Use the first area's data as representative for the quote request
-      const primaryArea = validAreas[0];
-      const requestData = {
+      // Create combined multi-area quote object
+      const combinedQuote = {
+        id: `multi_${Date.now()}`,
+        total_cost: totalCost,
+        area_quotes: areaQuotes,
+        areas_count: validAreas.length,
+        combined_floor_area: totalFloorArea.toFixed(2),
+        combined_wall_area: totalWallArea.toFixed(2),
         client_info: formData.clientInfo,
-        room_measurements: {
-          length: parseFloat(primaryArea.measurements.length) / 1000,
-          width: parseFloat(primaryArea.measurements.width) / 1000,
-          height: parseFloat(primaryArea.measurements.height) / 1000
-        },
-        components: Object.keys(combinedComponents).reduce((acc, key) => {
-          acc[key] = true;  // Backend expects boolean values, not objects
-          return acc;
-        }, {}),
-        detailed_components: combinedComponents,
-        task_options: primaryArea.taskOptions,
-        additional_notes: `Multi-area project: ${validAreas.length} areas (${validAreas.map(a => a.name).join(', ')}). Total floor area: ${totalFloorArea.toFixed(2)}m². Total wall area: ${totalWallArea.toFixed(2)}m².`
+        created_at: new Date().toISOString(),
+        // Combine all cost breakdowns for overall view
+        cost_breakdown: areaQuotes.reduce((combined, areaQuote) => {
+          const prefixedBreakdown = areaQuote.cost_breakdown.map(item => ({
+            ...item,
+            component: `${areaQuote.area_name} - ${item.component}`,
+            area_name: areaQuote.area_name
+          }));
+          return [...combined, ...prefixedBreakdown];
+        }, [])
       };
 
-      console.log('Sending quote request:', requestData);
-
-      // Try to generate quote with learning first, fallback to standard if no learning data
-      let response;
-      try {
-        const userId = userProfile.contact_name || "default";
-        response = await axios.post(`${API}/quotes/generate-with-learning?user_id=${userId}`, requestData);
-        
-        // Check if learning was applied
-        const learningInfo = response.data.learning_info;
-        if (learningInfo?.learning_applied) {
-          console.log("🧠 AI Learning applied:", learningInfo);
-        }
-      } catch (learningError) {
-        console.log("Learning not available, using standard quote generation");
-        response = await axios.post(`${API}/quotes/request`, requestData);
-      }
-      
-      const enhancedQuote = {
-        ...response.data,
-        total_floor_area: totalFloorArea,
-        total_wall_area: totalWallArea,
-        project_summary: `${validAreas.length} area renovation: ${validAreas.map(a => a.name).join(', ')}`
-      };
-      
-      setQuote(enhancedQuote);
-      console.log('Quote set:', enhancedQuote);
-      console.log('Current view:', currentView);
-      
-      // Ensure we stay in new-quote view to see the results
-      setCurrentView('new-quote');
-      
-      // Show success message with learning info if available
-      const learningInfo = enhancedQuote.learning_info;
-      if (learningInfo?.learning_applied) {
-        toast.success(
-          `🧠 Quote generated with AI learning! Personalized based on ${learningInfo.total_adjustments || 0} previous adjustments.`
-        );
-      } else {
-        toast.success(`Combined quote generated for ${validAreas.length} areas: $${response.data.total_cost.toLocaleString()}`);
-      }
+      console.log('Multi-area quote generated:', combinedQuote);
+      setQuote(combinedQuote);
+      toast.success(`Multi-area quote generated successfully! ${validAreas.length} areas quoted for $${totalCost.toLocaleString()}`);
       
     } catch (error) {
-      console.error('=== QUOTE GENERATION ERROR ===');
-      console.error('Error details:', error);
-      console.error('Error response:', error.response?.data);
-      
-      let errorMessage = 'Failed to generate quote. ';
-      if (error.response?.data?.detail) {
-        errorMessage += error.response.data.detail;
-      } else if (error.message) {
-        errorMessage += error.message;
-      } else {
-        errorMessage += 'Please check your inputs and try again.';
-      }
-      
-      toast.error(errorMessage);
+      console.error('Error generating multi-area quote:', error);
+      toast.error(`Failed to generate quote: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }
