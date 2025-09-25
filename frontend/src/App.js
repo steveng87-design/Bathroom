@@ -988,6 +988,29 @@ const RenovationQuotingApp = () => {
     handleAdjustCost(index, newCost);
   };
 
+  // Helper function to format currency with proper decimal places
+  const formatCurrency = (amount) => {
+    if (!amount || isNaN(amount)) return '0';
+    
+    const num = parseFloat(amount);
+    
+    // If it's a whole number, show without decimals
+    if (num === Math.floor(num)) {
+      return num.toLocaleString('en-US', {
+        style: 'decimal',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+    }
+    
+    // If it has decimals, show maximum 2 decimal places
+    return num.toLocaleString('en-US', {
+      style: 'decimal',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
   const getTotalAdjustedCost = () => {
     if (!quote || !quote.cost_breakdown) return 0;
     
