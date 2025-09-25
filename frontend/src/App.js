@@ -597,6 +597,23 @@ const RenovationQuotingApp = () => {
           [field]: isCheckbox ? value : value
         }
       }));
+      
+      // CRITICAL: Also update projectAreas measurements to sync with calculations
+      if (section === 'roomMeasurements') {
+        setProjectAreas(prev => 
+          prev.map((area, index) => 
+            index === currentAreaIndex 
+              ? {
+                  ...area,
+                  measurements: {
+                    ...area.measurements,
+                    [field]: value
+                  }
+                }
+              : area
+          )
+        );
+      }
     } else if (section === 'additionalNotes') {
       // Update additional notes in formData
       setFormData(prev => ({
