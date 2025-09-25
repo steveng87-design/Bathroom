@@ -217,7 +217,7 @@ const RenovationQuotingApp = () => {
   // Email functionality states
   const [emailOptions, setEmailOptions] = useState({
     includeBreakdown: true,
-    includePdf: false
+    includePdf: true
   });
   const [sendingEmail, setSendingEmail] = useState(false);
   
@@ -232,9 +232,6 @@ const RenovationQuotingApp = () => {
   // Email Dialog state
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [includeBreakdown, setIncludeBreakdown] = useState(true);
-  const [emailOptions, setEmailOptions] = useState({
-    includePdf: true
-  });
   
   // Google Maps Integration
   const [addressSuggestions, setAddressSuggestions] = useState([]);
