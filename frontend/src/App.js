@@ -991,28 +991,31 @@ const RenovationQuotingApp = () => {
   const getTotalAdjustedCost = () => {
     if (!quote || !quote.cost_breakdown) return 0;
     
-    // If user has made current adjustments, calculate from breakdown with adjustments
+    // If user has made current adjustments, calculate from the ORIGINAL project baseline
     if (Object.keys(adjustedCosts).length > 0) {
-      let total = 0;
+      // Start with the original saved project total as baseline
+      const originalTotal = quote.total_cost || 0;
+      
+      // Calculate the difference from original component values
+      let totalAdjustment = 0;
       
       quote.cost_breakdown.forEach((item, index) => {
-        let componentCost = item.estimated_cost; // Start with original estimated cost
-        
-        // Check if user has made a current adjustment for this component
         if (adjustedCosts[index] !== undefined) {
           if (adjustedCosts[index] === '') {
-            // Empty string means user cleared the field - use original cost
-            componentCost = item.estimated_cost;
+            // Empty string means user cleared the field - no adjustment
+            // Keep original component cost (no change to totalAdjustment)
           } else {
-            // User has entered a specific adjustment
-            componentCost = parseFloat(adjustedCosts[index]) || 0;
+            // Calculate the difference between adjusted and original
+            const adjustedValue = parseFloat(adjustedCosts[index]) || 0;
+            const originalValue = item.estimated_cost;
+            const adjustment = adjustedValue - originalValue;
+            totalAdjustment += adjustment;
           }
         }
-        
-        total += componentCost;
       });
       
-      return total;
+      // Return original total plus all adjustments
+      return originalTotal + totalAdjustment;
     }
     
     // If no current adjustments, use the saved project total_cost
