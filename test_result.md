@@ -131,15 +131,18 @@ backend:
 
   - task: "Cost Adjustment Calculation Logic"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
       - working: true
         agent: "testing"
         comment: "🎉 COMPREHENSIVE COST ADJUSTMENT TESTING COMPLETED: Investigated user's reported issue where reducing costs increases total. RESULTS: ✅ Backend calculation logic is working correctly. Generated test quote ($30,500 with 8 components), tested reducing Tiling cost from $8,700 to $7,700 (-$1000), total correctly decreased to $29,500. Tested increasing Framing cost from $2,100 to $3,600 (+$1500), total correctly increased to $32,000. Tested zero cost (Plumbing $5,200 to $0), total correctly decreased to $25,300. Tested mixed adjustments (net -$4,800), total correctly decreased to $25,700. All PDF generation endpoints working with adjusted costs. SUCCESS RATE: 90% (9/10 tests passed). Only legacy /adjust endpoint has validation issues, but main /learn-adjustment endpoint works perfectly. CONCLUSION: Backend cost adjustment calculation is mathematically correct - if user still experiences issues, problem is likely in frontend calculation display or data transmission."
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL FRONTEND CALCULATION BUG CONFIRMED: Comprehensive UI testing reveals severe calculation error in getTotalAdjustedCost() function. TESTED SCENARIO: Loaded saved project ($26,440 total), entered Adjust Costs mode, reduced Demolition from $3,800 to $2,800 (-$1,000). EXPECTED: Total should decrease to $25,440. ACTUAL RESULT: Total INCREASED to $58,800 (+$32,360). Second test: Increased Framing from $4,600 to $5,100 (+$500), total jumped to $105,200 (+$46,400). ROOT CAUSE: Frontend getTotalAdjustedCost() function is completely broken - instead of properly summing individual component costs, it's producing wildly incorrect totals. CONSOLE LOGS show data discrepancy: Project total_cost: 26440 vs Quote total_cost: 32600. IMPACT: CRITICAL - Core cost adjustment functionality unusable, preventing accurate quote modifications. Backend APIs working correctly, issue is purely in frontend calculation logic."
 
   - task: "Cost Adjustment Learning API"
     implemented: true
