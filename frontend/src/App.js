@@ -1093,6 +1093,8 @@ const RenovationQuotingApp = () => {
         console.log('PDF Generation - Quote Breakdown:', quote.cost_breakdown);
         console.log('PDF Generation - Final Adjusted Costs by Component:', adjustedCostsByComponent);
         console.log('PDF Generation - Final Total:', finalTotalCost);
+        console.log('PDF Generation - Quote Original Total:', quote.total_cost);
+        console.log('PDF Generation - UI Displayed Total:', getTotalAdjustedCost());
         
         pdfRequestData.adjusted_costs = adjustedCostsByComponent;
         pdfRequestData.adjusted_total = finalTotalCost;
@@ -1217,6 +1219,8 @@ const RenovationQuotingApp = () => {
         console.log('PDF Generation - Quote Breakdown:', quote.cost_breakdown);
         console.log('PDF Generation - Final Adjusted Costs by Component:', adjustedCostsByComponent);
         console.log('PDF Generation - Final Total:', finalTotalCost);
+        console.log('PDF Generation - Quote Original Total:', quote.total_cost);
+        console.log('PDF Generation - UI Displayed Total:', getTotalAdjustedCost());
         
         pdfRequestData.adjusted_costs = adjustedCostsByComponent;
         pdfRequestData.adjusted_total = finalTotalCost;
