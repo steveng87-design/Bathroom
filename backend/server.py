@@ -184,6 +184,7 @@ class PDFGenerationRequest(BaseModel):
     user_profile: UserProfile
     adjusted_costs: Optional[Dict[str, float]] = None  # Component costs adjusted by user
     adjusted_total: Optional[float] = None  # Total adjusted cost
+    include_breakdown: Optional[bool] = True  # Whether to include detailed cost breakdown
 
 # Static material suppliers data (MVP approach)
 MATERIAL_SUPPLIERS = {
