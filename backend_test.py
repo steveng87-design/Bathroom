@@ -2271,6 +2271,287 @@ class BathroomRenovationAPITester:
         
         return True
 
+    def test_urgent_pdf_pricing_mismatch(self):
+        """URGENT: Test PDF generation pricing mismatch issue - UI shows $29,802.077 but PDF shows $32,600"""
+        print("\n🚨 URGENT: PDF PRICING MISMATCH INVESTIGATION")
+        print("=" * 80)
+        print("User reports: UI Display: $29,802.077 but PDF Output: $32,600 'Estimated Investment'")
+        print("Testing if backend properly uses adjusted_total parameter in PDF generation")
+        
+        # Step 1: Generate a quote that matches the user's scenario
+        print("\n--- STEP 1: Generate Quote Similar to User's Scenario ---")
+        quote_data = {
+            "client_info": {
+                "name": "Test Client",
+                "email": "test@example.com",
+                "phone": "02-1234-5678",
+                "address": "123 Test Street, Sydney NSW 2000"
+            },
+            "room_measurements": {
+                "length": 3.5,
+                "width": 2.8,
+                "height": 2.4
+            },
+            "components": {
+                "demolition": True,
+                "framing": True,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": True,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,
+                "fit_off": True
+            },
+            "detailed_components": {
+                "demolition": {
+                    "enabled": True,
+                    "subtasks": {
+                        "remove_existing_tiles": True,
+                        "remove_fixtures": True,
+                        "remove_vanity": True,
+                        "remove_toilet": True
+                    }
+                },
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": True,
+                        "supply_install_wall_tiles": True,
+                        "supply_install_feature_tiles": True
+                    }
+                }
+            },
+            "task_options": {
+                "skip_bin_size": "8m³",
+                "build_niches_quantity": 2,
+                "plasterboard_grade": "premium_grade",
+                "floor_tile_grade": "luxury_grade",
+                "vanity_grade": "luxury_grade"
+            },
+            "additional_notes": "Large bathroom renovation for pricing mismatch testing"
+        }
+        
+        success_quote, quote_response = self.run_test(
+            "Generate Quote for Pricing Mismatch Test",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if not success_quote or not isinstance(quote_response, dict) or 'id' not in quote_response:
+            print("❌ CRITICAL: Cannot generate quote for pricing mismatch testing")
+            return False
+        
+        test_quote_id = quote_response['id']
+        backend_total_cost = quote_response.get('total_cost', 0)
+        
+        print(f"✅ Quote generated successfully")
+        print(f"   Quote ID: {test_quote_id}")
+        print(f"   Backend Total Cost: ${backend_total_cost}")
+        
+        # Step 2: Test PDF generation with the EXACT adjusted_total from UI
+        print(f"\n--- STEP 2: Test PDF with UI Adjusted Total ($29,802.077) ---")
+        
+        ui_adjusted_total = 29802.077  # Exact value from user report
+        
+        pdf_request_ui_total = {
+            "user_profile": {
+                "company_name": "Test Bathroom Renovations",
+                "contact_name": "Test Manager",
+                "phone": "02-1234-5678",
+                "email": "test@bathroomrenos.com",
+                "license_number": "TEST-2024"
+            },
+            "adjusted_costs": None,  # No individual component adjustments
+            "adjusted_total": ui_adjusted_total  # Use the exact UI total
+        }
+        
+        print(f"   Sending adjusted_total: ${ui_adjusted_total}")
+        print(f"   Backend quote total: ${backend_total_cost}")
+        print(f"   Difference: ${ui_adjusted_total - backend_total_cost}")
+        
+        # Test Proposal PDF
+        success_proposal, proposal_response = self.run_test(
+            "Generate Proposal PDF - UI Adjusted Total",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_request_ui_total
+        )
+        
+        if success_proposal:
+            print("✅ Proposal PDF generated with UI adjusted total")
+            print(f"   Expected PDF to show: ${ui_adjusted_total}")
+        else:
+            print("❌ FAILED: Proposal PDF generation with UI adjusted total")
+        
+        # Test Quote Summary PDF
+        success_summary, summary_response = self.run_test(
+            "Generate Quote Summary PDF - UI Adjusted Total",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_ui_total
+        )
+        
+        if success_summary:
+            print("✅ Quote Summary PDF generated with UI adjusted total")
+            print(f"   Expected PDF to show: ${ui_adjusted_total}")
+        else:
+            print("❌ FAILED: Quote Summary PDF generation with UI adjusted total")
+        
+        # Step 3: Test with component-level adjustments that sum to UI total
+        print(f"\n--- STEP 3: Test with Component-Level Adjustments ---")
+        
+        # Get original breakdown to create component adjustments
+        original_breakdown = quote_response.get('cost_breakdown', [])
+        if original_breakdown:
+            # Create adjusted costs that sum to the UI total
+            total_original = sum(item.get('estimated_cost', 0) for item in original_breakdown)
+            adjustment_factor = ui_adjusted_total / total_original if total_original > 0 else 1
+            
+            component_adjustments = {}
+            for item in original_breakdown:
+                component = item.get('component', '')
+                original_cost = item.get('estimated_cost', 0)
+                adjusted_cost = round(original_cost * adjustment_factor, 2)
+                component_adjustments[component] = adjusted_cost
+            
+            pdf_request_components = {
+                "user_profile": {
+                    "company_name": "Test Bathroom Renovations",
+                    "contact_name": "Test Manager",
+                    "phone": "02-1234-5678",
+                    "email": "test@bathroomrenos.com",
+                    "license_number": "TEST-2024"
+                },
+                "adjusted_costs": component_adjustments,
+                "adjusted_total": ui_adjusted_total
+            }
+            
+            print(f"   Component adjustments that sum to ${ui_adjusted_total}:")
+            for comp, cost in component_adjustments.items():
+                print(f"     - {comp}: ${cost}")
+            
+            success_comp_proposal, _ = self.run_test(
+                "Generate Proposal PDF - Component Adjustments",
+                "POST",
+                f"quotes/{test_quote_id}/generate-proposal",
+                200,
+                data=pdf_request_components
+            )
+            
+            success_comp_summary, _ = self.run_test(
+                "Generate Quote Summary PDF - Component Adjustments",
+                "POST",
+                f"quotes/{test_quote_id}/generate-quote-summary",
+                200,
+                data=pdf_request_components
+            )
+            
+            if success_comp_proposal and success_comp_summary:
+                print("✅ PDFs generated with component-level adjustments")
+        
+        # Step 4: Test with no adjustments (original costs) for comparison
+        print(f"\n--- STEP 4: Test with Original Costs (Control) ---")
+        
+        pdf_request_original = {
+            "user_profile": {
+                "company_name": "Test Bathroom Renovations",
+                "contact_name": "Test Manager",
+                "phone": "02-1234-5678",
+                "email": "test@bathroomrenos.com",
+                "license_number": "TEST-2024"
+            },
+            "adjusted_costs": None,
+            "adjusted_total": None
+        }
+        
+        success_orig_proposal, _ = self.run_test(
+            "Generate Proposal PDF - Original Costs",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_request_original
+        )
+        
+        success_orig_summary, _ = self.run_test(
+            "Generate Quote Summary PDF - Original Costs",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_original
+        )
+        
+        if success_orig_proposal and success_orig_summary:
+            print("✅ Original cost PDFs generated (control test)")
+            print(f"   Expected PDF to show: ${backend_total_cost}")
+        
+        # Step 5: Test edge case - adjusted_total without adjusted_costs
+        print(f"\n--- STEP 5: Test Edge Case - Only adjusted_total ---")
+        
+        pdf_request_total_only = {
+            "user_profile": {
+                "company_name": "Test Bathroom Renovations",
+                "contact_name": "Test Manager",
+                "phone": "02-1234-5678",
+                "email": "test@bathroomrenos.com",
+                "license_number": "TEST-2024"
+            },
+            "adjusted_costs": None,  # No component adjustments
+            "adjusted_total": ui_adjusted_total  # Only total adjustment
+        }
+        
+        success_total_only_proposal, _ = self.run_test(
+            "Generate Proposal PDF - Total Only Adjustment",
+            "POST",
+            f"quotes/{test_quote_id}/generate-proposal",
+            200,
+            data=pdf_request_total_only
+        )
+        
+        success_total_only_summary, _ = self.run_test(
+            "Generate Quote Summary PDF - Total Only Adjustment",
+            "POST",
+            f"quotes/{test_quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_total_only
+        )
+        
+        if success_total_only_proposal and success_total_only_summary:
+            print("✅ Total-only adjustment PDFs generated")
+            print(f"   This tests if backend uses adjusted_total when no component adjustments provided")
+        
+        # Summary
+        all_tests_passed = all([
+            success_proposal, success_summary, success_orig_proposal, success_orig_summary,
+            success_total_only_proposal, success_total_only_summary
+        ])
+        
+        print(f"\n--- PRICING MISMATCH TEST SUMMARY ---")
+        print(f"Backend Quote Total: ${backend_total_cost}")
+        print(f"UI Adjusted Total: ${ui_adjusted_total}")
+        print(f"Difference: ${ui_adjusted_total - backend_total_cost}")
+        print(f"✅ Proposal PDF with UI Total: {'PASS' if success_proposal else 'FAIL'}")
+        print(f"✅ Summary PDF with UI Total: {'PASS' if success_summary else 'FAIL'}")
+        print(f"✅ Original Cost PDFs: {'PASS' if (success_orig_proposal and success_orig_summary) else 'FAIL'}")
+        print(f"✅ Total-Only Adjustment PDFs: {'PASS' if (success_total_only_proposal and success_total_only_summary) else 'FAIL'}")
+        
+        if all_tests_passed:
+            print("🎉 ALL PDF PRICING TESTS PASSED")
+            print("📋 CONCLUSION: Backend properly accepts and should use adjusted_total parameter")
+            print("🔍 If user still sees wrong amounts in PDF, issue may be:")
+            print("   1. Frontend not sending adjusted_total correctly")
+            print("   2. PDF content generation not using the adjusted_total")
+            print("   3. Browser/PDF viewer caching old versions")
+        else:
+            print("❌ SOME PDF PRICING TESTS FAILED")
+            print("🚨 CRITICAL: Backend PDF generation has issues with adjusted costs")
+        
+        return all_tests_passed
+
 def main():
     print("🚀 TESTING COMPONENT LABEL CHANGES & TILING UPDATES")
     print("=" * 70)
