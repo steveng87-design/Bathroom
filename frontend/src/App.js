@@ -1005,6 +1005,7 @@ const RenovationQuotingApp = () => {
       setQuote(prev => ({
         ...prev,
         total_cost: totalAdjusted,
+        original_total_cost: prev.original_total_cost || prev.total_cost, // Preserve original total
         cost_breakdown: prev.cost_breakdown.map((item, index) => {
           if (adjustedCosts[index] !== undefined) {
             return {
