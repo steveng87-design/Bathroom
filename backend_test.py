@@ -2552,6 +2552,318 @@ class BathroomRenovationAPITester:
         
         return all_tests_passed
 
+    def test_pdf_generation_with_breakdown_checkbox(self):
+        """Test PDF generation with include_breakdown parameter functionality"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+        
+        print(f"\n🔍 TESTING PDF GENERATION WITH BREAKDOWN CHECKBOX")
+        print(f"Using Quote ID: {self.quote_id}")
+        
+        user_profile = {
+            "company_name": "Breakdown Test Company",
+            "contact_name": "Test Manager",
+            "phone": "02-1234-5678",
+            "email": "test@breakdown.com",
+            "license_number": "BTC-2024"
+        }
+        
+        # Test 1: PDF Proposal with include_breakdown=true (detailed breakdown)
+        print(f"\n--- TEST 1: PDF Proposal with include_breakdown=true ---")
+        pdf_request_with_breakdown = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 1500.00,
+                "Tiling": 3200.00
+            },
+            "adjusted_total": 8500.00,
+            "include_breakdown": True
+        }
+        
+        success_1, response_1 = self.run_test(
+            "PDF Proposal - WITH Detailed Breakdown",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_with_breakdown
+        )
+        
+        if success_1:
+            print("✅ PDF Proposal generated with detailed breakdown")
+            print("   Expected: PDF should include detailed cost breakdown section")
+        
+        # Test 2: PDF Proposal with include_breakdown=false (no detailed breakdown)
+        print(f"\n--- TEST 2: PDF Proposal with include_breakdown=false ---")
+        pdf_request_no_breakdown = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 1500.00,
+                "Tiling": 3200.00
+            },
+            "adjusted_total": 8500.00,
+            "include_breakdown": False
+        }
+        
+        success_2, response_2 = self.run_test(
+            "PDF Proposal - WITHOUT Detailed Breakdown",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_no_breakdown
+        )
+        
+        if success_2:
+            print("✅ PDF Proposal generated without detailed breakdown")
+            print("   Expected: PDF should show only total cost, no component details")
+        
+        # Test 3: Quote Summary PDF with include_breakdown=true
+        print(f"\n--- TEST 3: Quote Summary PDF with include_breakdown=true ---")
+        success_3, response_3 = self.run_test(
+            "Quote Summary PDF - WITH Detailed Breakdown",
+            "POST",
+            f"quotes/{self.quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_with_breakdown
+        )
+        
+        if success_3:
+            print("✅ Quote Summary PDF generated with detailed breakdown")
+        
+        # Test 4: Quote Summary PDF with include_breakdown=false
+        print(f"\n--- TEST 4: Quote Summary PDF with include_breakdown=false ---")
+        success_4, response_4 = self.run_test(
+            "Quote Summary PDF - WITHOUT Detailed Breakdown",
+            "POST",
+            f"quotes/{self.quote_id}/generate-quote-summary",
+            200,
+            data=pdf_request_no_breakdown
+        )
+        
+        if success_4:
+            print("✅ Quote Summary PDF generated without detailed breakdown")
+        
+        # Test 5: Default behavior (include_breakdown not specified - should default to true)
+        print(f"\n--- TEST 5: Default Behavior (include_breakdown not specified) ---")
+        pdf_request_default = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 1500.00,
+                "Tiling": 3200.00
+            },
+            "adjusted_total": 8500.00
+            # include_breakdown not specified - should default to True
+        }
+        
+        success_5, response_5 = self.run_test(
+            "PDF Proposal - Default Breakdown Behavior",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_default
+        )
+        
+        if success_5:
+            print("✅ PDF Proposal generated with default breakdown behavior")
+            print("   Expected: Should include breakdown by default (include_breakdown defaults to True)")
+        
+        # Test 6: Test with various cost adjustment combinations
+        print(f"\n--- TEST 6: Breakdown Checkbox with Various Cost Adjustments ---")
+        
+        # Test with no cost adjustments but breakdown enabled
+        pdf_request_no_adjustments = {
+            "user_profile": user_profile,
+            "adjusted_costs": None,
+            "adjusted_total": None,
+            "include_breakdown": True
+        }
+        
+        success_6a, response_6a = self.run_test(
+            "PDF Proposal - No Adjustments, Breakdown Enabled",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_no_adjustments
+        )
+        
+        # Test with no cost adjustments and breakdown disabled
+        pdf_request_no_adjustments_no_breakdown = {
+            "user_profile": user_profile,
+            "adjusted_costs": None,
+            "adjusted_total": None,
+            "include_breakdown": False
+        }
+        
+        success_6b, response_6b = self.run_test(
+            "PDF Proposal - No Adjustments, Breakdown Disabled",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_no_adjustments_no_breakdown
+        )
+        
+        if success_6a and success_6b:
+            print("✅ PDF generation works correctly with various adjustment combinations")
+        
+        # Summary
+        all_tests_passed = all([success_1, success_2, success_3, success_4, success_5, success_6a, success_6b])
+        
+        print(f"\n--- BREAKDOWN CHECKBOX TEST SUMMARY ---")
+        print(f"✅ PDF Proposal with breakdown=true: {'PASS' if success_1 else 'FAIL'}")
+        print(f"✅ PDF Proposal with breakdown=false: {'PASS' if success_2 else 'FAIL'}")
+        print(f"✅ Quote Summary with breakdown=true: {'PASS' if success_3 else 'FAIL'}")
+        print(f"✅ Quote Summary with breakdown=false: {'PASS' if success_4 else 'FAIL'}")
+        print(f"✅ Default breakdown behavior: {'PASS' if success_5 else 'FAIL'}")
+        print(f"✅ Various cost adjustment combinations: {'PASS' if (success_6a and success_6b) else 'FAIL'}")
+        print(f"Overall Result: {'ALL BREAKDOWN TESTS PASSED' if all_tests_passed else 'SOME BREAKDOWN TESTS FAILED'}")
+        
+        return all_tests_passed
+
+    def test_cost_adjustment_input_formatting_backend(self):
+        """Test backend handling of cost adjustment input formatting"""
+        if not self.quote_id:
+            print("❌ Skipping - No quote ID available")
+            return False
+        
+        print(f"\n🔍 TESTING COST ADJUSTMENT INPUT FORMATTING (Backend)")
+        print(f"Using Quote ID: {self.quote_id}")
+        
+        user_profile = {
+            "company_name": "Format Test Company",
+            "contact_name": "Format Tester",
+            "phone": "02-1234-5678",
+            "email": "test@format.com",
+            "license_number": "FTC-2024"
+        }
+        
+        # Test 1: Properly formatted decimal values (1800.00)
+        print(f"\n--- TEST 1: Properly Formatted Decimal Values ---")
+        pdf_request_proper_decimals = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 1800.00,
+                "Tiling": 2500.50,
+                "Plastering": 1200.25
+            },
+            "adjusted_total": 5500.75,
+            "include_breakdown": True
+        }
+        
+        success_1, response_1 = self.run_test(
+            "PDF Generation - Proper Decimal Formatting",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_proper_decimals
+        )
+        
+        if success_1:
+            print("✅ Backend accepts properly formatted decimal values")
+        
+        # Test 2: Integer values (should be handled correctly)
+        print(f"\n--- TEST 2: Integer Values ---")
+        pdf_request_integers = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 1800,
+                "Tiling": 2500,
+                "Plastering": 1200
+            },
+            "adjusted_total": 5500,
+            "include_breakdown": True
+        }
+        
+        success_2, response_2 = self.run_test(
+            "PDF Generation - Integer Values",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_integers
+        )
+        
+        if success_2:
+            print("✅ Backend accepts integer values for costs")
+        
+        # Test 3: High precision decimals (should be handled)
+        print(f"\n--- TEST 3: High Precision Decimals ---")
+        pdf_request_high_precision = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 1800.123,
+                "Tiling": 2500.999,
+                "Plastering": 1200.001
+            },
+            "adjusted_total": 5501.123,
+            "include_breakdown": True
+        }
+        
+        success_3, response_3 = self.run_test(
+            "PDF Generation - High Precision Decimals",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_high_precision
+        )
+        
+        if success_3:
+            print("✅ Backend handles high precision decimal values")
+        
+        # Test 4: Zero values (should be accepted)
+        print(f"\n--- TEST 4: Zero Values ---")
+        pdf_request_zeros = {
+            "user_profile": user_profile,
+            "adjusted_costs": {
+                "Demolition": 0.00,
+                "Tiling": 2500.00
+            },
+            "adjusted_total": 2500.00,
+            "include_breakdown": True
+        }
+        
+        success_4, response_4 = self.run_test(
+            "PDF Generation - Zero Values",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_zeros
+        )
+        
+        if success_4:
+            print("✅ Backend accepts zero values for cost adjustments")
+        
+        # Test 5: Empty adjusted_costs (null/None)
+        print(f"\n--- TEST 5: Empty Adjusted Costs ---")
+        pdf_request_empty = {
+            "user_profile": user_profile,
+            "adjusted_costs": None,
+            "adjusted_total": None,
+            "include_breakdown": True
+        }
+        
+        success_5, response_5 = self.run_test(
+            "PDF Generation - Empty Adjusted Costs",
+            "POST",
+            f"quotes/{self.quote_id}/generate-proposal",
+            200,
+            data=pdf_request_empty
+        )
+        
+        if success_5:
+            print("✅ Backend handles empty/null adjusted costs correctly")
+        
+        # Summary
+        all_tests_passed = all([success_1, success_2, success_3, success_4, success_5])
+        
+        print(f"\n--- COST ADJUSTMENT FORMATTING TEST SUMMARY ---")
+        print(f"✅ Proper decimal formatting: {'PASS' if success_1 else 'FAIL'}")
+        print(f"✅ Integer values: {'PASS' if success_2 else 'FAIL'}")
+        print(f"✅ High precision decimals: {'PASS' if success_3 else 'FAIL'}")
+        print(f"✅ Zero values: {'PASS' if success_4 else 'FAIL'}")
+        print(f"✅ Empty adjusted costs: {'PASS' if success_5 else 'FAIL'}")
+        print(f"Overall Result: {'ALL FORMATTING TESTS PASSED' if all_tests_passed else 'SOME FORMATTING TESTS FAILED'}")
+        
+        return all_tests_passed
+
 def main():
     print("🚨 URGENT: PDF PRICING MISMATCH INVESTIGATION")
     print("=" * 70)
