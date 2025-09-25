@@ -1021,15 +1021,17 @@ const RenovationQuotingApp = () => {
       
       // Submit individual component adjustments for AI learning
       const learningPromises = quote.cost_breakdown.map(async (item, index) => {
-        if (adjustedCosts[index] !== undefined && adjustedCosts[index] !== item.estimated_cost) {
-          const adjustmentRatio = adjustedCosts[index] / item.estimated_cost;
+        const adjustedValue = adjustedCosts[index];
+        // Only submit if there's a real adjustment (not undefined and not empty string)
+        if (adjustedValue !== undefined && adjustedValue !== '' && adjustedValue !== item.estimated_cost) {
+          const adjustmentRatio = adjustedValue / item.estimated_cost;
           
           const learningData = {
             quote_id: quote.id,
             user_id: userProfile.contact_name || "default",
             component: item.component,
             original_cost: item.estimated_cost,
-            adjusted_cost: adjustedCosts[index],
+            adjusted_cost: adjustedValue,
             adjustment_ratio: adjustmentRatio,
             project_size: getCurrentArea()?.measurements ? 
               (parseFloat(getCurrentArea().measurements.length) / 1000 * parseFloat(getCurrentArea().measurements.width) / 1000) : null,
