@@ -714,17 +714,23 @@ const RenovationQuotingApp = () => {
   };
 
   const handleFormComponentToggle = (component, enabled) => {
-    setFormData(prev => ({
-      ...prev,
-      components: {
-        ...prev.components,
-        [component]: {
-          ...prev.components[component],
-          enabled: enabled,
-          subtasks: prev.components[component]?.subtasks || {}
-        }
-      }
-    }));
+    // Update the current area's components instead of shared formData.components
+    setProjectAreas(prev => 
+      prev.map((area, index) => 
+        index === currentAreaIndex 
+          ? {
+              ...area,
+              components: {
+                ...area.components,
+                [component]: {
+                  enabled: enabled,
+                  subtasks: enabled ? (area.components[component]?.subtasks || {}) : {}
+                }
+              }
+            }
+          : area
+      )
+    );
     
     // Auto-expand when enabling a component
     if (enabled) {
