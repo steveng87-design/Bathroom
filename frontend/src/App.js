@@ -911,6 +911,7 @@ const RenovationQuotingApp = () => {
       const combinedQuote = {
         id: `multi_${Date.now()}`,
         total_cost: totalCost,
+        total_project_cost: totalCost, // Add this for UI compatibility
         area_quotes: areaQuotes,
         areas_count: validAreas.length,
         combined_floor_area: totalFloorArea.toFixed(2),
