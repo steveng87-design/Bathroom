@@ -237,6 +237,9 @@ const RenovationQuotingApp = () => {
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [pdfIncludeBreakdown, setPdfIncludeBreakdown] = useState(true);
   
+  // Area viewing state for quote results
+  const [currentAreaView, setCurrentAreaView] = useState('combined'); // 'combined', 'main', 'separate', etc.
+  
   // Google Maps Integration
   const [addressSuggestions, setAddressSuggestions] = useState([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
