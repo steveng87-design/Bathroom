@@ -934,7 +934,11 @@ const RenovationQuotingApp = () => {
 
       console.log('Multi-area quote generated:', combinedQuote);
       setQuote(combinedQuote);
-      toast.success(`Multi-area quote generated successfully! ${validAreas.length} areas quoted for $${totalCost.toLocaleString()}`);
+      
+      // Stay on quote results view instead of returning to form
+      setCurrentView('quote');
+      
+      toast.success(`Multi-area quote generated successfully! ${validAreas.length} areas quoted for $${formatCurrency(totalCost)}`);
       
     } catch (error) {
       console.error('Error generating multi-area quote:', error);
