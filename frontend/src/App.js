@@ -935,8 +935,8 @@ const RenovationQuotingApp = () => {
       console.log('Multi-area quote generated:', combinedQuote);
       setQuote(combinedQuote);
       
-      // Stay on quote results view instead of returning to form
-      setCurrentView('quote');
+      // Stay in new-quote view - the quote results will display automatically when quote exists
+      // No need to change currentView since renderQuoteForm() shows results when quote exists
       
       toast.success(`Multi-area quote generated successfully! ${validAreas.length} areas quoted for $${formatCurrency(totalCost)}`);
       
