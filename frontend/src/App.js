@@ -825,6 +825,7 @@ const RenovationQuotingApp = () => {
           // Calculate areas for this specific area
           const floorArea = parseFloat(length) / 1000 * parseFloat(width) / 1000;
           const wallArea = 2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000;
+          const perimeter = 2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000);
           
           // Prepare individual quote request for this area
           const requestData = {
@@ -840,7 +841,7 @@ const RenovationQuotingApp = () => {
             }, {}),
             detailed_components: areaComponents,
             task_options: area.taskOptions || {},
-            additional_notes: `Area: ${area.name} (${area.type}). Floor: ${floorArea.toFixed(2)}m². Wall: ${wallArea.toFixed(2)}m².`
+            additional_notes: `Area: ${area.name} (${area.type}). Floor: ${floorArea.toFixed(2)}m². Wall: ${wallArea.toFixed(2)}m². Perimeter: ${perimeter.toFixed(1)}m (for skirt tiles @ $35/linear meter = $${(perimeter * 35).toFixed(0)}). ${area.type === 'separate_toilet' ? 'This is a separate toilet area - typically requires floor tiles and skirt tiles rather than full wall tiling.' : ''}`
           };
 
           console.log(`Generating quote for ${area.name}:`, requestData);
