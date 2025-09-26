@@ -410,6 +410,7 @@ const RenovationQuotingApp = () => {
       supply_install_sand_cement_bed: 'Supply & Install Sand and Cement Bed (including materials, mesh)',
       supply_install_floor_tiles: 'Supply & Install Floor Tiles (including tiles, adhesive, spacers, trim)',
       supply_install_wall_tiles: 'Supply Materials and Install Wall Tiles (including adhesive, spacers, trim)',
+      supply_install_skirt_tiles: 'Supply Materials and Install Skirt Tiles (including adhesive, spacers, trim)',
       supply_install_shower_niche: 'Supply Materials and Install Shower Niche (including waterproof niche, trim)',
       supply_install_bath_niche: 'Supply Materials and Install Bath Niche (including niche box, trim)',
       supply_install_floor_ceiling: 'Supply Materials and Install Floor to Ceiling Tiling (including adhesive, trim)',
