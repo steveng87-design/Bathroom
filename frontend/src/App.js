@@ -979,6 +979,21 @@ const RenovationQuotingApp = () => {
     handleAdjustCost(index, newCost);
   };
 
+  // Helper function to calculate room perimeter for skirt tiles (in linear meters)
+  const calculatePerimeter = (areaIndex = null) => {
+    const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
+    const { length, width } = area?.measurements || {};
+    
+    if (length && width && parseFloat(length) > 0 && parseFloat(width) > 0) {
+      // Convert from millimeters to meters first
+      const lengthInMeters = parseFloat(length) / 1000;
+      const widthInMeters = parseFloat(width) / 1000;
+      // Perimeter = 2 × (length + width)
+      return (2 * (lengthInMeters + widthInMeters)).toFixed(1);
+    }
+    return '0';
+  };
+
   // Helper function to format currency with proper decimal places
   const formatCurrency = (amount) => {
     if (!amount || isNaN(amount)) return '0';
