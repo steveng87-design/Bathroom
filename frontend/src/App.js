@@ -671,27 +671,43 @@ const RenovationQuotingApp = () => {
   };
 
   const handleComponentToggle = (component, enabled) => {
-    setProjectAreas(prev => prev.map((area, index) => {
-      if (index === currentAreaIndex) {
-        return {
-          ...area,
-          components: {
-            ...area.components,
-            [component]: {
-              ...area.components[component],
-              enabled: enabled,
-              // If disabling main component, disable all subtasks
-              subtasks: enabled ? area.components[component].subtasks : 
-                Object.keys(area.components[component].subtasks).reduce((acc, key) => {
-                  acc[key] = false;
-                  return acc;
-                }, {})
-            }
+    // Add safety checks to prevent infinite loops
+    if (!component || currentAreaIndex < 0 || !projectAreas || projectAreas.length <= currentAreaIndex) {
+      console.error('Invalid component toggle parameters:', { component, enabled, currentAreaIndex, projectAreasLength: projectAreas?.length });
+      return;
+    }
+    
+    setProjectAreas(prev => {
+      const newAreas = prev.map((area, index) => {
+        if (index === currentAreaIndex) {
+          const currentComponent = area.components[component];
+          if (!currentComponent) {
+            console.error('Component not found:', component);
+            return area;
           }
-        };
-      }
-      return area;
-    }));
+          
+          return {
+            ...area,
+            components: {
+              ...area.components,
+              [component]: {
+                ...currentComponent,
+                enabled: enabled,
+                // If disabling main component, disable all subtasks
+                subtasks: enabled ? currentComponent.subtasks : 
+                  Object.keys(currentComponent.subtasks || {}).reduce((acc, key) => {
+                    acc[key] = false;
+                    return acc;
+                  }, {})
+              }
+            }
+          };
+        }
+        return area;
+      });
+      
+      return newAreas;
+    });
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
