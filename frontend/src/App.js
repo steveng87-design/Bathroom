@@ -1109,8 +1109,8 @@ const RenovationQuotingApp = () => {
             original_cost: item.estimated_cost,
             adjusted_cost: adjustedValue,
             adjustment_ratio: adjustmentRatio,
-            project_size: getCurrentArea()?.measurements ? 
-              (parseFloat(getCurrentArea().measurements.length) / 1000 * parseFloat(getCurrentArea().measurements.width) / 1000) : null,
+            project_size: currentArea?.measurements ? 
+              (parseFloat(currentArea.measurements.length) / 1000 * parseFloat(currentArea.measurements.width) / 1000) : null,
             location: formData.clientInfo.address || null,
             notes: `User adjustment: ${adjustmentRatio > 1 ? 'increased' : 'decreased'} by ${Math.abs((adjustmentRatio - 1) * 100).toFixed(1)}%`
           };
