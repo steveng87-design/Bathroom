@@ -671,27 +671,27 @@ const RenovationQuotingApp = () => {
   };
 
   const handleComponentToggle = (component, enabled) => {
-    console.log('handleComponentToggle called:', { component, enabled, currentAreaIndex });
-    
-    // Temporary simple implementation to test
-    alert(`Clicked ${component}: ${enabled ? 'enabled' : 'disabled'}`);
-    
-    // Disabled the actual state update to test if this prevents infinite loop
-    // setProjectAreas(prev => prev.map((area, index) => {
-    //   if (index === currentAreaIndex) {
-    //     return {
-    //       ...area,
-    //       components: {
-    //         ...area.components,
-    //         [component]: {
-    //           ...area.components[component],
-    //           enabled: enabled
-    //         }
-    //       }
-    //     };
-    //   }
-    //   return area;
-    // }));
+    setProjectAreas(prev => prev.map((area, index) => {
+      if (index === currentAreaIndex) {
+        return {
+          ...area,
+          components: {
+            ...area.components,
+            [component]: {
+              ...area.components[component],
+              enabled: enabled,
+              // If disabling main component, disable all subtasks
+              subtasks: enabled ? area.components[component].subtasks : 
+                Object.keys(area.components[component].subtasks).reduce((acc, key) => {
+                  acc[key] = false;
+                  return acc;
+                }, {})
+            }
+          }
+        };
+      }
+      return area;
+    }));
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
