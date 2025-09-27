@@ -448,45 +448,50 @@ const RenovationQuotingApp = () => {
     }
   };
 
-  const calculateSquareMeters = (areaIndex = null) => {
-    const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
-    const { length, width } = area?.measurements || {};
-    
-    if (length && width && parseFloat(length) > 0 && parseFloat(width) > 0) {
-      // Convert from millimetres to meters first, then calculate square meters
-      const lengthInMeters = parseFloat(length) / 1000;
-      const widthInMeters = parseFloat(width) / 1000;
-      return (lengthInMeters * widthInMeters).toFixed(2);
-    }
-    return '0';
-  };
+  // Memoized calculation functions to prevent infinite re-renders
+  const calculateSquareMeters = React.useMemo(() => {
+    return (areaIndex = null) => {
+      const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
+      const { length, width } = area?.measurements || {};
+      
+      if (length && width && parseFloat(length) > 0 && parseFloat(width) > 0) {
+        // Convert from millimetres to meters first, then calculate square meters
+        const lengthInMeters = parseFloat(length) / 1000;
+        const widthInMeters = parseFloat(width) / 1000;
+        return (lengthInMeters * widthInMeters).toFixed(2);
+      }
+      return '0';
+    };
+  }, [projectAreas, currentAreaIndex]);
 
-  const calculateWallArea = (areaIndex = null) => {
-    const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
-    const { length, width, height } = area?.measurements || {};
-    
-    if (length && width && height && parseFloat(length) > 0 && parseFloat(width) > 0 && parseFloat(height) > 0) {
-      // Convert from millimetres to meters first
-      const lengthInMeters = parseFloat(length) / 1000;
-      const widthInMeters = parseFloat(width) / 1000;
-      const heightInMeters = parseFloat(height) / 1000;
+  const calculateWallArea = React.useMemo(() => {
+    return (areaIndex = null) => {
+      const area = areaIndex !== null ? projectAreas[areaIndex] : getCurrentArea();
+      const { length, width, height } = area?.measurements || {};
       
-      // Calculate gross wall area = 2 * (length + width) * height
-      const grossWallArea = 2 * (lengthInMeters + widthInMeters) * heightInMeters;
-      
-      // Deduct standard bathroom openings:
-      // - Door: 0.9m × 2.1m = 1.89 m²
-      // - Window (if applicable): 1.2m × 1.0m = 1.2 m² (optional)
-      const doorArea = 0.9 * 2.1; // 1.89 m²
-      const windowArea = 0.0; // Can be made configurable later
-      
-      const netWallArea = grossWallArea - doorArea - windowArea;
-      
-      // Return net wall area (actual wall surface to be tiled/painted)
-      return Math.max(netWallArea, 0).toFixed(2);
-    }
-    return '0';
-  };
+      if (length && width && height && parseFloat(length) > 0 && parseFloat(width) > 0 && parseFloat(height) > 0) {
+        // Convert from millimetres to meters first
+        const lengthInMeters = parseFloat(length) / 1000;
+        const widthInMeters = parseFloat(width) / 1000;
+        const heightInMeters = parseFloat(height) / 1000;
+        
+        // Calculate gross wall area = 2 * (length + width) * height
+        const grossWallArea = 2 * (lengthInMeters + widthInMeters) * heightInMeters;
+        
+        // Deduct standard bathroom openings:
+        // - Door: 0.9m × 2.1m = 1.89 m²
+        // - Window (if applicable): 1.2m × 1.0m = 1.2 m² (optional)
+        const doorArea = 0.9 * 2.1; // 1.89 m²
+        const windowArea = 0.0; // Can be made configurable later
+        
+        const netWallArea = grossWallArea - doorArea - windowArea;
+        
+        // Return net wall area (actual wall surface to be tiled/painted)
+        return Math.max(netWallArea, 0).toFixed(2);
+      }
+      return '0';
+    };
+  }, [projectAreas, currentAreaIndex]);
 
   const getCurrentArea = () => {
     if (!projectAreas || projectAreas.length === 0 || currentAreaIndex < 0 || currentAreaIndex >= projectAreas.length) {
