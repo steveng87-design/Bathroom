@@ -671,43 +671,27 @@ const RenovationQuotingApp = () => {
   };
 
   const handleComponentToggle = (component, enabled) => {
-    // Add safety checks to prevent infinite loops
-    if (!component || currentAreaIndex < 0 || !projectAreas || projectAreas.length <= currentAreaIndex) {
-      console.error('Invalid component toggle parameters:', { component, enabled, currentAreaIndex, projectAreasLength: projectAreas?.length });
-      return;
-    }
+    console.log('handleComponentToggle called:', { component, enabled, currentAreaIndex });
     
-    setProjectAreas(prev => {
-      const newAreas = prev.map((area, index) => {
-        if (index === currentAreaIndex) {
-          const currentComponent = area.components[component];
-          if (!currentComponent) {
-            console.error('Component not found:', component);
-            return area;
-          }
-          
-          return {
-            ...area,
-            components: {
-              ...area.components,
-              [component]: {
-                ...currentComponent,
-                enabled: enabled,
-                // If disabling main component, disable all subtasks
-                subtasks: enabled ? currentComponent.subtasks : 
-                  Object.keys(currentComponent.subtasks || {}).reduce((acc, key) => {
-                    acc[key] = false;
-                    return acc;
-                  }, {})
-              }
-            }
-          };
-        }
-        return area;
-      });
-      
-      return newAreas;
-    });
+    // Temporary simple implementation to test
+    alert(`Clicked ${component}: ${enabled ? 'enabled' : 'disabled'}`);
+    
+    // Disabled the actual state update to test if this prevents infinite loop
+    // setProjectAreas(prev => prev.map((area, index) => {
+    //   if (index === currentAreaIndex) {
+    //     return {
+    //       ...area,
+    //       components: {
+    //         ...area.components,
+    //         [component]: {
+    //           ...area.components[component],
+    //           enabled: enabled
+    //         }
+    //       }
+    //     };
+    //   }
+    //   return area;
+    // }));
   };
 
   const handleSubtaskToggle = (component, subtask, enabled) => {
