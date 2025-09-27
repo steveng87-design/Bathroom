@@ -488,8 +488,17 @@ const RenovationQuotingApp = () => {
     return '0';
   };
 
-  const getCurrentArea = () => projectAreas[currentAreaIndex];
-  const getCurrentTaskOptions = () => getCurrentArea()?.taskOptions || {};
+  const getCurrentArea = () => {
+    if (!projectAreas || projectAreas.length === 0 || currentAreaIndex < 0 || currentAreaIndex >= projectAreas.length) {
+      return null;
+    }
+    return projectAreas[currentAreaIndex];
+  };
+  
+  const getCurrentTaskOptions = () => {
+    const currentArea = getCurrentArea();
+    return currentArea?.taskOptions || {};
+  };
   
   const getTotalProjectCost = () => {
     return projectAreas.reduce((total, area) => {
