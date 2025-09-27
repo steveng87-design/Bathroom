@@ -1405,7 +1405,7 @@ PROJECT DETAILS:
 QUOTE SUMMARY:
 💰 Total Estimated Cost: $${finalTotalCost.toLocaleString()}
 🤖 Generated using AI-powered precision analysis
-📊 Based on ${getCurrentArea()?.measurements ? `${(parseFloat(getCurrentArea().measurements.length) / 1000 * parseFloat(getCurrentArea().measurements.width) / 1000).toFixed(1)}m²` : 'your'} bathroom specifications
+📊 Based on ${currentArea?.measurements ? `${(parseFloat(currentArea.measurements.length) / 1000 * parseFloat(currentArea.measurements.width) / 1000).toFixed(1)}m²` : 'your'} bathroom specifications
 
 `;
 
