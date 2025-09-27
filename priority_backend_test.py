@@ -587,6 +587,7 @@ class PriorityBathroomAPITester:
         # Test multiple cost adjustments for learning
         adjustments = [
             {
+                "quote_id": self.quote_id,  # Add quote_id as required field
                 "user_id": "priority_test_user",
                 "component": "Demolition",
                 "original_cost": 2000.00,
@@ -597,6 +598,7 @@ class PriorityBathroomAPITester:
                 "notes": "Added extra demolition work for structural changes"
             },
             {
+                "quote_id": self.quote_id,  # Add quote_id as required field
                 "user_id": "priority_test_user",
                 "component": "Tiling",
                 "original_cost": 7500.00,
@@ -607,6 +609,7 @@ class PriorityBathroomAPITester:
                 "notes": "Upgraded to premium tiles with complex pattern"
             },
             {
+                "quote_id": self.quote_id,  # Add quote_id as required field
                 "user_id": "priority_test_user",
                 "component": "Plumbing Rough In",
                 "original_cost": 4500.00,
