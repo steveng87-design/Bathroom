@@ -1,66 +1,82 @@
 <analysis>
-The previous AI engineer successfully brought the Bathroom Quote Saver.AI application from its initial state, implementing significant features and resolving numerous critical bugs. Key achievements include a revamped Saved Projects feature with bulk actions, integration of native email client for quotes with dynamic PDF attachments, and a self-learning AI system for cost adjustments. The engineer also deployed the application as a Progressive Web App (PWA).
+The trajectory details an iterative development process for the Bathroom Quote Saver.AI application. The work began with addressing two initial tasks: fixing a decimal formatting issue in cost adjustment inputs and adding a cost breakdown option to the PDF generation flow. This involved frontend changes in  to create a new PDF dialog and backend modifications in  and  to handle the new  parameter.
 
-A major focus of the recent work involved implementing a comprehensive sidebar navigation, which required extensive refactoring to integrate existing form content and ensure proper state management across different views. Several critical issues were debugged and resolved, such as a persistent silent quote generation failure (HTTP 422), input fields not allowing data entry, saved projects regenerating new quotes instead of loading existing ones, and price inconsistencies between the app and PDFs. The engineer also restored missing subtask dropdowns and implemented a flexible email dialog with breakdown options. The current task is to fix a decimal point formatting issue and add a breakdown option for PDF generation.
+Subsequently, a series of critical bugs were reported by the user and addressed. The most significant was a severe miscalculation in the cost adjustment logic, where reducing a line item cost incorrectly increased the total quote. This was debugged through several iterations, ultimately revealing that the calculation baseline was wrong. The fix involved rewriting  to use the saved project total as a baseline and only apply the *delta* of user adjustments.
+
+Other fixes included correcting real-time updates for room area calculations by fixing state management in , making wall area calculations more realistic by deducting door space, and implementing a consistent currency formatting standard across the UI.
+
+The engineer also started work on complex multi-area quoting issues and implemented a new skirt tiles feature, priced by linear meter, which involved UI and backend-prompting changes. The trajectory ends mid-test of this new feature. A major future feature involving PDF price list parsing and web scraping was also discussed and planned.
 </analysis>
 
 <product_requirements>
-The Bathroom Quote Saver.AI app provides AI-driven quotes for bathroom renovations, supporting client details, room dimensions (mm to m²), and 71 granular sub-tasks across 10 categories with interactive quantity and material grade inputs. It handles multi-area projects, PDF generation, and email quotes with a million-dollar UI/UX.
+The Bathroom Quote Saver.AI application is an AI-powered tool for generating detailed bathroom renovation quotes. It aims to provide contractors with a streamlined process for creating accurate, professional-looking quotes with a high-end UI/UX.
 
-**Current implementations:**
--   **Revamped Saved Projects**: Supports checkbox-based selection, bulk deletion, and comprehensive loading of all input parameters.
--   **Native Email Client Integration**: Users can send quotes via their device's email client, generating both Quote Summary and Scope of Works PDFs, with options for including detailed breakdowns.
--   **AI Self-Learning Cost Adjustment**: A personalized system where the AI learns from user-adjusted line item costs for more accurate future quotes.
--   **PWA Deployment**: Configured for an installable, native-like mobile experience with custom icons.
--   **Sidebar Navigation**: Added Home, New Quote, Saved Projects, and Profile sections for better UI/UX.
--   **Flexible PDF/Email Options**: Users can choose to include or exclude detailed cost breakdowns in emails and soon in PDFs.
+**Core Functionality:**
+*   **AI-Driven Quoting:** Generates costs for over 70 granular sub-tasks across 10 categories.
+*   **Project & Client Management:** Saves client details and entire project configurations.
+*   **Dynamic Measurements:** Calculates floor area, wall area (net of doors), and perimeter from user-provided room dimensions (mm), with real-time updates.
+*   **Cost Adjustments:** Allows users to manually override AI-estimated costs for each line item. The AI has a self-learning system to adapt to these changes.
+*   **Multi-Area Projects:** Supports quoting for multiple separate areas (e.g., Main Bathroom, WC) within a single project.
+*   **Output Generation:** Creates and emails professional PDF quotes (Scope of Works, Quote Summary), with an option to include or exclude a detailed cost breakdown.
+*   **PWA:** Deployed as a Progressive Web App for a native-like mobile experience.
+
+A major pending feature is an intelligent pricing system that uses uploaded supplier PDFs and web scraping to base quotes on real-time material costs.
 </product_requirements>
 
 <key_technical_concepts>
--   **Full-stack Architecture**: React (frontend), FastAPI (backend), MongoDB (database).
--   **UI/UX**: Shadcn UI components, Tailwind CSS.
--   **AI/LLM Integration**: OpenAI GPT-4o via  for AI quoting and personalized learning.
--   **State Management (React)**: , .
--   **PDF Generation**: ,  (Python).
--   **Email**: Native client integration (, Web Share API).
--   **PWA**: , .
+- **Full-stack Architecture**: React frontend, FastAPI (Python) backend, and MongoDB database.
+- **UI/UX**: Utilizes Shadcn UI components and Tailwind CSS for styling.
+- **AI/LLM Integration**: Leverages OpenAI GPT-4o via the  library for quote generation and cost-learning.
+- **State Management**: Primarily uses React's  and  hooks for managing application state.
+- **PDF Generation**: Employs the  library on the backend to create PDF documents.
+- **Asynchronous Operations**: Uses  for frontend-backend communication.
 </key_technical_concepts>
 
 <code_architecture>
+The application follows a standard client-server architecture with a React frontend and a Python FastAPI backend.
 
--   **/app/backend/server.py**: Main FastAPI application.
-    -   **Summary**: Handles API for quotes, project management, email, PDF generation, and AI learning.
-    -   **Changes**: Added AI learning endpoints, modified PDF generation to accept  and , updated validation for , and critically, was modified to use  independently for PDF generation, resolving price inconsistencies.
--   **/app/backend/pdf_generator.py**: Encapsulates  logic.
-    -   **Summary**: Creates Scope of Works and Quote Summary PDFs.
-    -   **Changes**: Added  method.
--   **/app/backend/email_service.py**: Handles email sending.
-    -   **Summary**: Abstracts email sending logic. Direct SendGrid usage was removed in favor of native mail clients.
-    -   **Changes**: Created to abstract email sending logic.
--   **/app/frontend/src/App.js**: Main React component.
-    -   **Summary**: Manages state, UI, form submissions, and API interactions.
-    -   **Changes**: Extensive modifications include: fixing parsing errors, overhauling Saved Projects (selection, bulk actions), integrating PWA features, implementing AI learning. Recent major changes:
-        -   **UI/UX**: Implemented a new sidebar navigation (, ), added an  state,  options for email/PDF.
-        -   **Form Logic**: Restored subtask dropdowns (e.g., skip bin, door sizes), fixed  for room measurements.
-        -   **Project Management**:  function to reset the form,  for saving quotes, enhanced  to restore full component/subtask selections and  state, and crucially, to display the *saved* quote amount rather than regenerating.
-        -   **Bug Fixes**: Corrected  to validate components from , ensured quote results display after generation (not returning to Home), fixed price comparison logic in  and  to handle saved and adjusted costs accurately.
--   **/app/frontend/public/manifest.json**: PWA manifest file.
-    -   **Summary**: Defines app name, icons, start URL, display mode.
-    -   **Changes**: Updated with custom app name, description, and icons.
--   **/app/frontend/public/sw.js**: Service Worker.
-    -   **Summary**: Handles caching and offline capabilities for PWA.
-    -   **Changes**: Created for basic PWA functionality.
+
+
+-   ****
+    -   **Summary**: This is the core monolithic component of the frontend. It manages the entire application state, including form data, quote results, saved projects, UI state (dialogs, views), and all user interactions. It contains the logic for rendering all views, handling input changes, and making API calls to the backend.
+    -   **Changes**: This file has undergone extensive modifications. Key changes include:
+        -   Rewriting  to use a baseline-plus-delta calculation model to fix a critical bug.
+        -   Modifying  to ensure real-time updates of calculated areas (, , ) by correctly updating the  state.
+        -   Implementing a  helper function and applying it globally to standardize cost display.
+        -   Adding  state and a new  for PDF generation options.
+        -   Implementing the  function and adding a skirt tiles subtask and display.
+        -   Initial refactoring of  to send separate API requests for multi-area projects.
+
+-   ****
+    -   **Summary**: The main FastAPI application file. It defines all API endpoints for quote generation, project management, AI learning, and PDF creation. It orchestrates a majority of the backend logic.
+    -   **Changes**:
+        -   The  Pydantic model was updated to include an optional  boolean field.
+        -   The  endpoint was modified to accept  and pass it to the .
+        -   The data payload sent to the AI for quote generation was updated to include the room  for calculating skirt tile costs.
+
+-   ****
+    -   **Summary**: This module contains the logic for creating PDF documents using the  library. It's responsible for drawing the layout, text, and tables for the Scope of Works and Quote Summary.
+    -   **Changes**:
+        -   The  and  methods were updated to accept an  parameter. The cost breakdown table is now rendered conditionally based on this flag, allowing for flexible PDF output.
 </code_architecture>
 
 <pending_tasks>
--   **Cost Adjustment Input Formatting**: Correct the decimal point and formatting in the cost adjustment fields, as they currently show 01800 instead of proper numbers like ,800.
--   **Generate PDF Breakdown Checkbox**: Add a checkbox option to the Generate PDF functionality to allow users to choose whether to include detailed cost breakdowns, similar to the email dialog.
+- **Advanced Supplier Pricing System**: Implement the planned feature to parse uploaded supplier PDF price lists and scrape data from a supplier website (Bunnings) to create a dynamic, accurate pricing engine.
+- **Multi-Area Quote Functionality**: Fully debug and test the multi-area features. This includes ensuring separate prices are generated and displayed correctly for each area and that the Email Cost Breakdown checkbox functions as expected for multi-area quotes.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was tackling two new issues. The first is a formatting problem within the cost adjustment input fields, where values appear incorrectly (e.g., 01800). This could potentially lead to calculation errors or a poor user experience. The second task involves adding a detailed cost breakdown checkbox to the Generate PDF functionality, mirroring a similar option already implemented for the Email Quote dialog. This ensures consistent control over information presented to clients, allowing users to choose between a total-only or a detailed breakdown in PDFs. The AI engineer has just acknowledged these issues and is starting to investigate and fix the decimal point formatting.
+The most recent task was implementing the skirt tiles feature as requested by the user. This feature allows for quoting tiles priced by linear meter around the perimeter of a room, which is a common scenario for toilet areas.
+
+The implementation involved several steps:
+1.  **UI Data Model Update**: The  subtask was added to the Tiling component's data structure in .
+2.  **New Calculation Logic**: A  function was created in  to compute the room's perimeter from its length and width.
+3.  **UI Display**: The calculated perimeter (in linear meters) is now displayed in the Calculated Areas section of the UI, along with a note about the pricing (), providing immediate feedback to the user. This calculation updates in real-time as dimensions are changed.
+4.  **Backend Integration**: The calculated perimeter is now included in the data payload sent to the backend AI for quote generation, enabling the AI to factor in this new pricing metric.
+
+The work concluded after successfully testing the live perimeter calculation with standard room dimensions (3500mm x 2500mm). The final step in progress was to test the calculation with the user's specific example for a toilet (1600mm x 900mm) to ensure it works as expected for that streamlined use case.
 </current_work>
 
 <optional_next_step>
-Fix the decimal point formatting issue in the cost adjustment input fields.
+Continue testing the skirt tiles feature by inputting the toilet dimensions (1600mm x 900mm) to confirm the perimeter calculation is 5.0m, as expected from the user's previous example of 4100mm (which is a typo, it should be 5000mm).
 </optional_next_step>
