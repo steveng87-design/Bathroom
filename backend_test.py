@@ -3681,7 +3681,7 @@ class SkirtTilesTester(BathroomRenovationAPITester):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "skirt_tiles":
-        tester = BathroomRenovationAPITester()
+        tester = SkirtTilesTester()
         tester.run_skirt_tiles_tests()
     else:
         sys.exit(main())
