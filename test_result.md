@@ -222,6 +222,18 @@ backend:
         agent: "testing"
         comment: "VERIFICATION TESTING COMPLETED: Comprehensive testing confirms all requested component label changes and tiling updates work perfectly with backend API. ✅ Component Compatibility: Backend accepts both old field names (plumbing_rough_in, electrical_rough_in) and new field names (plumbing, electrical) without breaking changes. ✅ Tiling Task Descriptions: Updated descriptions ('Supply Materials and Install Wall Tiles') processed correctly. ✅ Wall Tile Size Option: New wall_tile_size option fully supported. ✅ Multi-Area System: Successfully tested multi-area functionality with combined project costs. Backend maintains full backward compatibility while supporting new frontend changes. Success rate: 94.4% (17/18 tests passed)."
 
+  - task: "Skirt Tiles Feature (Linear Meter Pricing)"
+    implemented: true
+    working: "NA"
+    file: "App.js, server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE IMPLEMENTATION: Added skirt tiles feature for tiles priced by linear meter (common for toilet areas). Implementation includes: 1) supply_install_skirt_tiles subtask added to tiling component structure, 2) calculatePerimeter() function to compute room perimeter from length×width, 3) UI display showing calculated perimeter with pricing note ($35/linear meter), 4) Backend integration - perimeter sent in additional_notes to AI for quote generation. Calculation updates in real-time as room dimensions change. Ready for testing with toilet dimensions (1600mm × 900mm expecting 5.0m perimeter)."
+
 frontend:
   - task: "Single-Form Interface"
     implemented: true
