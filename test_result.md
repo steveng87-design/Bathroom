@@ -224,15 +224,18 @@ backend:
 
   - task: "Skirt Tiles Feature (Linear Meter Pricing)"
     implemented: true
-    working: "NA"
+    working: true
     file: "App.js, server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "NEW FEATURE IMPLEMENTATION: Added skirt tiles feature for tiles priced by linear meter (common for toilet areas). Implementation includes: 1) supply_install_skirt_tiles subtask added to tiling component structure, 2) calculatePerimeter() function to compute room perimeter from length×width, 3) UI display showing calculated perimeter with pricing note ($35/linear meter), 4) Backend integration - perimeter sent in additional_notes to AI for quote generation. Calculation updates in real-time as room dimensions change. Ready for testing with toilet dimensions (1600mm × 900mm expecting 5.0m perimeter)."
+      - working: true
+        agent: "testing"
+        comment: "🎉 COMPREHENSIVE SKIRT TILES FEATURE TESTING COMPLETED: Successfully tested all aspects of the skirt tiles feature as requested in review. ✅ TOILET AREA TEST (1600mm × 900mm × 2400mm): Generated quote with 5.0m perimeter, AI correctly processed perimeter data in additional_notes, tiling cost $580 (reasonable for skirt tiles @ $35/m = $175 base). ✅ STANDARD BATHROOM TEST (3500mm × 2500mm): Generated quote with 12.0m perimeter, tiling cost $11,000 includes floor, wall, and skirt tiles. ✅ AI LEARNING INTEGRATION: Both /api/quotes/request and /api/quotes/generate-with-learning endpoints accept supply_install_skirt_tiles subtask correctly. ✅ BACKEND COMPONENT STRUCTURE: Backend properly accepts supply_install_skirt_tiles in detailed_components.tiling.subtasks. ✅ PERIMETER DATA INTEGRATION: Additional_notes with perimeter calculations (5.0m, 12.0m) properly sent to AI for quote generation. ✅ PDF GENERATION: PDFs generate successfully with skirt tiles quotes. ✅ END-TO-END FUNCTIONALITY: Complete workflow from component selection → quote generation → AI processing → PDF creation works perfectly. SUCCESS RATE: 100% (3/3 comprehensive tests passed). The skirt tiles feature is fully operational and ready for production use."
 
 frontend:
   - task: "Single-Form Interface"
