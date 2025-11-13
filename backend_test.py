@@ -3677,4 +3677,8 @@ def main():
         return skirt_tests_passed, skirt_tests_run
 
 if __name__ == "__main__":
-    sys.exit(main())
+    if len(sys.argv) > 1 and sys.argv[1] == "skirt_tiles":
+        tester = BathroomRenovationAPITester()
+        tester.run_skirt_tiles_tests()
+    else:
+        sys.exit(main())
