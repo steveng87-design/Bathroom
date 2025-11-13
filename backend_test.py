@@ -3301,6 +3301,9 @@ def main():
         print("⚠️  Some tests failed!")
         return 1
 
+class SkirtTilesTester(BathroomRenovationAPITester):
+    """Extended tester class for skirt tiles feature testing"""
+    
     def test_skirt_tiles_toilet_area_quote(self):
         """Test quote generation for toilet area with skirt tiles feature (1600mm × 900mm × 2400mm)"""
         print("\n🔍 TESTING SKIRT TILES FEATURE - TOILET AREA")
