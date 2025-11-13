@@ -372,7 +372,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Cost Adjustment Learning API"
+    - "Skirt Tiles Feature (Linear Meter Pricing)"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
