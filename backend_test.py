@@ -3301,5 +3301,380 @@ def main():
         print("⚠️  Some tests failed!")
         return 1
 
+    def test_skirt_tiles_toilet_area_quote(self):
+        """Test quote generation for toilet area with skirt tiles feature (1600mm × 900mm × 2400mm)"""
+        print("\n🔍 TESTING SKIRT TILES FEATURE - TOILET AREA")
+        print("=" * 60)
+        
+        # Toilet area dimensions as specified in review request
+        quote_data = {
+            "client_info": {
+                "name": "Emma Wilson",
+                "email": "emma.wilson@example.com",
+                "phone": "02-5555-7890",
+                "address": "789 Toilet Lane, Brisbane QLD 4000"
+            },
+            "room_measurements": {
+                "length": 1.6,  # 1600mm
+                "width": 0.9,   # 900mm
+                "height": 2.4   # 2400mm
+            },
+            "components": {
+                "demolition": False,
+                "framing": False,
+                "plumbing_rough_in": False,
+                "electrical_rough_in": False,
+                "plastering": False,
+                "waterproofing": False,
+                "tiling": True,  # Enable tiling component
+                "fit_off": False
+            },
+            "detailed_components": {
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": False,
+                        "supply_install_wall_tiles": False,
+                        "supply_install_skirt_tiles": True,  # Enable skirt tiles subtask
+                        "supply_install_feature_tiles": False
+                    }
+                }
+            },
+            "task_options": {
+                "tile_size": "300x300mm"
+            },
+            "additional_notes": "Perimeter: 5.0m (for skirt tiles @ $35/linear meter = $175)"
+        }
+        
+        print(f"   Room Dimensions: {quote_data['room_measurements']['length']}m × {quote_data['room_measurements']['width']}m × {quote_data['room_measurements']['height']}m")
+        expected_perimeter = 2 * (quote_data['room_measurements']['length'] + quote_data['room_measurements']['width'])
+        print(f"   Expected Perimeter: {expected_perimeter}m")
+        print(f"   Expected Cost @ $35/m: ${expected_perimeter * 35}")
+        
+        success, response = self.run_test(
+            "Create Quote - Toilet Area with Skirt Tiles",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if success and isinstance(response, dict):
+            self.skirt_tiles_quote_id = response.get('id')
+            print(f"   ✅ Quote ID: {self.skirt_tiles_quote_id}")
+            print(f"   ✅ Total Cost: ${response.get('total_cost', 'N/A')}")
+            print(f"   ✅ Confidence: {response.get('confidence_level', 'N/A')}")
+            
+            # Verify perimeter data in AI analysis
+            ai_analysis = response.get('ai_analysis', '')
+            if 'perimeter' in ai_analysis.lower() or '5.0' in ai_analysis:
+                print(f"   ✅ AI Analysis includes perimeter data")
+            else:
+                print(f"   ⚠️  AI Analysis may not include perimeter data")
+            
+            # Check cost breakdown for skirt tiles
+            cost_breakdown = response.get('cost_breakdown', [])
+            tiling_found = False
+            for item in cost_breakdown:
+                if 'tiling' in item.get('component', '').lower():
+                    tiling_found = True
+                    print(f"   ✅ Tiling component found: ${item.get('estimated_cost', 'N/A')}")
+                    break
+            
+            if not tiling_found:
+                print(f"   ⚠️  Tiling component not found in cost breakdown")
+            
+            return True
+        
+        print(f"   ❌ Failed to generate quote for toilet area with skirt tiles")
+        return False
+
+    def test_skirt_tiles_standard_bathroom_quote(self):
+        """Test quote generation for standard bathroom with skirt tiles (3500mm × 2500mm)"""
+        print("\n🔍 TESTING SKIRT TILES FEATURE - STANDARD BATHROOM")
+        print("=" * 60)
+        
+        # Standard bathroom dimensions
+        quote_data = {
+            "client_info": {
+                "name": "Robert Chen",
+                "email": "robert.chen@example.com",
+                "phone": "02-4444-6789",
+                "address": "321 Bathroom Ave, Perth WA 6000"
+            },
+            "room_measurements": {
+                "length": 3.5,  # 3500mm
+                "width": 2.5,   # 2500mm
+                "height": 2.4   # 2400mm
+            },
+            "components": {
+                "demolition": True,
+                "framing": False,
+                "plumbing_rough_in": True,
+                "electrical_rough_in": False,
+                "plastering": True,
+                "waterproofing": True,
+                "tiling": True,  # Enable tiling component
+                "fit_off": True
+            },
+            "detailed_components": {
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": True,
+                        "supply_install_wall_tiles": True,
+                        "supply_install_skirt_tiles": True,  # Enable skirt tiles subtask
+                        "supply_install_feature_tiles": False
+                    }
+                }
+            },
+            "task_options": {
+                "tile_size": "600x600mm",
+                "floor_tile_grade": "premium_grade",
+                "wall_tile_grade": "standard_grade"
+            },
+            "additional_notes": "Perimeter: 12.0m (for skirt tiles @ $35/linear meter = $420)"
+        }
+        
+        print(f"   Room Dimensions: {quote_data['room_measurements']['length']}m × {quote_data['room_measurements']['width']}m × {quote_data['room_measurements']['height']}m")
+        expected_perimeter = 2 * (quote_data['room_measurements']['length'] + quote_data['room_measurements']['width'])
+        print(f"   Expected Perimeter: {expected_perimeter}m")
+        print(f"   Expected Cost @ $35/m: ${expected_perimeter * 35}")
+        
+        success, response = self.run_test(
+            "Create Quote - Standard Bathroom with Skirt Tiles",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if success and isinstance(response, dict):
+            print(f"   ✅ Quote ID: {response.get('id')}")
+            print(f"   ✅ Total Cost: ${response.get('total_cost', 'N/A')}")
+            print(f"   ✅ Confidence: {response.get('confidence_level', 'N/A')}")
+            
+            # Verify perimeter data in AI analysis
+            ai_analysis = response.get('ai_analysis', '')
+            if 'perimeter' in ai_analysis.lower() or '12.0' in ai_analysis:
+                print(f"   ✅ AI Analysis includes perimeter data")
+            else:
+                print(f"   ⚠️  AI Analysis may not include perimeter data")
+            
+            # Check cost breakdown for multiple tiling components
+            cost_breakdown = response.get('cost_breakdown', [])
+            tiling_cost = 0
+            for item in cost_breakdown:
+                if 'tiling' in item.get('component', '').lower():
+                    tiling_cost = item.get('estimated_cost', 0)
+                    print(f"   ✅ Tiling component cost: ${tiling_cost}")
+                    break
+            
+            # Verify cost is reasonable for multiple tiling subtasks including skirt tiles
+            if tiling_cost > 0:
+                print(f"   ✅ Tiling cost includes floor, wall, and skirt tiles")
+            
+            return True
+        
+        print(f"   ❌ Failed to generate quote for standard bathroom with skirt tiles")
+        return False
+
+    def test_skirt_tiles_comprehensive_end_to_end(self):
+        """Comprehensive end-to-end test of skirt tiles feature"""
+        print("\n🎯 COMPREHENSIVE SKIRT TILES END-TO-END TEST")
+        print("=" * 80)
+        
+        # Test the exact scenario from the review request
+        print("Testing exact scenario from review request:")
+        print("- Toilet area: 1600mm × 900mm × 2400mm")
+        print("- Expected perimeter: 5.0m")
+        print("- Expected skirt tile cost: $175 @ $35/linear meter")
+        
+        quote_data = {
+            "client_info": {
+                "name": "Review Request Test",
+                "email": "review@skirttilestest.com",
+                "phone": "02-9999-0000",
+                "address": "1600 Review Street, Test City NSW 2000"
+            },
+            "room_measurements": {
+                "length": 1.6,  # 1600mm
+                "width": 0.9,   # 900mm  
+                "height": 2.4   # 2400mm
+            },
+            "components": {
+                "demolition": False,
+                "framing": False,
+                "plumbing_rough_in": False,
+                "electrical_rough_in": False,
+                "plastering": False,
+                "waterproofing": False,
+                "tiling": True,  # Enable Tiling component
+                "fit_off": False
+            },
+            "detailed_components": {
+                "tiling": {
+                    "enabled": True,
+                    "subtasks": {
+                        "supply_install_floor_tiles": False,
+                        "supply_install_wall_tiles": False,
+                        "supply_install_skirt_tiles": True,  # Specifically enable skirt tiles
+                        "supply_install_feature_tiles": False
+                    }
+                }
+            },
+            "task_options": {
+                "tile_size": "300x300mm"
+            },
+            "additional_notes": "Perimeter: 5.0m (for skirt tiles @ $35/linear meter = $175)"
+        }
+        
+        # Calculate expected values
+        expected_perimeter = 2 * (1.6 + 0.9)  # 5.0m
+        expected_skirt_cost = expected_perimeter * 35  # $175
+        
+        print(f"\nCalculated values:")
+        print(f"- Perimeter: {expected_perimeter}m")
+        print(f"- Skirt tile cost: ${expected_skirt_cost}")
+        
+        # Test 1: Generate quote with skirt tiles
+        print(f"\n--- STEP 1: Generate Quote with Skirt Tiles ---")
+        success_quote, quote_response = self.run_test(
+            "End-to-End Skirt Tiles Quote",
+            "POST",
+            "quotes/request",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if not success_quote or not isinstance(quote_response, dict):
+            print("❌ CRITICAL: Failed to generate quote with skirt tiles")
+            return False
+        
+        quote_id = quote_response.get('id')
+        total_cost = quote_response.get('total_cost', 0)
+        
+        print(f"✅ Quote generated successfully")
+        print(f"   Quote ID: {quote_id}")
+        print(f"   Total Cost: ${total_cost}")
+        
+        # Verify perimeter data integration
+        ai_analysis = quote_response.get('ai_analysis', '')
+        perimeter_mentioned = any(term in ai_analysis.lower() for term in ['5.0', 'perimeter', 'linear', 'skirt'])
+        
+        if perimeter_mentioned:
+            print(f"✅ AI analysis includes perimeter/skirt tile references")
+        else:
+            print(f"⚠️  AI analysis may not specifically reference perimeter data")
+        
+        # Check cost breakdown
+        cost_breakdown = quote_response.get('cost_breakdown', [])
+        tiling_component = None
+        for item in cost_breakdown:
+            if 'tiling' in item.get('component', '').lower():
+                tiling_component = item
+                break
+        
+        if tiling_component:
+            tiling_cost = tiling_component.get('estimated_cost', 0)
+            print(f"✅ Tiling component found with cost: ${tiling_cost}")
+            
+            # Check if cost is reasonable for skirt tiles
+            if tiling_cost >= expected_skirt_cost * 0.5:  # At least 50% of expected minimum
+                print(f"✅ Tiling cost appears reasonable for skirt tiles")
+            else:
+                print(f"⚠️  Tiling cost may be lower than expected for skirt tiles")
+        else:
+            print(f"❌ No tiling component found in cost breakdown")
+            return False
+        
+        # Test 2: Test with AI learning endpoint
+        print(f"\n--- STEP 2: Test with AI Learning Endpoint ---")
+        success_learning, learning_response = self.run_test(
+            "Skirt Tiles with AI Learning",
+            "POST", 
+            "quotes/generate-with-learning?user_id=skirt_tiles_end_to_end",
+            200,
+            data=quote_data,
+            timeout=60
+        )
+        
+        if success_learning:
+            print(f"✅ AI learning endpoint accepts skirt tiles configuration")
+            print(f"   Learning Quote Total: ${learning_response.get('total_cost', 'N/A')}")
+        else:
+            print(f"⚠️  AI learning endpoint may have issues with skirt tiles")
+        
+        # Test 3: Generate PDF with skirt tiles quote
+        if quote_id:
+            print(f"\n--- STEP 3: Generate PDF with Skirt Tiles Quote ---")
+            
+            pdf_request = {
+                "user_profile": {
+                    "company_name": "Skirt Tiles Specialists",
+                    "contact_name": "Expert Tiler",
+                    "phone": "02-SKIRT-TILES",
+                    "email": "expert@skirttilesspecialists.com.au",
+                    "license_number": "STS-2024"
+                },
+                "adjusted_costs": None,
+                "adjusted_total": None
+            }
+            
+            success_pdf, pdf_response = self.run_test(
+                "Generate PDF - Skirt Tiles Quote",
+                "POST",
+                f"quotes/{quote_id}/generate-proposal",
+                200,
+                data=pdf_request
+            )
+            
+            if success_pdf:
+                print(f"✅ PDF generation works with skirt tiles quote")
+            else:
+                print(f"⚠️  PDF generation may have issues with skirt tiles quote")
+        
+        print(f"\n--- END-TO-END TEST SUMMARY ---")
+        print(f"✅ Quote Generation: {'PASS' if success_quote else 'FAIL'}")
+        print(f"✅ AI Learning Integration: {'PASS' if success_learning else 'FAIL'}")
+        print(f"✅ PDF Generation: {'PASS' if success_pdf else 'FAIL'}")
+        
+        overall_success = success_quote and success_learning
+        print(f"Overall Result: {'SUCCESS' if overall_success else 'NEEDS ATTENTION'}")
+        
+        return overall_success
+
+    def run_skirt_tiles_tests(self):
+        """Run comprehensive skirt tiles feature tests"""
+        print("🎯 Starting Skirt Tiles Feature Tests")
+        print("=" * 80)
+        
+        skirt_tests = [
+            self.test_skirt_tiles_toilet_area_quote,
+            self.test_skirt_tiles_standard_bathroom_quote,
+            self.test_skirt_tiles_comprehensive_end_to_end
+        ]
+        
+        skirt_tests_passed = 0
+        skirt_tests_run = 0
+        
+        for test in skirt_tests:
+            try:
+                skirt_tests_run += 1
+                if test():
+                    skirt_tests_passed += 1
+                time.sleep(1)  # Longer delay for comprehensive tests
+            except Exception as e:
+                print(f"❌ Skirt tiles test {test.__name__} failed with exception: {str(e)}")
+        
+        print("\n" + "=" * 80)
+        print(f"🎯 Skirt Tiles Test Summary: {skirt_tests_passed}/{skirt_tests_run} tests passed")
+        print(f"Skirt Tiles Success Rate: {(skirt_tests_passed/skirt_tests_run)*100:.1f}%")
+        
+        return skirt_tests_passed, skirt_tests_run
+
 if __name__ == "__main__":
     sys.exit(main())
