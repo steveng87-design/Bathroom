@@ -1468,10 +1468,10 @@ app.add_middleware(
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
-app.include_router(api_router)
-
-
 )
+
+# Include the router in the main app
+app.include_router(api_router)
 
 # Configure logging
 logging.basicConfig(
