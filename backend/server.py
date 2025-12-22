@@ -1155,6 +1155,7 @@ class ContractGenerationRequest(BaseModel):
     completion_days: int = 30
     custom_notes: Optional[str] = None
     contractor_info: Optional[dict] = None  # User profile contractor information
+    total_price_override: Optional[float] = None  # Override quote price with user input
 
 class ContractSigningRequest(BaseModel):
     contract_id: str
