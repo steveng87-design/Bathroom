@@ -134,7 +134,7 @@ class ContractGenerator:
         Phone: {contract_data.get('contractor_phone', 'N/A')}
         """
         story.append(Paragraph(contractor_details, self.styles['ContractBody']))
-        story.append(Spacer(1, 5*mm))
+        story.append(Spacer(1, 3*mm))
         
         # Item 2: The Client
         story.append(Paragraph("2. THE CLIENT", self.styles['ClauseHeading']))
@@ -144,12 +144,12 @@ class ContractGenerator:
         Phone: {contract_data.get('client_phone', 'N/A')}
         """
         story.append(Paragraph(client_details, self.styles['ContractBody']))
-        story.append(Spacer(1, 5*mm))
+        story.append(Spacer(1, 3*mm))
         
         # Item 3: The Site
         story.append(Paragraph("3. THE SITE", self.styles['ClauseHeading']))
         story.append(Paragraph(f"Address: {contract_data.get('client_address', 'N/A')}", self.styles['ContractBody']))
-        story.append(Spacer(1, 5*mm))
+        story.append(Spacer(1, 3*mm))
         
         # Item 4: Description of Works
         story.append(Paragraph("4. DESCRIPTION OF WORKS", self.styles['ClauseHeading']))
