@@ -195,7 +195,7 @@ class ContractGenerator:
                 ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f7fafc')])
             ]))
             story.append(payment_table)
-            story.append(Spacer(1, 5*mm))
+            story.append(Spacer(1, 3*mm))
         
         # Item 6: Project Timeline
         story.append(Paragraph("6. PROJECT TIMELINE", self.styles['ClauseHeading']))
@@ -212,7 +212,7 @@ class ContractGenerator:
         Expected Completion: {completion_date.strftime('%d %B %Y')}
         """
         story.append(Paragraph(timeline_text, self.styles['ContractBody']))
-        story.append(Spacer(1, 8*mm))
+        story.append(Spacer(1, 5*mm))
         
         # Start new page for terms and conditions
         story.append(PageBreak())
