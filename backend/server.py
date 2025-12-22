@@ -1202,7 +1202,8 @@ async def generate_contract(request: ContractGenerationRequest):
         
         # Prepare contract data
         contract_id = str(uuid.uuid4())
-        total_price = quote.get('total_cost', 0)
+        # Use override price from user input if provided, otherwise use quote total
+        total_price = request.total_price_override if request.total_price_override else quote.get('total_cost', 0)
         payment_schedule = calculate_payment_schedule(total_price)
         
         # Build scope of works from quote breakdown
