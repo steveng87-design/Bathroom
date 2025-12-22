@@ -1154,6 +1154,7 @@ class ContractGenerationRequest(BaseModel):
     start_date: str  # ISO format date
     completion_days: int = 30
     custom_notes: Optional[str] = None
+    contractor_info: Optional[dict] = None  # User profile contractor information
 
 class ContractSigningRequest(BaseModel):
     contract_id: str
