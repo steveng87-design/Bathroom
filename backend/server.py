@@ -1148,6 +1148,323 @@ async def send_quote_email(quote_id: str, email_request: SendQuoteEmailRequest):
 # Include the router in the main app
 app.include_router(api_router)
 
+
+# ============= CONTRACT MANAGEMENT ENDPOINTS =============
+
+class ContractGenerationRequest(BaseModel):
+    quote_id: str
+    contractor_signature: Optional[str] = None  # Base64 encoded signature image
+    start_date: str  # ISO format date
+    completion_days: int = 30
+    custom_notes: Optional[str] = None
+
+class ContractSigningRequest(BaseModel):
+    contract_id: str
+    signer_name: str
+    signature_data: str  # Base64 encoded signature
+    signer_type: str  # "client" or "contractor"
+    ip_address: Optional[str] = None
+
+@api_router.post("/contracts/generate")
+async def generate_contract(request: ContractGenerationRequest):
+    """Generate a contract from an accepted quote"""
+    from contract_generator import ContractGenerator, calculate_payment_schedule
+    
+    try:
+        # Fetch the quote
+        quote = await db.quotes.find_one({"id": request.quote_id})
+        if not quote:
+            raise HTTPException(status_code=404, detail="Quote not found")
+        
+        # Fetch contractor profile (user profile)
+        # For now, use default contractor info - will be enhanced with actual profile data
+        contractor_info = {
+            'contractor_name': os.environ.get('BUSINESS_NAME', 'Bathroom Renovations Pty Ltd'),
+            'contractor_abn': os.environ.get('ABN', 'XX XXX XXX XXX'),
+            'contractor_license': os.environ.get('LICENSE_NUMBER', 'XXXXX'),
+            'contractor_address': os.environ.get('BUSINESS_ADDRESS', 'Sydney, NSW'),
+            'contractor_email': os.environ.get('BUSINESS_EMAIL', 'contact@example.com'),
+            'contractor_phone': os.environ.get('BUSINESS_PHONE', '02 XXXX XXXX'),
+            'contractor_signature': request.contractor_signature
+        }
+        
+        # Prepare contract data
+        contract_id = str(uuid.uuid4())
+        total_price = quote.get('total_cost', 0)
+        payment_schedule = calculate_payment_schedule(total_price)
+        
+        # Build scope of works from quote breakdown
+        scope_of_works = []
+        for item in quote.get('cost_breakdown', []):
+            scope_of_works.append({
+                'category': item.get('component', 'Work Item'),
+                'description': item.get('notes', 'As specified'),
+                'included': True
+            })
+        
+        contract_data = {
+            'contract_id': contract_id,
+            **contractor_info,
+            'client_name': quote.get('client_info', {}).get('name', ''),
+            'client_email': quote.get('client_info', {}).get('email', ''),
+            'client_phone': quote.get('client_info', {}).get('phone', ''),
+            'client_address': quote.get('client_info', {}).get('address', ''),
+            'project_description': f"Complete bathroom renovation at {quote.get('client_info', {}).get('address', 'specified location')}",
+            'scope_of_works': scope_of_works,
+            'total_price': total_price,
+            'payment_schedule': payment_schedule,
+            'start_date': request.start_date,
+            'completion_days': request.completion_days,
+            'gst_included': True
+        }
+        
+        # Generate PDF
+        generator = ContractGenerator()
+        pdf_buffer = generator.generate_contract(contract_data)
+        
+        # Save contract to database
+        contract_record = {
+            'id': contract_id,
+            'quote_id': request.quote_id,
+            'client_info': quote.get('client_info'),
+            'contractor_info': contractor_info,
+            'total_price': total_price,
+            'payment_schedule': payment_schedule,
+            'start_date': request.start_date,
+            'completion_days': request.completion_days,
+            'scope_of_works': scope_of_works,
+            'status': 'draft',  # draft, sent, client_signed, fully_executed
+            'created_at': datetime.now(timezone.utc).isoformat(),
+            'updated_at': datetime.now(timezone.utc).isoformat(),
+            'contractor_signed_at': datetime.now(timezone.utc).isoformat() if request.contractor_signature else None,
+            'client_signed_at': None,
+            'pdf_generated': True,
+            'signing_link': f"/contract/sign/{contract_id}",
+            'signatures': {
+                'contractor': {
+                    'signed': bool(request.contractor_signature),
+                    'signature_data': request.contractor_signature,
+                    'signed_at': datetime.now(timezone.utc).isoformat() if request.contractor_signature else None
+                },
+                'client': {
+                    'signed': False,
+                    'signature_data': None,
+                    'signed_at': None
+                }
+            }
+        }
+        
+        await db.contracts.insert_one(contract_record)
+        
+        # Return PDF as response
+        return Response(
+            content=pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=contract_{contract_id}.pdf"
+            }
+        )
+    
+    except Exception as e:
+        logger.error(f"Error generating contract: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/contracts/{contract_id}")
+async def get_contract(contract_id: str):
+    """Get contract details"""
+    contract = await db.contracts.find_one({"id": contract_id})
+    if not contract:
+        raise HTTPException(status_code=404, detail="Contract not found")
+    
+    # Remove MongoDB _id
+    contract.pop('_id', None)
+    return contract
+
+@api_router.get("/contracts/by-quote/{quote_id}")
+async def get_contracts_by_quote(quote_id: str):
+    """Get all contracts for a specific quote"""
+    contracts = await db.contracts.find({"quote_id": quote_id}).to_list(length=None)
+    
+    for contract in contracts:
+        contract.pop('_id', None)
+    
+    return contracts
+
+@api_router.post("/contracts/{contract_id}/send-to-client")
+async def send_contract_to_client(contract_id: str):
+    """Send contract to client for signing"""
+    try:
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        client_email = contract.get('client_info', {}).get('email')
+        client_name = contract.get('client_info', {}).get('name')
+        
+        if not client_email:
+            raise HTTPException(status_code=400, detail="Client email not found")
+        
+        # Create signing link
+        signing_link = f"{os.environ.get('FRONTEND_URL', 'http://localhost:3000')}/contract/sign/{contract_id}"
+        
+        # Send email
+        email_body = f"""
+        <h2>Contract Ready for Your Signature</h2>
+        <p>Dear {client_name},</p>
+        <p>Your bathroom renovation contract is ready for review and signature.</p>
+        <p><strong>Contract Details:</strong></p>
+        <ul>
+            <li>Total Contract Price: ${contract.get('total_price', 0):,.2f}</li>
+            <li>Estimated Completion: {contract.get('completion_days', 0)} days</li>
+        </ul>
+        <p>Please click the link below to review and sign your contract:</p>
+        <p><a href="{signing_link}" style="background-color: #4299e1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Review & Sign Contract</a></p>
+        <p>If you have any questions, please don't hesitate to contact us.</p>
+        """
+        
+        email_service.send_email(
+            to_email=client_email,
+            subject=f"Contract Ready for Signature - {client_name}",
+            body=email_body
+        )
+        
+        # Update contract status
+        await db.contracts.update_one(
+            {"id": contract_id},
+            {
+                "$set": {
+                    "status": "sent",
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+        
+        return {"success": True, "message": "Contract sent to client", "signing_link": signing_link}
+    
+    except EmailDeliveryError as e:
+        raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+    except Exception as e:
+        logger.error(f"Error sending contract: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/contracts/{contract_id}/sign")
+async def sign_contract(contract_id: str, request: ContractSigningRequest):
+    """Record a signature on the contract"""
+    try:
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        signer_type = request.signer_type.lower()
+        if signer_type not in ['client', 'contractor']:
+            raise HTTPException(status_code=400, detail="Invalid signer type")
+        
+        # Update signature
+        update_data = {
+            f"signatures.{signer_type}.signed": True,
+            f"signatures.{signer_type}.signature_data": request.signature_data,
+            f"signatures.{signer_type}.signed_at": datetime.now(timezone.utc).isoformat(),
+            f"signatures.{signer_type}.signer_name": request.signer_name,
+            f"signatures.{signer_type}.ip_address": request.ip_address,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Update status based on signatures
+        if signer_type == 'client':
+            update_data['client_signed_at'] = datetime.now(timezone.utc).isoformat()
+            # Check if contractor already signed
+            if contract.get('signatures', {}).get('contractor', {}).get('signed'):
+                update_data['status'] = 'fully_executed'
+            else:
+                update_data['status'] = 'client_signed'
+        
+        await db.contracts.update_one(
+            {"id": contract_id},
+            {"$set": update_data}
+        )
+        
+        # If client just signed, send notification to contractor
+        if signer_type == 'client':
+            # TODO: Send in-app notification or email to contractor
+            logger.info(f"Client signed contract {contract_id}")
+        
+        return {
+            "success": True,
+            "message": f"Contract signed by {signer_type}",
+            "status": update_data.get('status', contract.get('status'))
+        }
+    
+    except Exception as e:
+        logger.error(f"Error signing contract: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/contracts/{contract_id}/download")
+async def download_contract(contract_id: str):
+    """Download the contract PDF with signatures"""
+    from contract_generator import ContractGenerator
+    
+    try:
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        # Regenerate PDF with current signature status
+        contract_data = {
+            'contract_id': contract['id'],
+            'contractor_name': contract.get('contractor_info', {}).get('contractor_name', ''),
+            'contractor_abn': contract.get('contractor_info', {}).get('contractor_abn', ''),
+            'contractor_license': contract.get('contractor_info', {}).get('contractor_license', ''),
+            'contractor_address': contract.get('contractor_info', {}).get('contractor_address', ''),
+            'contractor_email': contract.get('contractor_info', {}).get('contractor_email', ''),
+            'contractor_phone': contract.get('contractor_info', {}).get('contractor_phone', ''),
+            'contractor_signature': contract.get('signatures', {}).get('contractor', {}).get('signature_data'),
+            'client_name': contract.get('client_info', {}).get('name', ''),
+            'client_email': contract.get('client_info', {}).get('email', ''),
+            'client_phone': contract.get('client_info', {}).get('phone', ''),
+            'client_address': contract.get('client_info', {}).get('address', ''),
+            'client_signature': contract.get('signatures', {}).get('client', {}).get('signature_data'),
+            'project_description': f"Complete bathroom renovation",
+            'scope_of_works': contract.get('scope_of_works', []),
+            'total_price': contract.get('total_price', 0),
+            'payment_schedule': contract.get('payment_schedule', []),
+            'start_date': contract.get('start_date'),
+            'completion_days': contract.get('completion_days', 30),
+            'gst_included': True
+        }
+        
+        generator = ContractGenerator()
+        pdf_buffer = generator.generate_contract(contract_data)
+        
+        filename = f"contract_{contract_id}_signed.pdf" if contract.get('status') == 'fully_executed' else f"contract_{contract_id}.pdf"
+        
+        return Response(
+            content=pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+    
+    except Exception as e:
+        logger.error(f"Error downloading contract: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/contracts/list")
+async def list_contracts(status: Optional[str] = None):
+    """List all contracts, optionally filtered by status"""
+    query = {}
+    if status:
+        query['status'] = status
+    
+    contracts = await db.contracts.find(query).sort("created_at", -1).to_list(length=100)
+    
+    for contract in contracts:
+        contract.pop('_id', None)
+    
+    return contracts
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
