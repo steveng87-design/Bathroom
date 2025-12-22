@@ -1222,7 +1222,7 @@ async def generate_contract(request: ContractGenerationRequest):
             'client_email': quote.get('client_info', {}).get('email', ''),
             'client_phone': quote.get('client_info', {}).get('phone', ''),
             'client_address': quote.get('client_info', {}).get('address', ''),
-            'project_description': f"Complete bathroom renovation at {quote.get('client_info', {}).get('address', 'specified location')}",
+            'project_description': request.custom_notes if request.custom_notes else f"Complete bathroom renovation at {quote.get('client_info', {}).get('address', 'specified location')}",
             'scope_of_works': scope_of_works,
             'total_price': total_price,
             'payment_schedule': payment_schedule,
