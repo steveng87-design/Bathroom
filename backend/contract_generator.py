@@ -153,34 +153,11 @@ class ContractGenerator:
         
         # Item 4: Description of Works
         story.append(Paragraph("4. DESCRIPTION OF WORKS", self.styles['ClauseHeading']))
-        story.append(Paragraph(contract_data.get('project_description', 'Bathroom renovation works as detailed below'), self.styles['ContractBody']))
-        story.append(Spacer(1, 3*mm))
         
-        # Scope of Works Table
-        if contract_data.get('scope_of_works'):
-            scope_data = [['Category', 'Description', 'Included']]
-            for item in contract_data['scope_of_works']:
-                scope_data.append([
-                    item.get('category', ''),
-                    item.get('description', ''),
-                    'Yes' if item.get('included') else 'No'
-                ])
-            
-            scope_table = Table(scope_data, colWidths=[45*mm, 100*mm, 25*mm])
-            scope_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#4a5568')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-                ('FONTSIZE', (0, 1), (-1, -1), 9),
-                ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f7fafc')])
-            ]))
-            story.append(scope_table)
-            story.append(Spacer(1, 5*mm))
+        # Simple description instead of table
+        works_description = contract_data.get('project_description', 'Complete bathroom renovation')
+        story.append(Paragraph(works_description, self.styles['ContractBody']))
+        story.append(Spacer(1, 3*mm))
         
         # Item 5: Payment Schedule
         story.append(Paragraph("5. CONTRACT PRICE AND PAYMENT SCHEDULE", self.styles['ClauseHeading']))
