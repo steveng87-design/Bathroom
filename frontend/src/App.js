@@ -208,6 +208,20 @@ const RenovationQuotingApp = () => {
   const [savedProjects, setSavedProjects] = useState([]);
   const [selectedProjects, setSelectedProjects] = useState([]);
   const [showProjectsPanel, setShowProjectsPanel] = useState(false);
+  
+  // Contract Generation States
+  const [contractForm, setContractForm] = useState({
+    clientName: '',
+    clientEmail: '',
+    clientPhone: '',
+    clientAddress: '',
+    projectDescription: '',
+    totalPrice: '',
+    startDate: new Date().toISOString().split('T')[0],
+    completionDays: 30
+  });
+  const [generatingContract, setGeneratingContract] = useState(false);
+  const [previewContract, setPreviewContract] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState(['All', 'Residential', 'Commercial', 'Luxury', 'Budget']);
