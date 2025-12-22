@@ -1174,17 +1174,30 @@ async def generate_contract(request: ContractGenerationRequest):
         if not quote:
             raise HTTPException(status_code=404, detail="Quote not found")
         
-        # Fetch contractor profile (user profile)
-        # For now, use default contractor info - will be enhanced with actual profile data
-        contractor_info = {
-            'contractor_name': os.environ.get('BUSINESS_NAME', 'Bathroom Renovations Pty Ltd'),
-            'contractor_abn': os.environ.get('ABN', 'XX XXX XXX XXX'),
-            'contractor_license': os.environ.get('LICENSE_NUMBER', 'XXXXX'),
-            'contractor_address': os.environ.get('BUSINESS_ADDRESS', 'Sydney, NSW'),
-            'contractor_email': os.environ.get('BUSINESS_EMAIL', 'contact@example.com'),
-            'contractor_phone': os.environ.get('BUSINESS_PHONE', '02 XXXX XXXX'),
-            'contractor_signature': request.contractor_signature
-        }
+        # Fetch contractor profile from request or use defaults
+        if request.contractor_info:
+            contractor_info = {
+                'contractor_name': request.contractor_info.get('contractor_name', 'Bathroom Renovations Pty Ltd'),
+                'contractor_abn': request.contractor_info.get('contractor_abn', ''),
+                'contractor_license': request.contractor_info.get('contractor_license', ''),
+                'contractor_address': request.contractor_info.get('contractor_address', ''),
+                'contractor_email': request.contractor_info.get('contractor_email', ''),
+                'contractor_phone': request.contractor_info.get('contractor_phone', ''),
+                'contractor_contact': request.contractor_info.get('contractor_contact', ''),
+                'contractor_signature': request.contractor_signature
+            }
+        else:
+            # Use environment defaults
+            contractor_info = {
+                'contractor_name': os.environ.get('BUSINESS_NAME', 'Bathroom Renovations Pty Ltd'),
+                'contractor_abn': os.environ.get('ABN', 'XX XXX XXX XXX'),
+                'contractor_license': os.environ.get('LICENSE_NUMBER', 'XXXXX'),
+                'contractor_address': os.environ.get('BUSINESS_ADDRESS', 'Sydney, NSW'),
+                'contractor_email': os.environ.get('BUSINESS_EMAIL', 'contact@example.com'),
+                'contractor_phone': os.environ.get('BUSINESS_PHONE', '02 XXXX XXXX'),
+                'contractor_contact': 'Project Manager',
+                'contractor_signature': request.contractor_signature
+            }
         
         # Prepare contract data
         contract_id = str(uuid.uuid4())
