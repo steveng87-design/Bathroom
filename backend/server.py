@@ -1244,15 +1244,17 @@ async def generate_contract(request: ContractGenerationRequest):
         # Save contract to database
         contract_record = {
             'id': contract_id,
+            'contract_number': contract_number,
             'quote_id': request.quote_id,
-            'client_info': quote.get('client_info'),
+            'client_info': request.client_info if request.client_info else quote.get('client_info'),
             'contractor_info': contractor_info,
             'total_price': total_price,
             'payment_schedule': payment_schedule,
             'start_date': request.start_date,
             'completion_days': request.completion_days,
             'scope_of_works': scope_of_works,
-            'status': 'draft',  # draft, sent, client_signed, fully_executed
+            'project_description': request.custom_notes,
+            'status': 'generated',  # generated, sent, approved, rejected
             'created_at': datetime.now(timezone.utc).isoformat(),
             'updated_at': datetime.now(timezone.utc).isoformat(),
             'contractor_signed_at': datetime.now(timezone.utc).isoformat() if request.contractor_signature else None,
