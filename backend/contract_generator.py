@@ -115,7 +115,7 @@ class ContractGenerator:
         story.append(Spacer(1, 10*mm))
         
         # Contract Reference
-        contract_ref = f"Contract No: {contract_data.get('contract_id', 'N/A')}"
+        contract_ref = f"Contract No: {contract_data.get('contract_number', contract_data.get('contract_id', 'N/A'))}"
         story.append(Paragraph(contract_ref, self.styles['ContractBody']))
         story.append(Paragraph(f"Date: {datetime.now().strftime('%d %B %Y')}", self.styles['ContractBody']))
         story.append(Spacer(1, 8*mm))
