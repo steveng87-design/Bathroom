@@ -1,7 +1,7 @@
 // Service Worker for Bathroom Quote Saver.AI PWA
 // Enables offline functionality and app-like experience
 
-const CACHE_NAME = 'bathroom-quote-saver-v1.0.0';
+const CACHE_NAME = 'bathroom-quote-saver-v1.0.1';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
