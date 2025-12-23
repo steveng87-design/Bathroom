@@ -222,6 +222,9 @@ const RenovationQuotingApp = () => {
   });
   const [generatingContract, setGeneratingContract] = useState(false);
   const [previewContract, setPreviewContract] = useState(null);
+  const [savedContracts, setSavedContracts] = useState([]);
+  const [loadingContracts, setLoadingContracts] = useState(false);
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [categories, setCategories] = useState(['All', 'Residential', 'Commercial', 'Luxury', 'Budget']);
