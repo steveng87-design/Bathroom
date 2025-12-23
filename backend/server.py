@@ -1222,6 +1222,7 @@ async def generate_contract(request: ContractGenerationRequest):
         
         contract_data = {
             'contract_id': contract_id,
+            'contract_number': contract_number,  # Sequential number for display
             **contractor_info,
             'client_name': request.client_info.get('name') if request.client_info else quote.get('client_info', {}).get('name', ''),
             'client_email': request.client_info.get('email') if request.client_info else quote.get('client_info', {}).get('email', ''),
