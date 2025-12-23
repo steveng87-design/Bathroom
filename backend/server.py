@@ -1536,19 +1536,6 @@ async def delete_contract(contract_id: str):
         logger.error(f"Error deleting contract: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/contracts/list")
-async def list_contracts(status: Optional[str] = None):
-    """List all contracts, optionally filtered by status"""
-    query = {}
-    if status:
-        query['status'] = status
-    
-    contracts = await db.contracts.find(query).sort("created_at", -1).to_list(length=100)
-    
-    for contract in contracts:
-        contract.pop('_id', None)
-    
-    return contracts
 
 
 app.add_middleware(
