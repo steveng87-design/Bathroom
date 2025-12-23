@@ -1471,6 +1471,57 @@ async def download_contract(contract_id: str):
         logger.error(f"Error downloading contract: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+
+@api_router.patch("/contracts/{contract_id}/status")
+async def update_contract_status(contract_id: str, status_update: dict):
+    """Update contract status (approved, rejected, sent, etc.)"""
+    try:
+        allowed_statuses = ['generated', 'sent', 'approved', 'rejected']
+        new_status = status_update.get('status')
+        
+        if new_status not in allowed_statuses:
+            raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {allowed_statuses}")
+        
+        result = await db.contracts.update_one(
+            {"id": contract_id},
+            {
+                "$set": {
+                    "status": new_status,
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                    "approval_notes": status_update.get('notes', '')
+                }
+            }
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        return {"success": True, "message": f"Contract status updated to {new_status}"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating contract status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/contracts/{contract_id}")
+async def delete_contract(contract_id: str):
+    """Delete a contract"""
+    try:
+        result = await db.contracts.delete_one({"id": contract_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        return {"success": True, "message": "Contract deleted successfully"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting contract: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/contracts/list")
 async def list_contracts(status: Optional[str] = None):
     """List all contracts, optionally filtered by status"""
