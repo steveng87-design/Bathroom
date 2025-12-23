@@ -1201,8 +1201,12 @@ async def generate_contract(request: ContractGenerationRequest):
                 'contractor_signature': request.contractor_signature
             }
         
-        # Prepare contract data
-        contract_id = str(uuid.uuid4())
+        # Generate sequential contract number
+        # Get the count of existing contracts and add 1
+        contract_count = await db.contracts.count_documents({})
+        contract_number = contract_count + 1
+        contract_id = str(uuid.uuid4())  # Keep UUID for internal ID
+        
         # Use override price from user input if provided, otherwise use quote total
         total_price = request.total_price_override if request.total_price_override else quote.get('total_cost', 0)
         payment_schedule = calculate_payment_schedule(total_price)
