@@ -219,6 +219,16 @@ const RenovationQuotingApp = () => {
     totalPrice: '',
     startDate: new Date().toISOString().split('T')[0],
     completionDays: 30
+    paymentSchedule: [
+      { stage: '1', description: 'Deposit (upon contract signing)', percentage: 10 },
+      { stage: '2', description: 'Demolition, Frame & Rough-in Complete', percentage: 40 },
+      { stage: '3', description: 'Coverings & Tiling Complete', percentage: 30 },
+      { stage: '4', description: 'Fit-off & Handover Complete', percentage: 20 }
+    ]
+  });
+  const [editingStage, setEditingStage] = useState(null);
+  const [customPaymentSchedule, setCustomPaymentSchedule] = useState({
+    completionDays: 30,
   });
   const [generatingContract, setGeneratingContract] = useState(false);
   const [previewContract, setPreviewContract] = useState(null);
