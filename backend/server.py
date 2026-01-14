@@ -1157,6 +1157,7 @@ class ContractGenerationRequest(BaseModel):
     contractor_info: Optional[dict] = None  # User profile contractor information
     total_price_override: Optional[float] = None  # Override quote price with user input
     client_info: Optional[dict] = None  # Client information override
+    custom_payment_schedule: Optional[list] = None  # Custom payment schedule from user
 
 class ContractSigningRequest(BaseModel):
     contract_id: str
