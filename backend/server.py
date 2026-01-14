@@ -1210,7 +1210,19 @@ async def generate_contract(request: ContractGenerationRequest):
         
         # Use override price from user input if provided, otherwise use quote total
         total_price = request.total_price_override if request.total_price_override else quote.get('total_cost', 0)
-        payment_schedule = calculate_payment_schedule(total_price)
+        
+        # Use custom payment schedule if provided, otherwise use standard schedule
+        if request.custom_payment_schedule:
+            payment_schedule = []
+            for stage in request.custom_payment_schedule:
+                payment_schedule.append({
+                    'stage': stage.get('stage', ''),
+                    'description': stage.get('description', ''),
+                    'percentage': stage.get('percentage', 0),
+                    'amount': round(total_price * stage.get('percentage', 0) / 100, 2)
+                })
+        else:
+            payment_schedule = calculate_payment_schedule(total_price)
         
         # Build scope of works from quote breakdown
         scope_of_works = []
