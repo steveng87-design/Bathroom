@@ -899,14 +899,14 @@ const RenovationQuotingApp = () => {
         return;
       }
 
-      // DEBUGGING: Show validation success and stop here
-      toast.success(`🎉 Validation successful! ${validAreas.length} area(s) are valid with ${selectedComponents.length} components selected.`, { duration: 5000 });
-      console.log('✅ VALIDATION COMPLETE - All areas validated successfully');
-      console.log('Valid areas:', validAreas.map(a => a.name));
-      console.log('Selected components:', selectedComponents);
-      
-      setLoading(false);
-      return;
+      // Build components object from formData for the quote request
+      const componentsForQuote = {};
+      selectedComponents.forEach(componentKey => {
+        componentsForQuote[componentKey] = formData.components[componentKey];
+      });
+
+      console.log('✅ VALIDATION COMPLETE - Proceeding to generate quote');
+      console.log('Components for quote:', componentsForQuote);
 
       // Create combined multi-area quote object
       const combinedQuote = {
