@@ -882,7 +882,10 @@ const RenovationQuotingApp = () => {
           componentCount: selectedComponents.length
         });
 
-        if (hasValidMeasurements && Object.keys(areaComponents).length > 0) {
+        if (hasValidMeasurements && hasSelectedComponents) {
+          validAreas.push(area);
+          toast.success(`✅ Area ${area.name} is valid!`, { duration: 2000 });
+          console.log(`✅ Area ${area.name} is VALID`);
           // Calculate areas for this specific area
           const floorArea = parseFloat(length) / 1000 * parseFloat(width) / 1000;
           const wallArea = 2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000;
