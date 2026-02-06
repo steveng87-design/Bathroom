@@ -937,12 +937,19 @@ const RenovationQuotingApp = () => {
               wallArea: wallArea.toFixed(2),
               quote: areaQuote
             });
+            console.log(`✅ Area ${area.name} is VALID - measurements OK and ${Object.keys(areaComponents).length} components selected`);
           } catch (error) {
             console.error(`Error generating quote for ${area.name}:`, error);
             toast.error(`Failed to generate quote for ${area.name}: ${error.response?.data?.detail || error.message}`);
             setLoading(false);
             return;
           }
+        } else {
+          console.log(`❌ Area ${area.name} is INVALID:`, {
+            hasValidMeasurements,
+            componentsFound: Object.keys(areaComponents).length,
+            reason: !hasValidMeasurements ? 'Invalid measurements' : 'No components selected'
+          });
         }
       }
 
