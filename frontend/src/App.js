@@ -739,6 +739,8 @@ const RenovationQuotingApp = () => {
   };
 
   const handleFormComponentToggle = (component, enabled) => {
+    console.log(`🔘 Component toggle: ${component} = ${enabled}`);
+    
     // Update formData
     setFormData(prev => ({
       ...prev,
@@ -752,19 +754,25 @@ const RenovationQuotingApp = () => {
       }
     }));
     
+    console.log(`📝 Updated formData.components.${component}.enabled = ${enabled}`);
+    
     // CRITICAL FIX: Also update projectAreas so validation can find enabled components
-    setProjectAreas(prev => prev.map((area, idx) => 
-      idx === currentAreaIndex ? {
-        ...area,
-        components: {
-          ...area.components,
-          [component]: {
-            ...area.components[component],
-            enabled: enabled
+    setProjectAreas(prev => {
+      const updated = prev.map((area, idx) => 
+        idx === currentAreaIndex ? {
+          ...area,
+          components: {
+            ...area.components,
+            [component]: {
+              ...area.components[component],
+              enabled: enabled
+            }
           }
-        }
-      } : area
-    ));
+        } : area
+      );
+      console.log(`📋 Updated projectAreas[${currentAreaIndex}].components.${component}.enabled = ${enabled}`);
+      return updated;
+    });
     
     // Auto-expand when enabling a component
     if (enabled) {
