@@ -822,6 +822,10 @@ const RenovationQuotingApp = () => {
       let areaQuotes = [];
       let validAreas = [];
 
+      console.log('=== VALIDATION DEBUG ===');
+      console.log('projectAreas:', projectAreas);
+      console.log('projectAreas count:', projectAreas.length);
+
       for (let i = 0; i < projectAreas.length; i++) {
         const area = projectAreas[i];
         
@@ -842,6 +846,7 @@ const RenovationQuotingApp = () => {
           hasValidMeasurements,
           measurements: { length, width, height },
           selectedComponents: Object.keys(areaComponents),
+          componentCount: Object.keys(areaComponents).length,
           measuredFloorArea: hasValidMeasurements ? (parseFloat(length) / 1000 * parseFloat(width) / 1000).toFixed(2) : 0,
           measuredWallArea: hasValidMeasurements ? (2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000).toFixed(2) : 0
         });
