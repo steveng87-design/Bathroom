@@ -849,10 +849,17 @@ const RenovationQuotingApp = () => {
       let areaQuotes = [];
       let validAreas = [];
 
+      // SIMPLIFIED FIX: Check formData.components since that's what the UI updates
+      const selectedComponents = Object.entries(formData.components || {})
+        .filter(([key, value]) => value?.enabled === true)
+        .map(([key]) => key);
+
       console.log('=== VALIDATION DEBUG ===');
-      console.log('projectAreas:', projectAreas);
-      console.log('projectAreas count:', projectAreas.length);
+      console.log('Selected components from formData:', selectedComponents);
       console.log('formData.roomMeasurements:', formData.roomMeasurements);
+      
+      // Show visual feedback
+      toast.info(`Found ${selectedComponents.length} components selected`, { duration: 2000 });
 
       for (let i = 0; i < projectAreas.length; i++) {
         const area = projectAreas[i];
