@@ -900,13 +900,34 @@ const RenovationQuotingApp = () => {
       }
 
       // Build components object from formData for the quote request
-      const componentsForQuote = {};
+      // Transform to backend-expected format: { demolition: true, tiling: false, ... }
+      const componentsForQuote = {
+        demolition: false,
+        framing: false,
+        plumbing_rough_in: false,
+        electrical_rough_in: false,
+        plastering: false,
+        waterproofing: false,
+        tiling: false,
+        fit_off: false
+      };
+      
+      // Set to true for selected components
       selectedComponents.forEach(componentKey => {
-        componentsForQuote[componentKey] = formData.components[componentKey];
+        if (componentsForQuote.hasOwnProperty(componentKey)) {
+          componentsForQuote[componentKey] = true;
+        }
+      });
+      
+      // Also prepare detailed_components for enhanced AI analysis
+      const detailed_components = {};
+      selectedComponents.forEach(componentKey => {
+        detailed_components[componentKey] = formData.components[componentKey];
       });
 
       console.log('✅ VALIDATION COMPLETE - Proceeding to generate quote');
-      console.log('Components for quote:', componentsForQuote);
+      console.log('Components for quote (backend format):', componentsForQuote);
+      console.log('Detailed components:', detailed_components);
 
       // Generate individual quotes for each valid area
       let totalCost = 0;
