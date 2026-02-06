@@ -808,6 +808,10 @@ const RenovationQuotingApp = () => {
   // Multi-Area Individual Quote Generation
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('=== HANDLE SUBMIT CALLED ===');
+    console.log('Form data:', formData);
+    console.log('Project areas:', projectAreas);
+    
     setLoading(true);
 
     try {
