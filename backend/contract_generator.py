@@ -285,7 +285,14 @@ class ContractGenerator:
                 outlined in Schedule 1, Item 5. 2.2 Progress claims shall be submitted in writing upon completion of each 
                 designated stage. 2.3 Payment for completed stages must be made within 5 business days of claim submission. 
                 2.4 Additional costs incurred beyond the scope of scheduled payments shall be due upon demand after work 
-                completion or cost incurrence.'''
+                completion or cost incurrence. 2.5 ACCEPTANCE BY CONDUCT: The Client acknowledges and agrees that payment 
+                of any deposit or progress payment under this Contract, whether or not the Contract has been physically 
+                signed by the Client, shall constitute full and unconditional acceptance of all terms, conditions, clauses, 
+                and obligations set forth in this Contract. Receipt of payment by the Contractor shall be deemed conclusive 
+                evidence of the Client's agreement to be bound by all provisions herein, including but not limited to 
+                payment terms, warranty provisions, variation procedures, and dispute resolution mechanisms. The Client 
+                waives any right to claim non-acceptance of these terms on the basis of non-execution of this Contract 
+                document where payment has been received by the Contractor.'''
             },
             {
                 'heading': '3. SITE ACCESS AND FACILITIES',
