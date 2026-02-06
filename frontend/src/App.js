@@ -878,10 +878,8 @@ const RenovationQuotingApp = () => {
         console.log(`Area ${area.name}:`, {
           hasValidMeasurements,
           measurements: { length, width, height },
-          selectedComponents: Object.keys(areaComponents),
-          componentCount: Object.keys(areaComponents).length,
-          measuredFloorArea: hasValidMeasurements ? (parseFloat(length) / 1000 * parseFloat(width) / 1000).toFixed(2) : 0,
-          measuredWallArea: hasValidMeasurements ? (2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000).toFixed(2) : 0
+          selectedComponents: selectedComponents,
+          componentCount: selectedComponents.length
         });
 
         if (hasValidMeasurements && Object.keys(areaComponents).length > 0) {
