@@ -864,20 +864,10 @@ const RenovationQuotingApp = () => {
       for (let i = 0; i < projectAreas.length; i++) {
         const area = projectAreas[i];
         
-        // Check if area has valid measurements - try both sources
-        let { length, width, height } = area.measurements || {};
-        
-        // FALLBACK: If projectAreas measurements are empty, use formData.roomMeasurements
-        if (!length || !width || !height) {
-          length = formData.roomMeasurements.length;
-          width = formData.roomMeasurements.width;
-          height = formData.roomMeasurements.height;
-          
-          // Update projectAreas with these values for future use
-          setProjectAreas(prev => prev.map((a, idx) => 
-            idx === i ? { ...a, measurements: { length, width, height } } : a
-          ));
-        }
+        // Check measurements from formData (more reliable)
+        const length = formData.roomMeasurements.length;
+        const width = formData.roomMeasurements.width;
+        const height = formData.roomMeasurements.height;
         
         const hasValidMeasurements = length && width && height && 
           parseFloat(length) > 0 && parseFloat(width) > 0 && parseFloat(height) > 0;
