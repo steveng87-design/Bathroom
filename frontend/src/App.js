@@ -899,10 +899,14 @@ const RenovationQuotingApp = () => {
         return;
       }
 
-      // Calculate totals from individual area quotes
-      const totalCost = areaQuotes.reduce((sum, quote) => sum + quote.total_cost, 0);
-      const totalFloorArea = validAreas.reduce((sum, area) => sum + parseFloat(area.floorArea), 0);
-      const totalWallArea = validAreas.reduce((sum, area) => sum + parseFloat(area.wallArea), 0);
+      // DEBUGGING: Show validation success and stop here
+      toast.success(`🎉 Validation successful! ${validAreas.length} area(s) are valid with ${selectedComponents.length} components selected.`, { duration: 5000 });
+      console.log('✅ VALIDATION COMPLETE - All areas validated successfully');
+      console.log('Valid areas:', validAreas.map(a => a.name));
+      console.log('Selected components:', selectedComponents);
+      
+      setLoading(false);
+      return;
 
       // Create combined multi-area quote object
       const combinedQuote = {
