@@ -875,13 +875,8 @@ const RenovationQuotingApp = () => {
         const hasValidMeasurements = length && width && height && 
           parseFloat(length) > 0 && parseFloat(width) > 0 && parseFloat(height) > 0;
         
-        // Check if area has selected components
-        const areaComponents = {};
-        Object.entries(area.components || {}).forEach(([key, value]) => {
-          if (value.enabled) {
-            areaComponents[key] = value;
-          }
-        });
+        // SIMPLIFIED FIX: Use selectedComponents from formData instead of projectAreas
+        const hasSelectedComponents = selectedComponents.length > 0;
         
         console.log(`Area ${area.name}:`, {
           hasValidMeasurements,
