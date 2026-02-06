@@ -958,8 +958,9 @@ const RenovationQuotingApp = () => {
             height: parseFloat(height)
           },
           components: componentsForQuote,
+          detailed_components: detailed_components,
+          task_options: formData.options,
           area_name: area.name,
-          options: formData.options,
           additional_notes: `Floor Area: ${floor_area}m², Wall Area: ${wall_area}m², Perimeter: ${perimeter}m (for skirt tiles @ $35/m = $${(parseFloat(perimeter) * 35).toFixed(2)})`
         };
 
