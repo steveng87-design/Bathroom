@@ -739,6 +739,7 @@ const RenovationQuotingApp = () => {
   };
 
   const handleFormComponentToggle = (component, enabled) => {
+    // Update formData
     setFormData(prev => ({
       ...prev,
       components: {
@@ -750,6 +751,20 @@ const RenovationQuotingApp = () => {
         }
       }
     }));
+    
+    // CRITICAL FIX: Also update projectAreas so validation can find enabled components
+    setProjectAreas(prev => prev.map((area, idx) => 
+      idx === currentAreaIndex ? {
+        ...area,
+        components: {
+          ...area.components,
+          [component]: {
+            ...area.components[component],
+            enabled: enabled
+          }
+        }
+      } : area
+    ));
     
     // Auto-expand when enabling a component
     if (enabled) {
