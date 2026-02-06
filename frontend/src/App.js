@@ -886,71 +886,10 @@ const RenovationQuotingApp = () => {
           validAreas.push(area);
           toast.success(`✅ Area ${area.name} is valid!`, { duration: 2000 });
           console.log(`✅ Area ${area.name} is VALID`);
-          // Calculate areas for this specific area
-          const floorArea = parseFloat(length) / 1000 * parseFloat(width) / 1000;
-          const wallArea = 2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000;
-          const perimeter = 2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000);
-          
-          // Prepare individual quote request for this area
-          const requestData = {
-            client_info: formData.clientInfo,
-            room_measurements: {
-              length: parseFloat(length) / 1000,
-              width: parseFloat(width) / 1000,
-              height: parseFloat(height) / 1000
-            },
-            components: Object.keys(areaComponents).reduce((acc, key) => {
-              acc[key] = true;  // Backend expects boolean values
-              return acc;
-            }, {}),
-            detailed_components: areaComponents,
-            task_options: area.taskOptions || {},
-            additional_notes: `Area: ${area.name} (${area.type}). Floor: ${floorArea.toFixed(2)}m². Wall: ${wallArea.toFixed(2)}m². Perimeter: ${perimeter.toFixed(1)}m (for skirt tiles @ $35/linear meter = $${(perimeter * 35).toFixed(0)}). ${area.type === 'separate_toilet' ? 'This is a separate toilet area - typically requires floor tiles and skirt tiles rather than full wall tiling.' : ''}`
-          };
-
-          console.log(`Generating quote for ${area.name}:`, requestData);
-
-          try {
-            // Generate individual quote for this area
-            let response;
-            try {
-              const userId = userProfile.contact_name || "default";
-              response = await axios.post(`${API}/quotes/generate-with-learning?user_id=${userId}`, requestData);
-            } catch (learningError) {
-              console.log(`Learning not available for ${area.name}, using standard generation`);
-              response = await axios.post(`${API}/quotes/request`, requestData);
-            }
-
-            // Add area context to the quote
-            const areaQuote = {
-              ...response.data,
-              area_name: area.name,
-              area_type: area.type,
-              area_floor_area: floorArea.toFixed(2),
-              area_wall_area: wallArea.toFixed(2),
-              area_measurements: area.measurements
-            };
-            
-            areaQuotes.push(areaQuote);
-            validAreas.push({
-              ...area,
-              floorArea: floorArea.toFixed(2),
-              wallArea: wallArea.toFixed(2),
-              quote: areaQuote
-            });
-            console.log(`✅ Area ${area.name} is VALID - measurements OK and ${Object.keys(areaComponents).length} components selected`);
-          } catch (error) {
-            console.error(`Error generating quote for ${area.name}:`, error);
-            toast.error(`Failed to generate quote for ${area.name}: ${error.response?.data?.detail || error.message}`);
-            setLoading(false);
-            return;
-          }
         } else {
-          console.log(`❌ Area ${area.name} is INVALID:`, {
-            hasValidMeasurements,
-            componentsFound: Object.keys(areaComponents).length,
-            reason: !hasValidMeasurements ? 'Invalid measurements' : 'No components selected'
-          });
+          const reason = !hasValidMeasurements ? 'Missing measurements' : 'No components selected';
+          toast.error(`❌ ${area.name}: ${reason}`, { duration: 3000 });
+          console.log(`❌ Area ${area.name} is INVALID: ${reason}`);
         }
       }
 
