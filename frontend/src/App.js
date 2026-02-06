@@ -908,6 +908,63 @@ const RenovationQuotingApp = () => {
       console.log('✅ VALIDATION COMPLETE - Proceeding to generate quote');
       console.log('Components for quote:', componentsForQuote);
 
+      // Generate individual quotes for each valid area
+      let totalCost = 0;
+      let totalFloorArea = 0;
+      let totalWallArea = 0;
+
+      for (let i = 0; i < validAreas.length; i++) {
+        const area = validAreas[i];
+        
+        // Calculate areas for this specific area
+        const length = formData.roomMeasurements.length;
+        const width = formData.roomMeasurements.width;
+        const height = formData.roomMeasurements.height;
+        
+        const floor_area = (parseFloat(length) / 1000 * parseFloat(width) / 1000).toFixed(2);
+        const wall_area = (2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000) * parseFloat(height) / 1000).toFixed(2);
+        const perimeter = (2 * (parseFloat(length) / 1000 + parseFloat(width) / 1000)).toFixed(2);
+
+        totalFloorArea += parseFloat(floor_area);
+        totalWallArea += parseFloat(wall_area);
+
+        // Prepare quote request for this area
+        const requestData = {
+          client_info: formData.clientInfo,
+          room_measurements: {
+            length: parseFloat(length),
+            width: parseFloat(width),
+            height: parseFloat(height)
+          },
+          components: componentsForQuote,
+          area_name: area.name,
+          options: formData.options,
+          additional_notes: `Floor Area: ${floor_area}m², Wall Area: ${wall_area}m², Perimeter: ${perimeter}m (for skirt tiles @ $35/m = $${(parseFloat(perimeter) * 35).toFixed(2)})`
+        };
+
+        console.log(`Generating quote for ${area.name}:`, requestData);
+
+        try {
+          const response = await axios.post(`${API}/quotes/request`, requestData);
+          const areaQuote = response.data;
+          
+          // Add area-specific metadata
+          areaQuote.area_name = area.name;
+          areaQuote.floor_area = floor_area;
+          areaQuote.wall_area = wall_area;
+          areaQuote.perimeter = perimeter;
+          
+          areaQuotes.push(areaQuote);
+          totalCost += areaQuote.total_cost || 0;
+          
+          toast.success(`Quote generated for ${area.name}: $${(areaQuote.total_cost || 0).toLocaleString()}`);
+        } catch (error) {
+          console.error(`Error generating quote for ${area.name}:`, error);
+          toast.error(`Failed to generate quote for ${area.name}: ${error.response?.data?.detail || error.message}`);
+          throw error;
+        }
+      }
+
       // Create combined multi-area quote object
       const combinedQuote = {
         id: `multi_${Date.now()}`,
