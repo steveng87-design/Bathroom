@@ -988,8 +988,11 @@ const RenovationQuotingApp = () => {
       }
 
       // Create combined multi-area quote object
+      // Use the first area's quote ID as the primary quote ID
+      const primaryQuoteId = areaQuotes.length > 0 ? areaQuotes[0].id : `multi_${Date.now()}`;
+      
       const combinedQuote = {
-        id: `multi_${Date.now()}`,
+        id: primaryQuoteId,
         total_cost: totalCost,
         area_quotes: areaQuotes,
         areas_count: validAreas.length,
@@ -1010,20 +1013,10 @@ const RenovationQuotingApp = () => {
 
       console.log('Multi-area quote generated:', combinedQuote);
       
-      // Save the combined quote to database so PDF generation can find it
-      try {
-        const saveResponse = await axios.post(`${API}/quotes/save-draft`, combinedQuote);
-        const savedQuote = saveResponse.data;
-        console.log('Quote saved to database:', savedQuote);
-        setQuote(savedQuote); // Use the saved quote with database ID
-        toast.success(`Multi-area quote generated successfully! ${validAreas.length} areas quoted for $${totalCost.toLocaleString()}`);
-      } catch (saveError) {
-        console.error('Error saving quote:', saveError);
-        // Still show the quote even if save fails
-        setQuote(combinedQuote);
-        toast.warning('Quote generated but not saved to database. PDF generation may fail.');
-        toast.success(`Quote generated for $${totalCost.toLocaleString()}`);
-      }
+      // The individual quotes are already saved in the database
+      // Just display the combined view
+      setQuote(combinedQuote);
+      toast.success(`Multi-area quote generated successfully! ${validAreas.length} areas quoted for $${totalCost.toLocaleString()}`);
       
     } catch (error) {
       console.error('Error generating multi-area quote:', error);
