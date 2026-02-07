@@ -165,7 +165,13 @@ class ContractGenerator:
         total_price = contract_data.get('total_price', 0)
         gst_note = " (GST Included)" if contract_data.get('gst_included', True) else " (GST Exclusive)"
         
-        story.append(Paragraph(f"<b>Total Contract Price: ${total_price:,.2f}{gst_note}</b>", self.styles['ContractBody']))
+        # Create bold style for total price
+        bold_style = ParagraphStyle(
+            'BoldContractBody',
+            parent=self.styles['ContractBody'],
+            fontName='Helvetica-Bold'
+        )
+        story.append(Paragraph(f"Total Contract Price: ${total_price:,.2f}{gst_note}", bold_style))
         story.append(Spacer(1, 3*mm))
         
         # Payment schedule table
