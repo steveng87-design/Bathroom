@@ -17,6 +17,7 @@ AI-powered bathroom renovation quoting application for Australian contractors. G
 - Quote summary PDFs with cost breakdowns
 - Combined proposal packages
 - **Fixed (Dec 2025)**: Proper measurement formatting with mm-to-m conversion
+- **Fixed (Dec 2025)**: Removed HTML tags from table cells - uses TableStyle for bold text
 
 ### 3. Contract Generation System
 - Sequential contract numbering
@@ -30,7 +31,11 @@ AI-powered bathroom renovation quoting application for Australian contractors. G
 - PDF attachments
 - **Fixed (Dec 2025)**: Professional email template without emojis
 
-### 5. Project Management
+### 5. Frontend Email Body (Share feature)
+- **Fixed (Dec 2025)**: Clean professional text without emojis
+- Simple format: "Dear [Client], Please find the attached scope of works..."
+
+### 6. Project Management
 - Save and organize projects by category
 - Load previous quotes for editing
 - Project history and tracking
@@ -57,8 +62,10 @@ AI-powered bathroom renovation quoting application for Australian contractors. G
 
 ### Fixed Issues
 1. **Contract PDF HTML Tags** - Replaced HTML `<b>` tags with ReportLab ParagraphStyle for proper bold rendering
-2. **Measurement Formatting** - Added mm-to-m conversion and `.2f` formatting for room dimensions
-3. **Email Content** - Rewrote email template with professional language, removed emojis
+2. **Quote PDF HTML Tags in Tables** - Removed `<b>` tags from table cells, using TableStyle for styling instead
+3. **Measurement Formatting** - Added mm-to-m conversion and `.2f` formatting for room dimensions
+4. **Backend Email Content** - Rewrote email template with professional language, removed emojis
+5. **Frontend Email Body** - Cleaned up share email text, removed all emojis, simplified to professional format
 
 ## Upcoming Tasks
 
