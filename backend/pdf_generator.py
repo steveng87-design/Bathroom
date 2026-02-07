@@ -437,8 +437,8 @@ class BathroomProposalPDF:
                         f"${item['estimated_cost']:,.2f}"
                     ])
                 
-                # Add total row
-                cost_data.append(['', '<b>TOTAL PROJECT INVESTMENT</b>', f"<b>${quote_data['total_cost']:,.2f}</b>"])
+                # Add total row (plain text - styling applied via TableStyle)
+                cost_data.append(['', 'TOTAL PROJECT INVESTMENT', f"${quote_data['total_cost']:,.2f}"])
                 
                 cost_table = Table(cost_data, colWidths=[40*mm, 90*mm, 30*mm])
                 cost_table.setStyle(TableStyle([
@@ -449,6 +449,7 @@ class BathroomProposalPDF:
                     ('PADDING', (0, 0), (-1, -1), 6),
                     ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#eff6ff')),
                     ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                    ('TEXTCOLOR', (1, -1), (2, -1), colors.HexColor('#1e40af')),
                     ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#d1d5db')),
                     ('ALIGN', (2, 0), (2, -1), 'RIGHT')
                 ]))
