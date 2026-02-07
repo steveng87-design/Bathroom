@@ -255,9 +255,22 @@ class BathroomProposalPDF:
         
         # Project overview
         room_measurements = quote_data['room_measurements']
-        floor_area = room_measurements['length'] * room_measurements['width']
-        wall_area = (2 * room_measurements['length'] * room_measurements['height']) + \
-                   (2 * room_measurements['width'] * room_measurements['height'])
+        
+        # Extract measurements and ensure proper formatting (handle both mm and m values)
+        length = float(room_measurements['length'])
+        width = float(room_measurements['width'])
+        height = float(room_measurements['height'])
+        
+        # If values appear to be in millimeters (>100), convert to meters
+        if length > 100:
+            length = length / 1000
+        if width > 100:
+            width = width / 1000
+        if height > 100:
+            height = height / 1000
+        
+        floor_area = length * width
+        wall_area = (2 * length * height) + (2 * width * height)
         
         overview_text = f"""
         <b>PROJECT OVERVIEW</b><br/><br/>
@@ -268,7 +281,7 @@ class BathroomProposalPDF:
         <b>Room Specifications:</b><br/>
         • Floor Area: {floor_area:.1f} square meters<br/>
         • Wall Area: {wall_area:.1f} square meters<br/>
-        • Room Dimensions: {room_measurements['length']}m × {room_measurements['width']}m × {room_measurements['height']}m<br/><br/>
+        • Room Dimensions: {length:.2f}m × {width:.2f}m × {height:.2f}m<br/><br/>
         
         <b>Estimated Investment:</b> <font color="#059669" size="14"><b>${quote_data['total_cost']:,.2f}</b></font>
         """
