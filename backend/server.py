@@ -1472,7 +1472,7 @@ async def download_contract(contract_id: str):
             'client_phone': contract.get('client_info', {}).get('phone', ''),
             'client_address': contract.get('client_info', {}).get('address', ''),
             'client_signature': contract.get('signatures', {}).get('client', {}).get('signature_data'),
-            'project_description': f"Complete bathroom renovation",
+            'project_description': "Complete bathroom renovation",
             'scope_of_works': contract.get('scope_of_works', []),
             'total_price': contract.get('total_price', 0),
             'payment_schedule': contract.get('payment_schedule', []),
@@ -2114,7 +2114,7 @@ async def get_next_invoice_number_endpoint():
         counter = await db.invoice_counters.find_one({"year": current_year})
         next_seq = (counter.get('sequence', 0) if counter else 0) + 1
         return {"next_number": generate_invoice_number(current_year, next_seq)}
-    except Exception as e:
+    except Exception:
         return {"next_number": generate_invoice_number(datetime.now().year, 1)}
 
 
