@@ -2950,6 +2950,115 @@ ${userProfile.email}`;
     return <Badge className={config.color}>{config.label}</Badge>;
   };
 
+  // Open email client with invoice details (Downloads PDF first, then opens email)
+  const openEmailClientForInvoice = async (invoice) => {
+    const clientName = invoice.client_info?.name || 'Client';
+    const clientEmail = invoice.client_info?.email || '';
+    const invoiceNumber = invoice.invoice_number || 'Invoice';
+    const totalAmount = invoice.total_amount?.toLocaleString() || '0';
+    const dueDate = invoice.due_date || '';
+    const contractorName = userProfile.company_name || invoice.contractor_info?.contractor_name || 'Your Contractor';
+    const contractorPhone = userProfile.phone || invoice.contractor_info?.contractor_phone || '';
+    const contractorEmail = userProfile.email || invoice.contractor_info?.contractor_email || '';
+    
+    // Download the PDF first
+    try {
+      const response = await axios.get(`${API}/invoices/${invoice.id}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice_${invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success('Invoice PDF downloaded - attach it to your email');
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      toast.error('Failed to download invoice PDF');
+    }
+    
+    // Build email content
+    const subject = encodeURIComponent(`Tax Invoice ${invoiceNumber} - ${contractorName}`);
+    const body = encodeURIComponent(
+`Dear ${clientName},
+
+Please find attached Tax Invoice ${invoiceNumber} for bathroom renovation works.
+
+Invoice Details:
+- Invoice Number: ${invoiceNumber}
+- Amount Due: $${totalAmount} (inc. GST)
+- Due Date: ${dueDate}
+
+Payment details are included in the attached invoice. Please use the invoice number as your payment reference.
+
+If you have any questions regarding this invoice, please do not hesitate to contact us.
+
+Kind regards,
+${contractorName}
+${contractorPhone}
+${contractorEmail}`
+    );
+    
+    // Open email client
+    const mailtoUrl = `mailto:${clientEmail}?subject=${subject}&body=${body}`;
+    window.location.href = mailtoUrl;
+    
+    // Update invoice status to sent
+    try {
+      await axios.put(`${API}/invoices/${invoice.id}/status`, { status: 'sent' });
+      loadInvoices();
+    } catch (error) {
+      console.error('Error updating invoice status:', error);
+    }
+  };
+
+  // Share invoice via Web Share API (for mobile devices)
+  const shareInvoice = async (invoice) => {
+    const clientName = invoice.client_info?.name || 'Client';
+    const invoiceNumber = invoice.invoice_number || 'Invoice';
+    const totalAmount = invoice.total_amount?.toLocaleString() || '0';
+    const contractorName = userProfile.company_name || 'Your Contractor';
+    
+    // Check if Web Share API is available
+    if (navigator.share) {
+      try {
+        // First download the PDF as a file
+        const response = await axios.get(`${API}/invoices/${invoice.id}/pdf`, {
+          responseType: 'blob'
+        });
+        
+        const file = new File(
+          [response.data], 
+          `Invoice_${invoiceNumber}.pdf`, 
+          { type: 'application/pdf' }
+        );
+        
+        await navigator.share({
+          title: `Tax Invoice ${invoiceNumber}`,
+          text: `Dear ${clientName},\n\nPlease find attached Tax Invoice ${invoiceNumber} for $${totalAmount} (inc. GST).\n\nKind regards,\n${contractorName}`,
+          files: [file]
+        });
+        
+        // Update status to sent
+        await axios.put(`${API}/invoices/${invoice.id}/status`, { status: 'sent' });
+        loadInvoices();
+        toast.success('Invoice shared successfully!');
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Error sharing invoice:', error);
+          // Fallback to email client
+          openEmailClientForInvoice(invoice);
+        }
+      }
+    } else {
+      // Fallback to email client for desktop
+      openEmailClientForInvoice(invoice);
+    }
+  };
+
   // Render Saved Contracts View
   const renderSavedContractsView = () => {
     const updateContractStatus = async (contractId, newStatus) => {
