@@ -1550,6 +1550,653 @@ async def delete_contract(contract_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# ============= INVOICE MANAGEMENT ENDPOINTS =============
+
+from invoice_generator import InvoiceGenerator, calculate_invoice_amounts, generate_invoice_number
+
+class BankDetails(BaseModel):
+    bank_name: str = "Commonwealth Bank"
+    account_name: str = ""
+    bsb: str = ""
+    account_number: str = ""
+
+class InvoiceLineItem(BaseModel):
+    description: str
+    amount: float
+
+class InvoiceCreateRequest(BaseModel):
+    """Request model for creating an invoice from a contract payment stage"""
+    contract_id: str
+    stage_index: int  # Index of the payment stage (0-3 typically)
+    custom_description: Optional[str] = None
+    custom_line_items: Optional[List[InvoiceLineItem]] = None
+    due_days: int = 14
+    notes: Optional[str] = None
+
+class ManualInvoiceRequest(BaseModel):
+    """Request model for creating a manual invoice"""
+    client_info: Dict[str, str]
+    contractor_info: Optional[Dict[str, str]] = None
+    bank_details: Optional[Dict[str, str]] = None
+    project_address: str
+    description: str
+    line_items: List[InvoiceLineItem]
+    amount_includes_gst: bool = True
+    due_days: int = 14
+    notes: Optional[str] = None
+    contract_id: Optional[str] = None
+    quote_id: Optional[str] = None
+
+class InvoiceUpdateRequest(BaseModel):
+    """Request model for updating invoice status"""
+    status: str  # draft, sent, paid, overdue, cancelled
+    paid_amount: Optional[float] = None
+    paid_date: Optional[str] = None
+    payment_reference: Optional[str] = None
+    notes: Optional[str] = None
+
+
+async def get_next_invoice_number() -> str:
+    """Get the next sequential invoice number for the current year"""
+    current_year = datetime.now().year
+    
+    # Find or create the counter for this year
+    counter = await db.invoice_counters.find_one_and_update(
+        {"year": current_year},
+        {"$inc": {"sequence": 1}},
+        upsert=True,
+        return_document=True
+    )
+    
+    # Handle case where document was just created
+    if counter is None or 'sequence' not in counter:
+        counter = await db.invoice_counters.find_one({"year": current_year})
+    
+    sequence = counter.get('sequence', 1)
+    return generate_invoice_number(current_year, sequence)
+
+
+@api_router.post("/invoices/create-from-stage")
+async def create_invoice_from_stage(request: InvoiceCreateRequest):
+    """
+    Create an invoice from a contract payment stage (progress claim)
+    This is the main flow - click on a stage to generate invoice
+    """
+    try:
+        # Get the contract
+        contract = await db.contracts.find_one({"id": request.contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        payment_schedule = contract.get('payment_schedule', [])
+        if request.stage_index < 0 or request.stage_index >= len(payment_schedule):
+            raise HTTPException(status_code=400, detail="Invalid stage index")
+        
+        stage = payment_schedule[request.stage_index]
+        
+        # Check if invoice already exists for this stage
+        existing_invoice = await db.invoices.find_one({
+            "contract_id": request.contract_id,
+            "stage_index": request.stage_index,
+            "status": {"$ne": "cancelled"}
+        })
+        if existing_invoice:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Invoice already exists for this stage (Invoice #{existing_invoice.get('invoice_number')})"
+            )
+        
+        # Generate invoice number
+        invoice_number = await get_next_invoice_number()
+        
+        # Get contractor info from contract or environment
+        contractor_info = contract.get('contractor_info', {})
+        
+        # Get bank details from environment or use defaults
+        bank_details = {
+            'bank_name': os.environ.get('BANK_NAME', 'Commonwealth Bank'),
+            'account_name': os.environ.get('BANK_ACCOUNT_NAME', contractor_info.get('contractor_name', '')),
+            'bsb': os.environ.get('BANK_BSB', ''),
+            'account_number': os.environ.get('BANK_ACCOUNT_NUMBER', '')
+        }
+        
+        # Calculate amounts (contract prices include GST)
+        stage_amount = stage.get('amount', 0)
+        amounts = calculate_invoice_amounts(stage_amount, include_gst=True)
+        
+        # Build line items
+        if request.custom_line_items:
+            line_items = [item.dict() for item in request.custom_line_items]
+        else:
+            # Default: single line item for the stage
+            stage_desc = stage.get('description', f"Stage {stage.get('stage', '')} Payment")
+            line_items = [{
+                'description': request.custom_description or f"{stage_desc} - {stage.get('percentage', 0)}% of contract value",
+                'amount': amounts['subtotal']
+            }]
+        
+        # Create invoice document
+        invoice_date = datetime.now(timezone.utc)
+        due_date = invoice_date + timedelta(days=request.due_days)
+        
+        invoice_data = {
+            'id': str(uuid.uuid4()),
+            'invoice_number': invoice_number,
+            'invoice_date': invoice_date.strftime('%d/%m/%Y'),
+            'due_date': due_date.strftime('%d/%m/%Y'),
+            'due_date_iso': due_date.isoformat(),
+            'contractor_info': contractor_info,
+            'bank_details': bank_details,
+            'client_info': contract.get('client_info', {}),
+            'contract_id': request.contract_id,
+            'contract_number': contract.get('contract_number'),
+            'quote_id': contract.get('quote_id'),
+            'project_address': contract.get('client_info', {}).get('address', ''),
+            'payment_stage': stage.get('description', f"Stage {stage.get('stage', '')}"),
+            'stage_index': request.stage_index,
+            'stage_percentage': stage.get('percentage', 0),
+            'line_items': line_items,
+            'subtotal': amounts['subtotal'],
+            'gst_amount': amounts['gst_amount'],
+            'total_amount': amounts['total_amount'],
+            'notes': request.notes or '',
+            'status': 'draft',
+            'payment_terms': request.due_days,
+            'created_at': invoice_date.isoformat(),
+            'updated_at': invoice_date.isoformat(),
+            'sent_at': None,
+            'paid_at': None,
+            'paid_amount': 0,
+            'payments': []
+        }
+        
+        # Save to database
+        await db.invoices.insert_one(invoice_data)
+        
+        # Remove MongoDB _id before returning
+        invoice_data.pop('_id', None)
+        
+        return invoice_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error creating invoice from stage: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/invoices/create-manual")
+async def create_manual_invoice(request: ManualInvoiceRequest):
+    """Create a manual invoice (not tied to a specific contract stage)"""
+    try:
+        # Generate invoice number
+        invoice_number = await get_next_invoice_number()
+        
+        # Calculate total from line items
+        total_line_items = sum(item.amount for item in request.line_items)
+        amounts = calculate_invoice_amounts(total_line_items, include_gst=request.amount_includes_gst)
+        
+        # Get contractor info
+        contractor_info = request.contractor_info or {
+            'contractor_name': os.environ.get('BUSINESS_NAME', 'Business Name'),
+            'contractor_abn': os.environ.get('ABN', ''),
+            'contractor_license': os.environ.get('LICENSE_NUMBER', ''),
+            'contractor_address': os.environ.get('BUSINESS_ADDRESS', ''),
+            'contractor_email': os.environ.get('BUSINESS_EMAIL', ''),
+            'contractor_phone': os.environ.get('BUSINESS_PHONE', '')
+        }
+        
+        # Get bank details
+        bank_details = request.bank_details or {
+            'bank_name': os.environ.get('BANK_NAME', 'Commonwealth Bank'),
+            'account_name': os.environ.get('BANK_ACCOUNT_NAME', ''),
+            'bsb': os.environ.get('BANK_BSB', ''),
+            'account_number': os.environ.get('BANK_ACCOUNT_NUMBER', '')
+        }
+        
+        # Create invoice
+        invoice_date = datetime.now(timezone.utc)
+        due_date = invoice_date + timedelta(days=request.due_days)
+        
+        invoice_data = {
+            'id': str(uuid.uuid4()),
+            'invoice_number': invoice_number,
+            'invoice_date': invoice_date.strftime('%d/%m/%Y'),
+            'due_date': due_date.strftime('%d/%m/%Y'),
+            'due_date_iso': due_date.isoformat(),
+            'contractor_info': contractor_info,
+            'bank_details': bank_details,
+            'client_info': request.client_info,
+            'contract_id': request.contract_id,
+            'quote_id': request.quote_id,
+            'project_address': request.project_address,
+            'payment_stage': request.description,
+            'stage_index': None,
+            'stage_percentage': None,
+            'line_items': [item.dict() for item in request.line_items],
+            'subtotal': amounts['subtotal'],
+            'gst_amount': amounts['gst_amount'],
+            'total_amount': amounts['total_amount'],
+            'notes': request.notes or '',
+            'status': 'draft',
+            'payment_terms': request.due_days,
+            'created_at': invoice_date.isoformat(),
+            'updated_at': invoice_date.isoformat(),
+            'sent_at': None,
+            'paid_at': None,
+            'paid_amount': 0,
+            'payments': []
+        }
+        
+        await db.invoices.insert_one(invoice_data)
+        invoice_data.pop('_id', None)
+        
+        return invoice_data
+        
+    except Exception as e:
+        logging.error(f"Error creating manual invoice: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/invoices/list")
+async def list_invoices(status: Optional[str] = None, contract_id: Optional[str] = None):
+    """List all invoices, optionally filtered by status or contract"""
+    try:
+        query = {}
+        if status:
+            query['status'] = status
+        if contract_id:
+            query['contract_id'] = contract_id
+        
+        invoices = await db.invoices.find(query).sort("created_at", -1).to_list(length=100)
+        
+        for invoice in invoices:
+            invoice.pop('_id', None)
+        
+        return invoices
+        
+    except Exception as e:
+        logging.error(f"Error listing invoices: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/invoices/{invoice_id}")
+async def get_invoice(invoice_id: str):
+    """Get a specific invoice by ID"""
+    invoice = await db.invoices.find_one({"id": invoice_id})
+    if not invoice:
+        raise HTTPException(status_code=404, detail="Invoice not found")
+    
+    invoice.pop('_id', None)
+    return invoice
+
+
+@api_router.get("/invoices/{invoice_id}/pdf")
+async def generate_invoice_pdf(invoice_id: str):
+    """Generate and download invoice PDF"""
+    try:
+        invoice = await db.invoices.find_one({"id": invoice_id})
+        if not invoice:
+            raise HTTPException(status_code=404, detail="Invoice not found")
+        
+        # Generate PDF
+        generator = InvoiceGenerator()
+        pdf_buffer = generator.generate_invoice(invoice)
+        
+        return Response(
+            content=pdf_buffer.getvalue(),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f"attachment; filename=Invoice_{invoice.get('invoice_number', 'INV')}.pdf"
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error generating invoice PDF: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.put("/invoices/{invoice_id}/status")
+async def update_invoice_status(invoice_id: str, request: InvoiceUpdateRequest):
+    """Update invoice status (mark as sent, paid, etc.)"""
+    try:
+        invoice = await db.invoices.find_one({"id": invoice_id})
+        if not invoice:
+            raise HTTPException(status_code=404, detail="Invoice not found")
+        
+        update_data = {
+            "status": request.status,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        if request.status == 'sent' and not invoice.get('sent_at'):
+            update_data['sent_at'] = datetime.now(timezone.utc).isoformat()
+        
+        if request.status == 'paid':
+            update_data['paid_at'] = request.paid_date or datetime.now(timezone.utc).isoformat()
+            update_data['paid_amount'] = request.paid_amount or invoice.get('total_amount', 0)
+            
+            if request.payment_reference:
+                payment_record = {
+                    'amount': request.paid_amount or invoice.get('total_amount', 0),
+                    'date': request.paid_date or datetime.now(timezone.utc).isoformat(),
+                    'reference': request.payment_reference,
+                    'notes': request.notes
+                }
+                update_data['payments'] = invoice.get('payments', []) + [payment_record]
+        
+        if request.notes:
+            update_data['notes'] = request.notes
+        
+        await db.invoices.update_one(
+            {"id": invoice_id},
+            {"$set": update_data}
+        )
+        
+        # Return updated invoice
+        updated_invoice = await db.invoices.find_one({"id": invoice_id})
+        updated_invoice.pop('_id', None)
+        
+        return updated_invoice
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating invoice status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/invoices/{invoice_id}/record-payment")
+async def record_partial_payment(invoice_id: str, amount: float, reference: Optional[str] = None, notes: Optional[str] = None):
+    """Record a partial payment against an invoice"""
+    try:
+        invoice = await db.invoices.find_one({"id": invoice_id})
+        if not invoice:
+            raise HTTPException(status_code=404, detail="Invoice not found")
+        
+        current_paid = invoice.get('paid_amount', 0)
+        total_amount = invoice.get('total_amount', 0)
+        new_paid_total = current_paid + amount
+        
+        # Create payment record
+        payment_record = {
+            'id': str(uuid.uuid4()),
+            'amount': amount,
+            'date': datetime.now(timezone.utc).isoformat(),
+            'reference': reference,
+            'notes': notes
+        }
+        
+        # Update status based on payment
+        new_status = invoice.get('status', 'draft')
+        if new_paid_total >= total_amount:
+            new_status = 'paid'
+        elif new_paid_total > 0:
+            new_status = 'partial'
+        
+        update_data = {
+            'paid_amount': new_paid_total,
+            'status': new_status,
+            'updated_at': datetime.now(timezone.utc).isoformat(),
+            'payments': invoice.get('payments', []) + [payment_record]
+        }
+        
+        if new_status == 'paid':
+            update_data['paid_at'] = datetime.now(timezone.utc).isoformat()
+        
+        await db.invoices.update_one(
+            {"id": invoice_id},
+            {"$set": update_data}
+        )
+        
+        updated_invoice = await db.invoices.find_one({"id": invoice_id})
+        updated_invoice.pop('_id', None)
+        
+        return {
+            "success": True,
+            "message": f"Payment of ${amount:,.2f} recorded",
+            "invoice": updated_invoice
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error recording payment: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/invoices/{invoice_id}/send")
+async def send_invoice_email(invoice_id: str):
+    """Send invoice to client via email"""
+    try:
+        invoice = await db.invoices.find_one({"id": invoice_id})
+        if not invoice:
+            raise HTTPException(status_code=404, detail="Invoice not found")
+        
+        client_email = invoice.get('client_info', {}).get('email')
+        client_name = invoice.get('client_info', {}).get('name', 'Client')
+        
+        if not client_email:
+            raise HTTPException(status_code=400, detail="Client email not found")
+        
+        # Generate PDF
+        generator = InvoiceGenerator()
+        pdf_buffer = generator.generate_invoice(invoice)
+        pdf_content = pdf_buffer.getvalue()
+        
+        # Prepare email content
+        invoice_number = invoice.get('invoice_number', 'INV')
+        total_amount = invoice.get('total_amount', 0)
+        due_date = invoice.get('due_date', '')
+        contractor_name = invoice.get('contractor_info', {}).get('contractor_name', 'Your Contractor')
+        
+        email_body = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #1e40af;">Tax Invoice {invoice_number}</h2>
+                
+                <p>Dear {client_name},</p>
+                
+                <p>Please find attached your tax invoice for bathroom renovation works.</p>
+                
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <p style="margin: 0;"><strong>Invoice Number:</strong> {invoice_number}</p>
+                    <p style="margin: 5px 0;"><strong>Amount Due:</strong> ${total_amount:,.2f}</p>
+                    <p style="margin: 5px 0;"><strong>Due Date:</strong> {due_date}</p>
+                </div>
+                
+                <p>Payment details are included in the attached invoice. Please use the invoice number as your payment reference.</p>
+                
+                <p>If you have any questions regarding this invoice, please do not hesitate to contact us.</p>
+                
+                <p>Kind regards,<br/>
+                <strong>{contractor_name}</strong></p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        # Send email with PDF attachment
+        from sendgrid import SendGridAPIClient
+        from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
+        import base64
+        
+        api_key = os.getenv('SENDGRID_API_KEY')
+        sender_email = os.getenv('SENDER_EMAIL')
+        
+        if not api_key or not sender_email:
+            # If email not configured, just update status and return success
+            await db.invoices.update_one(
+                {"id": invoice_id},
+                {"$set": {
+                    "status": "sent",
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            return {
+                "success": True,
+                "message": "Invoice marked as sent (email service not configured)",
+                "pdf_generated": True
+            }
+        
+        message = Mail(
+            from_email=sender_email,
+            to_emails=client_email,
+            subject=f"Tax Invoice {invoice_number} - {contractor_name}",
+            html_content=email_body
+        )
+        
+        # Add PDF attachment
+        encoded_pdf = base64.b64encode(pdf_content).decode()
+        attachment = Attachment(
+            FileContent(encoded_pdf),
+            FileName(f"Invoice_{invoice_number}.pdf"),
+            FileType("application/pdf"),
+            Disposition("attachment")
+        )
+        message.attachment = attachment
+        
+        # Send email
+        sg = SendGridAPIClient(api_key)
+        response = sg.send(message)
+        
+        if response.status_code == 202:
+            # Update invoice status
+            await db.invoices.update_one(
+                {"id": invoice_id},
+                {"$set": {
+                    "status": "sent",
+                    "sent_at": datetime.now(timezone.utc).isoformat(),
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            return {
+                "success": True,
+                "message": f"Invoice sent successfully to {client_email}"
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send email")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error sending invoice: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/invoices/by-contract/{contract_id}")
+async def get_invoices_by_contract(contract_id: str):
+    """Get all invoices for a specific contract"""
+    try:
+        invoices = await db.invoices.find({"contract_id": contract_id}).sort("created_at", -1).to_list(length=100)
+        
+        for invoice in invoices:
+            invoice.pop('_id', None)
+        
+        return invoices
+        
+    except Exception as e:
+        logging.error(f"Error getting invoices by contract: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/invoices/next-number")
+async def get_next_invoice_number_endpoint():
+    """Get the next invoice number (for preview purposes)"""
+    try:
+        current_year = datetime.now().year
+        counter = await db.invoice_counters.find_one({"year": current_year})
+        next_seq = (counter.get('sequence', 0) if counter else 0) + 1
+        return {"next_number": generate_invoice_number(current_year, next_seq)}
+    except Exception as e:
+        return {"next_number": generate_invoice_number(datetime.now().year, 1)}
+
+
+@api_router.delete("/invoices/{invoice_id}")
+async def delete_invoice(invoice_id: str):
+    """Delete an invoice (only if draft or cancelled)"""
+    try:
+        invoice = await db.invoices.find_one({"id": invoice_id})
+        if not invoice:
+            raise HTTPException(status_code=404, detail="Invoice not found")
+        
+        if invoice.get('status') not in ['draft', 'cancelled']:
+            raise HTTPException(
+                status_code=400, 
+                detail="Cannot delete invoice that has been sent or paid. Cancel it first."
+            )
+        
+        await db.invoices.delete_one({"id": invoice_id})
+        
+        return {"success": True, "message": "Invoice deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting invoice: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/contracts/{contract_id}/invoice-status")
+async def get_contract_invoice_status(contract_id: str):
+    """Get invoice status for each payment stage of a contract"""
+    try:
+        contract = await db.contracts.find_one({"id": contract_id})
+        if not contract:
+            raise HTTPException(status_code=404, detail="Contract not found")
+        
+        payment_schedule = contract.get('payment_schedule', [])
+        invoices = await db.invoices.find({
+            "contract_id": contract_id,
+            "status": {"$ne": "cancelled"}
+        }).to_list(length=100)
+        
+        # Map invoices to stages
+        invoice_map = {}
+        for inv in invoices:
+            if inv.get('stage_index') is not None:
+                invoice_map[inv['stage_index']] = {
+                    'invoice_id': inv['id'],
+                    'invoice_number': inv.get('invoice_number'),
+                    'status': inv.get('status'),
+                    'total_amount': inv.get('total_amount'),
+                    'paid_amount': inv.get('paid_amount', 0),
+                    'sent_at': inv.get('sent_at'),
+                    'paid_at': inv.get('paid_at')
+                }
+        
+        # Build response with stage info
+        stages = []
+        for i, stage in enumerate(payment_schedule):
+            stage_info = {
+                'stage_index': i,
+                'stage': stage.get('stage'),
+                'description': stage.get('description'),
+                'percentage': stage.get('percentage'),
+                'amount': stage.get('amount'),
+                'invoice': invoice_map.get(i)
+            }
+            stages.append(stage_info)
+        
+        return {
+            'contract_id': contract_id,
+            'contract_number': contract.get('contract_number'),
+            'total_price': contract.get('total_price'),
+            'stages': stages
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error getting contract invoice status: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 app.add_middleware(
     CORSMiddleware,
