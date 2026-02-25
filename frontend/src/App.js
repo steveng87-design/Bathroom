@@ -2846,6 +2846,109 @@ ${userProfile.email}`;
     }
   };
 
+  // Invoice Management Functions
+  const loadInvoices = async () => {
+    setLoadingInvoices(true);
+    try {
+      const response = await axios.get(`${API}/invoices/list`);
+      setInvoices(response.data);
+    } catch (error) {
+      console.error('Error loading invoices:', error);
+      toast.error('Failed to load invoices');
+    } finally {
+      setLoadingInvoices(false);
+    }
+  };
+
+  const loadContractInvoiceStatus = async (contractId) => {
+    try {
+      const response = await axios.get(`${API}/contracts/${contractId}/invoice-status`);
+      setInvoiceContractStatus(response.data);
+      return response.data;
+    } catch (error) {
+      console.error('Error loading contract invoice status:', error);
+      toast.error('Failed to load invoice status');
+      return null;
+    }
+  };
+
+  const createInvoiceFromStage = async (contractId, stageIndex) => {
+    setCreatingInvoice(true);
+    try {
+      const response = await axios.post(`${API}/invoices/create-from-stage`, {
+        contract_id: contractId,
+        stage_index: stageIndex
+      });
+      toast.success(`Invoice ${response.data.invoice_number} created!`);
+      loadInvoices();
+      loadContractInvoiceStatus(contractId);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      toast.error(error.response?.data?.detail || 'Failed to create invoice');
+      return null;
+    } finally {
+      setCreatingInvoice(false);
+    }
+  };
+
+  const downloadInvoicePdf = async (invoiceId, invoiceNumber) => {
+    try {
+      const response = await axios.get(`${API}/invoices/${invoiceId}/pdf`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Invoice_${invoiceNumber}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success('Invoice downloaded!');
+    } catch (error) {
+      console.error('Error downloading invoice:', error);
+      toast.error('Failed to download invoice');
+    }
+  };
+
+  const sendInvoice = async (invoiceId) => {
+    try {
+      const response = await axios.post(`${API}/invoices/${invoiceId}/send`);
+      toast.success(response.data.message);
+      loadInvoices();
+    } catch (error) {
+      console.error('Error sending invoice:', error);
+      toast.error(error.response?.data?.detail || 'Failed to send invoice');
+    }
+  };
+
+  const updateInvoiceStatus = async (invoiceId, status, additionalData = {}) => {
+    try {
+      await axios.put(`${API}/invoices/${invoiceId}/status`, {
+        status,
+        ...additionalData
+      });
+      toast.success(`Invoice marked as ${status}`);
+      loadInvoices();
+    } catch (error) {
+      console.error('Error updating invoice status:', error);
+      toast.error('Failed to update invoice status');
+    }
+  };
+
+  const getInvoiceStatusBadge = (status) => {
+    const statusConfig = {
+      draft: { color: 'bg-gray-100 text-gray-800', label: 'Draft' },
+      sent: { color: 'bg-blue-100 text-blue-800', label: 'Sent' },
+      paid: { color: 'bg-green-100 text-green-800', label: 'Paid' },
+      partial: { color: 'bg-yellow-100 text-yellow-800', label: 'Partial' },
+      overdue: { color: 'bg-red-100 text-red-800', label: 'Overdue' },
+      cancelled: { color: 'bg-gray-100 text-gray-500', label: 'Cancelled' }
+    };
+    const config = statusConfig[status] || statusConfig.draft;
+    return <Badge className={config.color}>{config.label}</Badge>;
+  };
+
   // Render Saved Contracts View
   const renderSavedContractsView = () => {
     const updateContractStatus = async (contractId, newStatus) => {
