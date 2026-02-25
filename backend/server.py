@@ -1660,15 +1660,23 @@ async def create_invoice_from_stage(request: InvoiceCreateRequest):
             'account_number': os.environ.get('BANK_ACCOUNT_NUMBER', '')
         }
         
-        # Calculate amounts (contract prices include GST)
-        stage_amount = stage.get('amount', 0)
-        amounts = calculate_invoice_amounts(stage_amount, include_gst=True)
-        
-        # Build line items
+        # Build line items and calculate amounts
         if request.custom_line_items:
+            # Custom line items provided (with variations)
             line_items = [item.dict() for item in request.custom_line_items]
+            # Calculate totals from custom line items (amounts are subtotals excl GST)
+            subtotal = sum(item.amount for item in request.custom_line_items)
+            gst_amount = round(subtotal * 0.1, 2)
+            total_amount = round(subtotal + gst_amount, 2)
+            amounts = {
+                'subtotal': subtotal,
+                'gst_amount': gst_amount,
+                'total_amount': total_amount
+            }
         else:
             # Default: single line item for the stage
+            stage_amount = stage.get('amount', 0)
+            amounts = calculate_invoice_amounts(stage_amount, include_gst=True)
             stage_desc = stage.get('description', f"Stage {stage.get('stage', '')} Payment")
             line_items = [{
                 'description': request.custom_description or f"{stage_desc} - {stage.get('percentage', 0)}% of contract value",
