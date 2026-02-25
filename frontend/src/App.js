@@ -4073,6 +4073,54 @@ ${contractorEmail}`
               />
             </div>
 
+            {/* Bank Details for Invoices */}
+            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mt-6 flex items-center">
+              <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+              Bank Details (for Invoices)
+            </h3>
+            <p className="text-sm text-gray-500 -mt-2">These details will appear on all invoices for client payments</p>
+            
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Bank Name</Label>
+              <Input
+                value={userProfile.bank_name}
+                onChange={(e) => setUserProfile({...userProfile, bank_name: e.target.value})}
+                placeholder="Commonwealth Bank"
+                className="mt-1"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-sm font-medium text-gray-700">BSB</Label>
+                <Input
+                  value={userProfile.bank_bsb}
+                  onChange={(e) => setUserProfile({...userProfile, bank_bsb: e.target.value})}
+                  placeholder="062-000"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Account Number</Label>
+                <Input
+                  value={userProfile.bank_account_number}
+                  onChange={(e) => setUserProfile({...userProfile, bank_account_number: e.target.value})}
+                  placeholder="12345678"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Account Name</Label>
+              <Input
+                value={userProfile.bank_account_name}
+                onChange={(e) => setUserProfile({...userProfile, bank_account_name: e.target.value})}
+                placeholder="Your Business Name Pty Ltd"
+                className="mt-1"
+              />
+            </div>
+
             <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2 mt-6">Quote Settings</h3>
             
             <div className="grid grid-cols-2 gap-4">
