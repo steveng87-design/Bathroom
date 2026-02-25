@@ -2118,34 +2118,6 @@ async def send_invoice_email(invoice_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@api_router.get("/invoices/by-contract/{contract_id}")
-async def get_invoices_by_contract(contract_id: str):
-    """Get all invoices for a specific contract"""
-    try:
-        invoices = await db.invoices.find({"contract_id": contract_id}).sort("created_at", -1).to_list(length=100)
-        
-        for invoice in invoices:
-            invoice.pop('_id', None)
-        
-        return invoices
-        
-    except Exception as e:
-        logging.error(f"Error getting invoices by contract: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@api_router.get("/invoices/next-number")
-async def get_next_invoice_number_endpoint():
-    """Get the next invoice number (for preview purposes)"""
-    try:
-        current_year = datetime.now().year
-        counter = await db.invoice_counters.find_one({"year": current_year})
-        next_seq = (counter.get('sequence', 0) if counter else 0) + 1
-        return {"next_number": generate_invoice_number(current_year, next_seq)}
-    except Exception:
-        return {"next_number": generate_invoice_number(datetime.now().year, 1)}
-
-
 @api_router.delete("/invoices/{invoice_id}")
 async def delete_invoice(invoice_id: str):
     """Delete an invoice (only if draft or cancelled)"""
