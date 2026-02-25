@@ -4707,6 +4707,22 @@ ${userProfile.email}`;
           </button>
           
           <button
+            onClick={() => { setCurrentView('invoices'); loadInvoices(); }}
+            data-testid="invoices-menu-btn"
+            className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
+              currentView === 'invoices' 
+                ? 'bg-green-100 text-green-700 border border-green-200' 
+                : 'hover:bg-gray-100 text-gray-700'
+            }`}
+          >
+            <Receipt className="w-5 h-5 flex-shrink-0" />
+            <div className="text-left">
+              <div className="font-medium text-sm">Invoices</div>
+              <div className="text-xs text-gray-500">Progress Claims</div>
+            </div>
+          </button>
+          
+          <button
             onClick={() => setCurrentView('profile')}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'profile' 
