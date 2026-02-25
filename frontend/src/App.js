@@ -5529,6 +5529,173 @@ ${contractorEmail}`
         </DialogContent>
       </Dialog>
       
+      {/* Invoice Creation Modal with Variations */}
+      <Dialog open={invoiceModalOpen} onOpenChange={setInvoiceModalOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center text-xl">
+              <Receipt className="w-5 h-5 mr-2 text-green-600" />
+              Create Progress Claim
+            </DialogTitle>
+            <DialogDescription>
+              {invoiceModalData && (
+                <span>
+                  {invoiceModalData.stageName} for {invoiceModalData.clientName}
+                </span>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {invoiceModalData && (
+            <div className="space-y-4">
+              {/* Base Stage Amount */}
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-gray-900">{invoiceModalData.stageName}</p>
+                    <p className="text-sm text-gray-600">{invoiceModalData.stagePercentage}% of contract value</p>
+                  </div>
+                  <p className="text-xl font-bold text-blue-600">
+                    ${invoiceModalData.stageAmount?.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Variations Section */}
+              <div className="border-t pt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <p className="font-medium text-gray-900">Variations / Additional Works</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addVariation}
+                    className="text-green-600 border-green-300 hover:bg-green-50"
+                  >
+                    <PlusCircle className="w-4 h-4 mr-1" />
+                    Add Variation
+                  </Button>
+                </div>
+                
+                {variations.length === 0 ? (
+                  <p className="text-sm text-gray-500 text-center py-4 bg-gray-50 rounded-lg">
+                    No variations added. Click "Add Variation" to include additional works.
+                  </p>
+                ) : (
+                  <div className="space-y-3">
+                    {variations.map((variation, index) => (
+                      <div key={index} className="bg-gray-50 rounded-lg p-3 space-y-2">
+                        <div className="flex justify-between items-start">
+                          <span className="text-xs font-semibold text-gray-500">Variation {index + 1}</span>
+                          <button
+                            onClick={() => removeVariation(index)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Description (e.g., Additional mirror cabinet)"
+                          value={variation.description}
+                          onChange={(e) => updateVariation(index, 'description', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                        />
+                        <div className="flex gap-2 items-center">
+                          <div className="flex-1">
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                              <input
+                                type="number"
+                                placeholder="Amount"
+                                value={variation.amount}
+                                onChange={(e) => updateVariation(index, 'amount', e.target.value)}
+                                className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                              />
+                            </div>
+                          </div>
+                          <label className="flex items-center text-sm text-gray-600 whitespace-nowrap">
+                            <input
+                              type="checkbox"
+                              checked={variation.includesGst}
+                              onChange={(e) => updateVariation(index, 'includesGst', e.target.checked)}
+                              className="mr-2 rounded"
+                            />
+                            Inc. GST
+                          </label>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* Invoice Preview */}
+              <div className="border-t pt-4">
+                <p className="font-medium text-gray-900 mb-3">Invoice Preview</p>
+                <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Base Stage Amount:</span>
+                    <span>${invoiceModalData.stageAmount?.toLocaleString()}</span>
+                  </div>
+                  {variations.length > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Variations ({variations.length}):</span>
+                      <span>${calculateInvoiceTotals().variationsTotal?.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="border-t pt-2 mt-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Subtotal (excl. GST):</span>
+                      <span>${calculateInvoiceTotals().subtotal?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">GST (10%):</span>
+                      <span>${calculateInvoiceTotals().gst?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div className="flex justify-between text-lg font-bold mt-2 pt-2 border-t">
+                      <span className="text-gray-900">Total (inc. GST):</span>
+                      <span className="text-green-600">${calculateInvoiceTotals().total?.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <div className="flex gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setInvoiceModalOpen(false);
+                setInvoiceModalData(null);
+                setVariations([]);
+              }}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={createInvoiceWithVariations}
+              disabled={creatingInvoice}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            >
+              {creatingInvoice ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Receipt className="w-4 h-4 mr-2" />
+                  Create Invoice
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
       <Toaster position="top-right" />
     </div>
   );
