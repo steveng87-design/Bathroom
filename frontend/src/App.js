@@ -3073,6 +3073,75 @@ ${userProfile.email}`;
     }
   };
 
+  // Multi-select contract functions
+  const toggleContractSelection = (contractId) => {
+    setSelectedContracts(prev => 
+      prev.includes(contractId) 
+        ? prev.filter(id => id !== contractId)
+        : [...prev, contractId]
+    );
+  };
+
+  const toggleSelectAllContracts = () => {
+    if (selectedContracts.length === savedContracts.length) {
+      setSelectedContracts([]);
+    } else {
+      setSelectedContracts(savedContracts.map(c => c.id));
+    }
+  };
+
+  const deleteSelectedContracts = async () => {
+    if (selectedContracts.length === 0) return;
+    
+    const confirmMessage = `Are you sure you want to delete ${selectedContracts.length} contract(s) and all their associated invoices? This action cannot be undone.`;
+    if (!window.confirm(confirmMessage)) return;
+    
+    setDeletingContracts(true);
+    let successCount = 0;
+    let errorCount = 0;
+    
+    try {
+      for (const contractId of selectedContracts) {
+        try {
+          // First, delete all invoices associated with this contract
+          const contractInvoices = invoices.filter(inv => inv.contract_id === contractId);
+          for (const invoice of contractInvoices) {
+            try {
+              // Cancel first if not already cancelled
+              if (invoice.status !== 'cancelled') {
+                await axios.put(`${API}/invoices/${invoice.id}/status`, { status: 'cancelled' });
+              }
+              await axios.delete(`${API}/invoices/${invoice.id}`);
+            } catch (invError) {
+              console.error(`Error deleting invoice ${invoice.invoice_number}:`, invError);
+            }
+          }
+          
+          // Then delete the contract
+          await axios.delete(`${API}/contracts/${contractId}`);
+          successCount++;
+        } catch (error) {
+          console.error(`Error deleting contract ${contractId}:`, error);
+          errorCount++;
+        }
+      }
+      
+      if (successCount > 0) {
+        toast.success(`Successfully deleted ${successCount} contract(s) and their invoices`);
+      }
+      if (errorCount > 0) {
+        toast.error(`Failed to delete ${errorCount} contract(s)`);
+      }
+      
+      // Clear selection and reload data
+      setSelectedContracts([]);
+      loadContracts();
+      loadInvoices();
+    } finally {
+      setDeletingContracts(false);
+    }
+  };
+
   const getInvoiceStatusBadge = (status) => {
     const statusConfig = {
       draft: { color: 'bg-gray-100 text-gray-800', label: 'Draft' },
