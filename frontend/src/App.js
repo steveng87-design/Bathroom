@@ -3506,6 +3506,18 @@ ${contractorEmail}`
                             Mark Paid
                           </Button>
                         )}
+                        
+                        {invoice.status === 'paid' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateInvoiceStatus(invoice.id, 'sent')}
+                            className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                          >
+                            <Undo2 className="w-4 h-4 mr-1" />
+                            Mark Unpaid
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </CardContent>
