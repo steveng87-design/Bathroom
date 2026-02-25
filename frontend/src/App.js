@@ -3256,7 +3256,7 @@ ${contractorEmail}`
                                           >
                                             <Mail className="w-3 h-3" />
                                           </button>
-                                          {existingInvoice.status !== 'paid' && (
+                                          {existingInvoice.status !== 'paid' ? (
                                             <button
                                               onClick={(e) => {
                                                 e.stopPropagation();
@@ -3266,6 +3266,17 @@ ${contractorEmail}`
                                               title="Mark as Paid"
                                             >
                                               <CheckCheck className="w-3 h-3" />
+                                            </button>
+                                          ) : (
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                updateInvoiceStatus(existingInvoice.id, 'sent');
+                                              }}
+                                              className="flex-1 text-xs bg-orange-500 text-white rounded px-2 py-1 hover:bg-orange-600 flex items-center justify-center"
+                                              title="Mark as Unpaid"
+                                            >
+                                              <Undo2 className="w-3 h-3" />
                                             </button>
                                           )}
                                         </div>
