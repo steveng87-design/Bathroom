@@ -2937,6 +2937,20 @@ ${userProfile.email}`;
     }
   };
 
+  const cancelInvoice = async (invoiceId, invoiceNumber) => {
+    // First update status to cancelled (so it can be deleted)
+    try {
+      await axios.put(`${API}/invoices/${invoiceId}/status`, { status: 'cancelled' });
+      // Then delete it
+      await axios.delete(`${API}/invoices/${invoiceId}`);
+      toast.success(`Invoice ${invoiceNumber} cancelled`);
+      loadInvoices();
+    } catch (error) {
+      console.error('Error cancelling invoice:', error);
+      toast.error(error.response?.data?.detail || 'Failed to cancel invoice');
+    }
+  };
+
   const getInvoiceStatusBadge = (status) => {
     const statusConfig = {
       draft: { color: 'bg-gray-100 text-gray-800', label: 'Draft' },
