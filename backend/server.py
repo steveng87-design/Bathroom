@@ -1572,6 +1572,7 @@ class InvoiceCreateRequest(BaseModel):
     custom_line_items: Optional[List[InvoiceLineItem]] = None
     due_days: int = 14
     notes: Optional[str] = None
+    bank_details: Optional[Dict[str, str]] = None  # Bank details from user profile
 
 class ManualInvoiceRequest(BaseModel):
     """Request model for creating a manual invoice"""
