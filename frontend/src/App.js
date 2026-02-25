@@ -244,6 +244,10 @@ const RenovationQuotingApp = () => {
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [invoiceModalData, setInvoiceModalData] = useState(null);
   const [variations, setVariations] = useState([]);
+  
+  // Multi-select for contracts
+  const [selectedContracts, setSelectedContracts] = useState([]);
+  const [deletingContracts, setDeletingContracts] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
