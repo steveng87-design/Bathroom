@@ -3333,11 +3333,46 @@ ${contractorEmail}`
               </h2>
               <p className="text-gray-600 text-sm mt-1">View, manage, and approve generated contracts</p>
             </div>
-            <Button onClick={loadContracts} variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-2">
+              {selectedContracts.length > 0 && (
+                <Button 
+                  onClick={deleteSelectedContracts}
+                  disabled={deletingContracts}
+                  variant="outline"
+                  className="border-red-300 text-red-600 hover:bg-red-50"
+                >
+                  {deletingContracts ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4 mr-2" />
+                  )}
+                  Delete Selected ({selectedContracts.length})
+                </Button>
+              )}
+              <Button onClick={loadContracts} variant="outline">
+                <Download className="w-4 h-4 mr-2" />
+                Refresh
+              </Button>
+            </div>
           </div>
+
+          {/* Select All Row */}
+          {savedContracts.length > 0 && (
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-gray-200">
+              <input
+                type="checkbox"
+                checked={selectedContracts.length === savedContracts.length && savedContracts.length > 0}
+                onChange={toggleSelectAllContracts}
+                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+              <span className="text-sm text-gray-600">
+                {selectedContracts.length === savedContracts.length && savedContracts.length > 0
+                  ? 'Deselect All'
+                  : 'Select All'}
+                {selectedContracts.length > 0 && ` (${selectedContracts.length} selected)`}
+              </span>
+            </div>
+          )}
 
           {loadingContracts ? (
             <div className="text-center py-12">
@@ -3358,16 +3393,29 @@ ${contractorEmail}`
           ) : (
             <div className="space-y-4">
               {savedContracts.map((contract) => (
-                <Card key={contract.id} className="hover:shadow-md transition-shadow">
+                <Card 
+                  key={contract.id} 
+                  className={`hover:shadow-md transition-shadow ${
+                    selectedContracts.includes(contract.id) ? 'ring-2 ring-blue-500 bg-blue-50/30' : ''
+                  }`}
+                >
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            Contract #{contract.contract_number || contract.id.substring(0, 8)}
-                          </h3>
-                          {getStatusBadge(contract.status)}
-                        </div>
+                      <div className="flex items-start gap-4">
+                        {/* Checkbox */}
+                        <input
+                          type="checkbox"
+                          checked={selectedContracts.includes(contract.id)}
+                          onChange={() => toggleContractSelection(contract.id)}
+                          className="mt-1 w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900">
+                              Contract #{contract.contract_number || contract.id.substring(0, 8)}
+                            </h3>
+                            {getStatusBadge(contract.status)}
+                          </div>
                         <div className="grid grid-cols-2 gap-4 text-sm">
                           <div>
                             <span className="text-gray-600">Client:</span>
