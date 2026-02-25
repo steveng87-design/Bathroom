@@ -3578,6 +3578,7 @@ ${contractorEmail}`
                           </div>
                         )}
                       </div>
+                      </div>
                       
                       <div className="flex flex-col gap-2 ml-4">
                         <Button
