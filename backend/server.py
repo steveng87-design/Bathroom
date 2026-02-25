@@ -1653,13 +1653,22 @@ async def create_invoice_from_stage(request: InvoiceCreateRequest):
         # Get contractor info from contract or environment
         contractor_info = contract.get('contractor_info', {})
         
-        # Get bank details from environment or use defaults
-        bank_details = {
-            'bank_name': os.environ.get('BANK_NAME', 'Commonwealth Bank'),
-            'account_name': os.environ.get('BANK_ACCOUNT_NAME', contractor_info.get('contractor_name', '')),
-            'bsb': os.environ.get('BANK_BSB', ''),
-            'account_number': os.environ.get('BANK_ACCOUNT_NUMBER', '')
-        }
+        # Get bank details from request (user profile) or fall back to environment/defaults
+        if request.bank_details and any(request.bank_details.values()):
+            bank_details = {
+                'bank_name': request.bank_details.get('bank_name', ''),
+                'account_name': request.bank_details.get('account_name', ''),
+                'bsb': request.bank_details.get('bsb', ''),
+                'account_number': request.bank_details.get('account_number', '')
+            }
+        else:
+            # Fall back to environment variables or defaults
+            bank_details = {
+                'bank_name': os.environ.get('BANK_NAME', 'Bank Name'),
+                'account_name': os.environ.get('BANK_ACCOUNT_NAME', contractor_info.get('contractor_name', '')),
+                'bsb': os.environ.get('BANK_BSB', 'XXX-XXX'),
+                'account_number': os.environ.get('BANK_ACCOUNT_NUMBER', 'XXXXXXXX')
+            }
         
         # Build line items and calculate amounts
         if request.custom_line_items:
