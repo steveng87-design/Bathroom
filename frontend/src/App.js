@@ -3137,6 +3137,8 @@ ${userProfile.email}`;
         return renderContractsView();
       case 'saved-contracts':
         return renderSavedContractsView();
+      case 'invoices':
+        return renderInvoicesView();
       case 'profile':
         return renderProfileView();
       default:
