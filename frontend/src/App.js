@@ -232,6 +232,13 @@ const RenovationQuotingApp = () => {
   const [previewContract, setPreviewContract] = useState(null);
   const [savedContracts, setSavedContracts] = useState([]);
   const [loadingContracts, setLoadingContracts] = useState(false);
+  
+  // Invoice Management States
+  const [invoices, setInvoices] = useState([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [creatingInvoice, setCreatingInvoice] = useState(false);
+  const [invoiceContractStatus, setInvoiceContractStatus] = useState(null);
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
