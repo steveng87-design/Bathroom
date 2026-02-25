@@ -2878,6 +2878,119 @@ ${userProfile.email}`;
     }
   };
 
+  // Open the invoice creation modal with stage data
+  const openInvoiceModal = (contract, stageIndex) => {
+    const stage = contract.payment_schedule[stageIndex];
+    setInvoiceModalData({
+      contract,
+      contractId: contract.id,
+      stageIndex,
+      stage,
+      stageName: stage.description?.split('-')[0]?.trim() || `Stage ${stage.stage}`,
+      stageAmount: stage.amount,
+      stagePercentage: stage.percentage,
+      clientName: contract.client_info?.name || 'Client'
+    });
+    setVariations([]);
+    setInvoiceModalOpen(true);
+  };
+
+  // Add a new variation line
+  const addVariation = () => {
+    setVariations([...variations, { description: '', amount: '', includesGst: true }]);
+  };
+
+  // Update a variation
+  const updateVariation = (index, field, value) => {
+    const updated = [...variations];
+    updated[index][field] = value;
+    setVariations(updated);
+  };
+
+  // Remove a variation
+  const removeVariation = (index) => {
+    setVariations(variations.filter((_, i) => i !== index));
+  };
+
+  // Calculate totals for invoice preview
+  const calculateInvoiceTotals = () => {
+    if (!invoiceModalData) return { subtotal: 0, gst: 0, total: 0 };
+    
+    // Base stage amount (includes GST)
+    const baseAmount = invoiceModalData.stageAmount || 0;
+    
+    // Calculate variations total
+    let variationsTotal = 0;
+    variations.forEach(v => {
+      const amount = parseFloat(v.amount) || 0;
+      if (v.includesGst) {
+        variationsTotal += amount;
+      } else {
+        variationsTotal += amount * 1.1; // Add GST
+      }
+    });
+    
+    const total = baseAmount + variationsTotal;
+    const subtotal = total / 1.1;
+    const gst = total - subtotal;
+    
+    return { subtotal, gst, total, variationsTotal };
+  };
+
+  // Create invoice with variations
+  const createInvoiceWithVariations = async () => {
+    if (!invoiceModalData) return;
+    
+    setCreatingInvoice(true);
+    try {
+      // Build custom line items if there are variations
+      let customLineItems = null;
+      const totals = calculateInvoiceTotals();
+      
+      if (variations.length > 0) {
+        customLineItems = [
+          {
+            description: `${invoiceModalData.stageName} - ${invoiceModalData.stagePercentage}% of contract value`,
+            amount: invoiceModalData.stageAmount / 1.1 // Subtotal (excl GST)
+          }
+        ];
+        
+        variations.forEach(v => {
+          if (v.description && v.amount) {
+            const amount = parseFloat(v.amount) || 0;
+            const subtotalAmount = v.includesGst ? amount / 1.1 : amount;
+            customLineItems.push({
+              description: `Variation: ${v.description}`,
+              amount: subtotalAmount
+            });
+          }
+        });
+      }
+      
+      const response = await axios.post(`${API}/invoices/create-from-stage`, {
+        contract_id: invoiceModalData.contractId,
+        stage_index: invoiceModalData.stageIndex,
+        custom_line_items: customLineItems,
+        custom_description: variations.length > 0 ? `${invoiceModalData.stageName} + Variations` : null
+      });
+      
+      toast.success(`Invoice ${response.data.invoice_number} created!`);
+      loadInvoices();
+      loadContractInvoiceStatus(invoiceModalData.contractId);
+      setInvoiceModalOpen(false);
+      setInvoiceModalData(null);
+      setVariations([]);
+      return response.data;
+    } catch (error) {
+      console.error('Error creating invoice:', error);
+      toast.error(error.response?.data?.detail || 'Failed to create invoice');
+      return null;
+    } finally {
+      setCreatingInvoice(false);
+    }
+  };
+
+  // Legacy function for direct creation (kept for compatibility)
   const createInvoiceFromStage = async (contractId, stageIndex) => {
     setCreatingInvoice(true);
     try {
