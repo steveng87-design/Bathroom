@@ -189,6 +189,12 @@ const RenovationQuotingApp = () => {
     state: '',
     postal_code: '',
     
+    // Bank Details for Invoices
+    bank_name: '',
+    bank_bsb: '',
+    bank_account_number: '',
+    bank_account_name: '',
+    
     // Experience & Credentials
     years_experience: '5+',
     projects_completed: '100+',
