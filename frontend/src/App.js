@@ -3125,6 +3125,159 @@ ${userProfile.email}`;
     );
   };
 
+  // Render Invoices View
+  const renderInvoicesView = () => {
+    return (
+      <div className="space-y-6">
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+              <Receipt className="w-6 h-6 mr-2 text-green-600" />
+              Invoices
+            </h2>
+            <div className="flex items-center space-x-2">
+              <Button
+                onClick={loadInvoices}
+                variant="outline"
+                size="sm"
+                disabled={loadingInvoices}
+              >
+                {loadingInvoices ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Refresh'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Invoice Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <p className="text-sm text-gray-500">Total Invoices</p>
+              <p className="text-2xl font-bold text-gray-900">{invoices.length}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-4">
+              <p className="text-sm text-blue-600">Sent</p>
+              <p className="text-2xl font-bold text-blue-900">
+                {invoices.filter(i => i.status === 'sent').length}
+              </p>
+            </div>
+            <div className="bg-green-50 rounded-lg p-4">
+              <p className="text-sm text-green-600">Paid</p>
+              <p className="text-2xl font-bold text-green-900">
+                {invoices.filter(i => i.status === 'paid').length}
+              </p>
+            </div>
+            <div className="bg-yellow-50 rounded-lg p-4">
+              <p className="text-sm text-yellow-600">Outstanding</p>
+              <p className="text-2xl font-bold text-yellow-900">
+                ${invoices
+                  .filter(i => ['sent', 'partial', 'overdue'].includes(i.status))
+                  .reduce((sum, i) => sum + (i.total_amount - (i.paid_amount || 0)), 0)
+                  .toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Invoice List */}
+          {loadingInvoices ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+          ) : invoices.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Receipt className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg font-medium">No invoices yet</p>
+              <p className="text-sm mt-2">Create invoices from your contracts by clicking on payment stages</p>
+              <Button
+                onClick={() => setCurrentView('saved-contracts')}
+                className="mt-4"
+                variant="outline"
+              >
+                View Contracts
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {invoices.map((invoice) => (
+                <Card key={invoice.id} className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3">
+                          <span className="font-bold text-lg text-blue-600">
+                            {invoice.invoice_number}
+                          </span>
+                          {getInvoiceStatusBadge(invoice.status)}
+                        </div>
+                        <p className="text-gray-600 mt-1">
+                          {invoice.client_info?.name || 'Unknown Client'}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {invoice.payment_stage}
+                          {invoice.stage_percentage && ` (${invoice.stage_percentage}%)`}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">
+                          Created: {invoice.invoice_date} | Due: {invoice.due_date}
+                        </p>
+                      </div>
+                      
+                      <div className="text-right mr-4">
+                        <p className="text-2xl font-bold text-green-600">
+                          ${invoice.total_amount?.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          GST: ${invoice.gst_amount?.toLocaleString()}
+                        </p>
+                        {invoice.paid_amount > 0 && invoice.paid_amount < invoice.total_amount && (
+                          <p className="text-sm text-yellow-600 mt-1">
+                            Paid: ${invoice.paid_amount?.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col space-y-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => downloadInvoicePdf(invoice.id, invoice.invoice_number)}
+                          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          PDF
+                        </Button>
+                        
+                        {invoice.status === 'draft' && (
+                          <Button
+                            size="sm"
+                            onClick={() => sendInvoice(invoice.id)}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
+                            <Send className="w-4 h-4 mr-1" />
+                            Send
+                          </Button>
+                        )}
+                        
+                        {['sent', 'partial', 'overdue'].includes(invoice.status) && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => updateInvoiceStatus(invoice.id, 'paid')}
+                            className="border-green-300 text-green-600 hover:bg-green-50"
+                          >
+                            <CheckCheck className="w-4 h-4 mr-1" />
+                            Mark Paid
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'home':
