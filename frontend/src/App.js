@@ -3232,7 +3232,18 @@ ${contractorEmail}`
                                         existingInvoice.status === 'paid' ? (
                                           <CheckCheck className="w-4 h-4 text-green-600" />
                                         ) : (
-                                          <Clock className="w-4 h-4 text-blue-600" />
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              if (window.confirm(`Cancel invoice ${existingInvoice.invoice_number}? This will remove the invoice from this stage.`)) {
+                                                cancelInvoice(existingInvoice.id, existingInvoice.invoice_number);
+                                              }
+                                            }}
+                                            className="hover:bg-red-100 rounded-full p-0.5 transition-colors"
+                                            title="Click to cancel this invoice"
+                                          >
+                                            <Clock className="w-4 h-4 text-blue-600 hover:text-red-500" />
+                                          </button>
                                         )
                                       ) : (
                                         <PlusCircle className="w-4 h-4 text-gray-400" />
@@ -3246,9 +3257,25 @@ ${contractorEmail}`
                                     </p>
                                     {existingInvoice ? (
                                       <div className="mt-2 space-y-1">
-                                        <p className="text-xs text-gray-500">
-                                          {existingInvoice.invoice_number} - {existingInvoice.status}
-                                        </p>
+                                        <div className="flex items-center justify-between">
+                                          <p className="text-xs text-gray-500">
+                                            {existingInvoice.invoice_number} - {existingInvoice.status}
+                                          </p>
+                                          {existingInvoice.status !== 'paid' && (
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (window.confirm(`Cancel invoice ${existingInvoice.invoice_number}?`)) {
+                                                  cancelInvoice(existingInvoice.id, existingInvoice.invoice_number);
+                                                }
+                                              }}
+                                              className="text-xs text-red-500 hover:text-red-700 hover:underline"
+                                              title="Cancel this invoice"
+                                            >
+                                              Cancel
+                                            </button>
+                                          )}
+                                        </div>
                                         <div className="flex gap-1">
                                           <button
                                             onClick={(e) => {
