@@ -3488,7 +3488,7 @@ ${contractorEmail}`
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateInvoiceStatus(invoice.id, 'paid')}}
+                            onClick={() => updateInvoiceStatus(invoice.id, 'paid')}
                             className="border-green-300 text-green-600 hover:bg-green-50"
                           >
                             <CheckCheck className="w-4 h-4 mr-1" />
