@@ -3071,6 +3071,74 @@ ${userProfile.email}`;
                             <span className="ml-2 font-medium">{new Date(contract.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
+                        
+                        {/* Payment Stages / Progress Claims */}
+                        {contract.payment_schedule && contract.payment_schedule.length > 0 && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <p className="text-sm font-semibold text-gray-700 mb-3 flex items-center">
+                              <Receipt className="w-4 h-4 mr-1 text-green-600" />
+                              Progress Claims - Click to Invoice
+                            </p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                              {contract.payment_schedule.map((stage, index) => {
+                                // Check if invoice already exists for this stage
+                                const existingInvoice = invoices.find(
+                                  inv => inv.contract_id === contract.id && 
+                                         inv.stage_index === index && 
+                                         inv.status !== 'cancelled'
+                                );
+                                
+                                return (
+                                  <button
+                                    key={index}
+                                    onClick={() => {
+                                      if (!existingInvoice) {
+                                        createInvoiceFromStage(contract.id, index);
+                                      } else {
+                                        downloadInvoicePdf(existingInvoice.id, existingInvoice.invoice_number);
+                                      }
+                                    }}
+                                    disabled={creatingInvoice}
+                                    data-testid={`invoice-stage-${index}`}
+                                    className={`p-3 rounded-lg text-left transition-all ${
+                                      existingInvoice
+                                        ? existingInvoice.status === 'paid'
+                                          ? 'bg-green-100 border-2 border-green-300 cursor-pointer hover:bg-green-200'
+                                          : 'bg-blue-100 border-2 border-blue-300 cursor-pointer hover:bg-blue-200'
+                                        : 'bg-gray-50 border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 cursor-pointer'
+                                    }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-xs font-semibold text-gray-500">
+                                        Stage {stage.stage}
+                                      </span>
+                                      {existingInvoice ? (
+                                        existingInvoice.status === 'paid' ? (
+                                          <CheckCheck className="w-4 h-4 text-green-600" />
+                                        ) : (
+                                          <Clock className="w-4 h-4 text-blue-600" />
+                                        )
+                                      ) : (
+                                        <PlusCircle className="w-4 h-4 text-gray-400" />
+                                      )}
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-700 mt-1 truncate" title={stage.description}>
+                                      {stage.description?.split('-')[0]?.trim() || `Stage ${stage.stage}`}
+                                    </p>
+                                    <p className="text-sm font-bold text-green-600 mt-1">
+                                      ${stage.amount?.toLocaleString()} ({stage.percentage}%)
+                                    </p>
+                                    {existingInvoice && (
+                                      <p className="text-xs text-gray-500 mt-1">
+                                        {existingInvoice.invoice_number} - {existingInvoice.status}
+                                      </p>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
                       
                       <div className="flex flex-col gap-2 ml-4">
