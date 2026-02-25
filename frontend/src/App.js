@@ -2981,7 +2981,13 @@ ${userProfile.email}`;
         contract_id: invoiceModalData.contractId,
         stage_index: invoiceModalData.stageIndex,
         custom_line_items: customLineItems,
-        custom_description: variations.length > 0 ? `${invoiceModalData.stageName} + Variations` : null
+        custom_description: variations.length > 0 ? `${invoiceModalData.stageName} + Variations` : null,
+        bank_details: {
+          bank_name: userProfile.bank_name || '',
+          bsb: userProfile.bank_bsb || '',
+          account_number: userProfile.bank_account_number || '',
+          account_name: userProfile.bank_account_name || userProfile.company_name || ''
+        }
       });
       
       toast.success(`Invoice ${response.data.invoice_number} created!`);
