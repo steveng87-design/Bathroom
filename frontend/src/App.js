@@ -2275,6 +2275,7 @@ ${userProfile.email}`;
   React.useEffect(() => {
     fetchSavedProjects();
     fetchProjectCategories();
+    loadInvoices(); // Load invoices for progress claims UI
     
     // Load draft data if available
     const savedDraft = loadFromLocalStorage();
