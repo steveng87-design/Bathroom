@@ -3199,23 +3199,15 @@ ${contractorEmail}`
                                 );
                                 
                                 return (
-                                  <button
+                                  <div
                                     key={index}
-                                    onClick={() => {
-                                      if (!existingInvoice) {
-                                        createInvoiceFromStage(contract.id, index);
-                                      } else {
-                                        downloadInvoicePdf(existingInvoice.id, existingInvoice.invoice_number);
-                                      }
-                                    }}
-                                    disabled={creatingInvoice}
                                     data-testid={`invoice-stage-${index}`}
                                     className={`p-3 rounded-lg text-left transition-all ${
                                       existingInvoice
                                         ? existingInvoice.status === 'paid'
-                                          ? 'bg-green-100 border-2 border-green-300 cursor-pointer hover:bg-green-200'
-                                          : 'bg-blue-100 border-2 border-blue-300 cursor-pointer hover:bg-blue-200'
-                                        : 'bg-gray-50 border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 cursor-pointer'
+                                          ? 'bg-green-100 border-2 border-green-300'
+                                          : 'bg-blue-100 border-2 border-blue-300'
+                                        : 'bg-gray-50 border-2 border-dashed border-gray-300'
                                     }`}
                                   >
                                     <div className="flex items-center justify-between">
@@ -3238,12 +3230,57 @@ ${contractorEmail}`
                                     <p className="text-sm font-bold text-green-600 mt-1">
                                       ${stage.amount?.toLocaleString()} ({stage.percentage}%)
                                     </p>
-                                    {existingInvoice && (
-                                      <p className="text-xs text-gray-500 mt-1">
-                                        {existingInvoice.invoice_number} - {existingInvoice.status}
-                                      </p>
+                                    {existingInvoice ? (
+                                      <div className="mt-2 space-y-1">
+                                        <p className="text-xs text-gray-500">
+                                          {existingInvoice.invoice_number} - {existingInvoice.status}
+                                        </p>
+                                        <div className="flex gap-1">
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              downloadInvoicePdf(existingInvoice.id, existingInvoice.invoice_number);
+                                            }}
+                                            className="flex-1 text-xs bg-white border border-gray-300 rounded px-2 py-1 hover:bg-gray-50 flex items-center justify-center"
+                                            title="Download PDF"
+                                          >
+                                            <Download className="w-3 h-3" />
+                                          </button>
+                                          <button
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              shareInvoice(existingInvoice);
+                                            }}
+                                            className="flex-1 text-xs bg-green-500 text-white rounded px-2 py-1 hover:bg-green-600 flex items-center justify-center"
+                                            title="Send via Email"
+                                          >
+                                            <Mail className="w-3 h-3" />
+                                          </button>
+                                          {existingInvoice.status !== 'paid' && (
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                updateInvoiceStatus(existingInvoice.id, 'paid');
+                                              }}
+                                              className="flex-1 text-xs bg-blue-500 text-white rounded px-2 py-1 hover:bg-blue-600 flex items-center justify-center"
+                                              title="Mark as Paid"
+                                            >
+                                              <CheckCheck className="w-3 h-3" />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={() => createInvoiceFromStage(contract.id, index)}
+                                        disabled={creatingInvoice}
+                                        className="mt-2 w-full text-xs bg-green-500 text-white rounded px-2 py-1.5 hover:bg-green-600 flex items-center justify-center gap-1"
+                                      >
+                                        <PlusCircle className="w-3 h-3" />
+                                        Create Invoice
+                                      </button>
                                     )}
-                                  </button>
+                                  </div>
                                 );
                               })}
                             </div>
