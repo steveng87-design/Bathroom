@@ -3442,7 +3442,7 @@ ${contractorEmail}`
                                       </div>
                                     ) : (
                                       <button
-                                        onClick={() => createInvoiceFromStage(contract.id, index)}
+                                        onClick={() => openInvoiceModal(contract, index)}
                                         disabled={creatingInvoice}
                                         className="mt-2 w-full text-xs bg-green-500 text-white rounded px-2 py-1.5 hover:bg-green-600 flex items-center justify-center gap-1"
                                       >
