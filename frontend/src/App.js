@@ -3422,22 +3422,36 @@ ${contractorEmail}`
                           PDF
                         </Button>
                         
-                        {invoice.status === 'draft' && (
-                          <Button
-                            size="sm"
-                            onClick={() => sendInvoice(invoice.id)}
-                            className="bg-blue-600 hover:bg-blue-700"
-                          >
-                            <Send className="w-4 h-4 mr-1" />
-                            Send
-                          </Button>
+                        {/* Email/Share Options - show for draft and sent invoices */}
+                        {['draft', 'sent'].includes(invoice.status) && (
+                          <>
+                            <Button
+                              size="sm"
+                              onClick={() => shareInvoice(invoice)}
+                              className="bg-green-600 hover:bg-green-700"
+                              title="Share via your email app or messaging"
+                            >
+                              <Mail className="w-4 h-4 mr-1" />
+                              Email Client
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => sendInvoice(invoice.id)}
+                              className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                              title="Send directly via app (requires email configuration)"
+                            >
+                              <Send className="w-4 h-4 mr-1" />
+                              Send Direct
+                            </Button>
+                          </>
                         )}
                         
                         {['sent', 'partial', 'overdue'].includes(invoice.status) && (
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => updateInvoiceStatus(invoice.id, 'paid')}
+                            onClick={() => updateInvoiceStatus(invoice.id, 'paid')}}
                             className="border-green-300 text-green-600 hover:bg-green-50"
                           >
                             <CheckCheck className="w-4 h-4 mr-1" />
