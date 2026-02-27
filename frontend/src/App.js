@@ -3978,11 +3978,11 @@ ${contractorEmail}`
               <div key={project.id} className="flex items-center justify-between p-3 bg-[#0D1321]/50 rounded-lg border border-[#1070E3]/10">
                 <div>
                   <p className="font-medium text-white">{project.project_name}</p>
-                  <p className="text-sm text-gray-600">{project.client_name}</p>
+                  <p className="text-sm text-[#C0C5CE]">{project.client_name}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-green-600">${formatCurrency(project.total_cost || 0)}</p>
-                  <p className="text-xs text-gray-500">{new Date(project.created_at).toLocaleDateString()}</p>
+                  <p className="font-bold text-[#00C6FF]">${formatCurrency(project.total_cost || 0)}</p>
+                  <p className="text-xs text-[#C0C5CE]/60">{new Date(project.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
             ))}
@@ -3995,29 +3995,29 @@ ${contractorEmail}`
   // Profile Settings View
   const renderProfileView = () => (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-          <Settings className="w-6 h-6 mr-2 text-blue-600" />
+      <div className="bg-gradient-to-br from-[#1A2332] to-[#0D1321] rounded-xl shadow-lg p-6 border border-[#1070E3]/20">
+        <h2 className="text-2xl font-bold text-white mb-6 flex items-center">
+          <Settings className="w-6 h-6 mr-2 text-[#00C6FF]" />
           Business Profile Settings
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Business Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-2">Business Information</h3>
+            <h3 className="text-lg font-semibold text-white border-b border-[#1070E3]/30 pb-2">Business Information</h3>
             
             <div>
-              <Label className="text-sm font-medium text-gray-700">Company Name *</Label>
+              <Label className="text-sm font-medium text-[#C0C5CE]">Company Name *</Label>
               <Input
                 value={userProfile.company_name}
                 onChange={(e) => setUserProfile({...userProfile, company_name: e.target.value})}
                 placeholder="Your Company Name"
-                className="mt-1"
+                className="mt-1 bg-[#0D1321] border-[#1070E3]/30 text-white placeholder:text-[#C0C5CE]/40"
               />
             </div>
 
             <div>
-              <Label className="text-sm font-medium text-gray-700">Contact Name *</Label>
+              <Label className="text-sm font-medium text-[#C0C5CE]">Contact Name *</Label>
               <Input
                 value={userProfile.contact_name}
                 onChange={(e) => setUserProfile({...userProfile, contact_name: e.target.value})}
