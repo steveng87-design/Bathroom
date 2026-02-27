@@ -3904,13 +3904,13 @@ ${contractorEmail}`
   // Home Dashboard View
   const renderHomeView = () => (
     <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
-          <Home className="w-6 h-6 mr-2 text-blue-600" />
+      <div className="bg-gradient-to-br from-[#1A2332] to-[#0D1321] rounded-xl shadow-lg p-6 border border-[#1070E3]/20">
+        <h2 className="text-2xl font-bold text-white mb-4 flex items-center">
+          <Home className="w-6 h-6 mr-2 text-[#00C6FF]" />
           Dashboard Overview
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-[#1070E3] to-[#00C6FF] rounded-lg p-6 text-white shadow-lg shadow-[#1070E3]/20">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100">Total Projects</p>
@@ -3919,36 +3919,36 @@ ${contractorEmail}`
               <FolderOpen className="w-12 h-12 text-blue-200" />
             </div>
           </div>
-          <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-[#FFC300] to-[#FFA500] rounded-lg p-6 text-[#0D1321] shadow-lg shadow-[#FFC300]/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-100">AI Learning</p>
+                <p className="text-[#0D1321]/70">AI Learning</p>
                 <p className="text-3xl font-bold">Active</p>
               </div>
-              <Award className="w-12 h-12 text-green-200" />
+              <Award className="w-12 h-12 text-[#0D1321]/40" />
             </div>
           </div>
-          <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-6 text-white">
+          <div className="bg-gradient-to-r from-[#00C6FF] to-[#1070E3] rounded-lg p-6 text-white shadow-lg shadow-[#00C6FF]/20">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-purple-100">Profile Status</p>
+                <p className="text-blue-100">Profile Status</p>
                 <p className="text-xl font-bold">Ready</p>
               </div>
-              <User className="w-12 h-12 text-purple-200" />
+              <User className="w-12 h-12 text-blue-200" />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h3>
+      <div className="bg-gradient-to-br from-[#1A2332] to-[#0D1321] rounded-xl shadow-lg p-6 border border-[#1070E3]/20">
+        <h3 className="text-xl font-bold text-white mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <button
             onClick={() => {
               startNewQuote();
               setCurrentView('new-quote');
             }}
-            className="flex items-center p-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all"
+            className="flex items-center p-4 bg-gradient-to-r from-[#1070E3] to-[#00C6FF] text-white rounded-lg hover:shadow-lg hover:shadow-[#1070E3]/30 transition-all"
           >
             <PlusCircle className="w-6 h-6 mr-3" />
             <div className="text-left">
@@ -3958,12 +3958,12 @@ ${contractorEmail}`
           </button>
           <button
             onClick={() => setCurrentView('saved-projects')}
-            className="flex items-center p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
+            className="flex items-center p-4 bg-gradient-to-r from-[#FFC300] to-[#FFA500] text-[#0D1321] rounded-lg hover:shadow-lg hover:shadow-[#FFC300]/30 transition-all"
           >
             <FolderOpen className="w-6 h-6 mr-3" />
             <div className="text-left">
               <div className="font-medium">View Saved Projects</div>
-              <div className="text-sm text-green-100">Manage and load existing quotes</div>
+              <div className="text-sm text-[#0D1321]/70">Manage and load existing quotes</div>
             </div>
           </button>
         </div>
@@ -3971,13 +3971,13 @@ ${contractorEmail}`
 
       {/* Recent Projects */}
       {savedProjects.length > 0 && (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Projects</h3>
+        <div className="bg-gradient-to-br from-[#1A2332] to-[#0D1321] rounded-xl shadow-lg p-6 border border-[#1070E3]/20">
+          <h3 className="text-xl font-bold text-white mb-4">Recent Projects</h3>
           <div className="space-y-3">
             {savedProjects.slice(0, 3).map((project) => (
-              <div key={project.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={project.id} className="flex items-center justify-between p-3 bg-[#0D1321]/50 rounded-lg border border-[#1070E3]/10">
                 <div>
-                  <p className="font-medium text-gray-900">{project.project_name}</p>
+                  <p className="font-medium text-white">{project.project_name}</p>
                   <p className="text-sm text-gray-600">{project.client_name}</p>
                 </div>
                 <div className="text-right">
