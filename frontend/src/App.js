@@ -3033,6 +3033,48 @@ ${userProfile.email}`;
     }
   };
 
+  // Send Quote to Contract Generator - Pre-fills contract form with quote data
+  const sendQuoteToContract = async (project) => {
+    try {
+      // Get full project data with quote details
+      const response = await axios.get(`${API}/projects/${project.id}/quote`);
+      const projectData = response.data;
+      
+      // Extract client info from project
+      const clientInfo = projectData.request_data?.clientInfo || projectData.request?.clientInfo || {};
+      const projectName = project.project_name || projectData.project?.project_name || '';
+      const totalCost = project.total_cost || projectData.quote?.total_cost || 0;
+      
+      // Pre-fill the contract form
+      setContractForm(prev => ({
+        ...prev,
+        clientName: clientInfo.name || project.client_name || '',
+        clientEmail: clientInfo.email || '',
+        clientPhone: clientInfo.phone || '',
+        clientAddress: clientInfo.address || '',
+        projectDescription: `Bathroom Renovation - ${projectName}`,
+        totalPrice: totalCost.toString(),
+        startDate: new Date().toISOString().split('T')[0],
+        completionDays: 30,
+        // Keep default payment schedule but calculate amounts based on total
+        paymentSchedule: [
+          { stage: '1', description: 'Deposit (upon contract signing)', percentage: 10 },
+          { stage: '2', description: 'Demolition, Frame & Rough-in Complete', percentage: 40 },
+          { stage: '3', description: 'Coverings & Tiling Complete', percentage: 30 },
+          { stage: '4', description: 'Fit-off & Handover Complete', percentage: 20 }
+        ]
+      }));
+      
+      // Navigate to contracts view
+      setCurrentView('contracts');
+      toast.success(`Quote loaded into Contract Generator - Review and generate contract!`);
+      
+    } catch (error) {
+      console.error('Error sending quote to contract:', error);
+      toast.error('Failed to load quote data');
+    }
+  };
+
   const downloadInvoicePdf = async (invoiceId, invoiceNumber) => {
     try {
       const response = await axios.get(`${API}/invoices/${invoiceId}/pdf`, {
