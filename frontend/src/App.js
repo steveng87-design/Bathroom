@@ -3040,12 +3040,21 @@ ${userProfile.email}`;
       const response = await axios.get(`${API}/projects/${project.id}/quote`);
       const projectData = response.data;
       
-      // Extract client info from project
-      const clientInfo = projectData.request_data?.clientInfo || projectData.request?.clientInfo || {};
+      // Extract client info - check multiple possible locations
+      const clientInfo = projectData.request?.client_info || 
+                        projectData.request_data?.client_info || 
+                        projectData.request?.clientInfo ||
+                        {};
+      
       const projectName = project.project_name || projectData.project?.project_name || '';
       const totalCost = project.total_cost || projectData.quote?.total_cost || 0;
       
-      // Pre-fill the contract form
+      console.log('=== SEND TO CONTRACT DEBUG ===');
+      console.log('Project:', project);
+      console.log('ProjectData:', projectData);
+      console.log('ClientInfo extracted:', clientInfo);
+      
+      // Pre-fill the contract form with all client details
       setContractForm(prev => ({
         ...prev,
         clientName: clientInfo.name || project.client_name || '',
