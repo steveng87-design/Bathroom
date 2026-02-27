@@ -5388,14 +5388,14 @@ ${contractorEmail}`
             }}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'saved-contracts' 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#1070E3]/20 text-[#00C6FF] border border-[#1070E3]/40 shadow-lg shadow-[#1070E3]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <FolderOpen className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">Saved Contracts</div>
-              <div className="text-xs text-gray-500">View & Approve</div>
+              <div className="text-xs text-[#C0C5CE]/60">View & Approve</div>
             </div>
           </button>
           
@@ -5404,14 +5404,14 @@ ${contractorEmail}`
             data-testid="invoices-menu-btn"
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'invoices' 
-                ? 'bg-green-100 text-green-700 border border-green-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#FFC300]/20 text-[#FFC300] border border-[#FFC300]/40 shadow-lg shadow-[#FFC300]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <Receipt className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">Invoices</div>
-              <div className="text-xs text-gray-500">Progress Claims</div>
+              <div className="text-xs text-[#C0C5CE]/60">Progress Claims</div>
             </div>
           </button>
           
@@ -5419,14 +5419,14 @@ ${contractorEmail}`
             onClick={() => setCurrentView('profile')}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'profile' 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#1070E3]/20 text-[#00C6FF] border border-[#1070E3]/40 shadow-lg shadow-[#1070E3]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <Settings className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">Profile</div>
-              <div className="text-xs text-gray-500">Business Settings</div>
+              <div className="text-xs text-[#C0C5CE]/60">Business Settings</div>
             </div>
           </button>
         </nav>
@@ -5434,20 +5434,20 @@ ${contractorEmail}`
       
       {/* Main Content Area */}
       <div className="transition-all duration-300 ml-64">
-        {/* Premium Background Elements */}
-        <div className="absolute inset-0 opacity-40">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-100/20 via-purple-100/20 to-pink-100/20"></div>
-      </div>
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5"></div>
+        {/* ODIN Background Elements */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1070E3]/10 via-transparent to-[#FFC300]/5"></div>
+        </div>
+        <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#1070E3]/5 via-transparent to-[#00C6FF]/5"></div>
       
       {/* PWA Installation Banner */}
       {showInstallPrompt && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 shadow-lg">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-[#1070E3] to-[#00C6FF] text-white p-3 shadow-lg">
           <div className="flex items-center justify-between max-w-4xl mx-auto">
             <div className="flex items-center space-x-3">
               <div className="text-2xl">📱</div>
               <div>
-                <p className="font-semibold">Install Bathroom Quote Saver.AI</p>
+                <p className="font-semibold">Install ODIN</p>
                 <p className="text-sm opacity-90">Get the full app experience on your device</p>
               </div>
             </div>
