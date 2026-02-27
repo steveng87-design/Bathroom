@@ -5299,15 +5299,19 @@ ${contractorEmail}`
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 relative overflow-hidden">
-      {/* Sidebar Navigation */}
-      <div className="fixed left-0 top-0 h-full bg-white shadow-2xl z-50 w-64 border-r border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <Calculator className="w-8 h-8 text-blue-600" />
+    <div className="min-h-screen bg-[#0D1321] relative overflow-hidden">
+      {/* ODIN Sidebar Navigation */}
+      <div className="fixed left-0 top-0 h-full bg-gradient-to-b from-[#1A2332] to-[#0D1321] shadow-2xl z-50 w-64 border-r border-[#1070E3]/20">
+        <div className="p-4 border-b border-[#1070E3]/20">
+          <div className="flex items-center space-x-3">
+            <img 
+              src="https://customer-assets.emergentagent.com/job_bathquote-1/artifacts/i6fobgrd_IMG_1214.jpeg" 
+              alt="ODIN Logo" 
+              className="w-12 h-12 object-contain rounded-lg"
+            />
             <div>
-              <h1 className="font-bold text-lg text-gray-900">Quote Saver</h1>
-              <p className="text-xs text-gray-600">AI Powered</p>
+              <h1 className="font-bold text-xl tracking-wider bg-gradient-to-r from-[#00C6FF] via-[#1070E3] to-[#FFC300] bg-clip-text text-transparent">ODIN</h1>
+              <p className="text-xs text-[#C0C5CE]">Construction Intelligence</p>
             </div>
           </div>
         </div>
@@ -5317,14 +5321,14 @@ ${contractorEmail}`
             onClick={() => setCurrentView('home')}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'home' 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#1070E3]/20 text-[#00C6FF] border border-[#1070E3]/40 shadow-lg shadow-[#1070E3]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <Home className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">Home</div>
-              <div className="text-xs text-gray-500">Dashboard & Overview</div>
+              <div className="text-xs text-[#C0C5CE]/60">Dashboard & Overview</div>
             </div>
           </button>
           
@@ -5335,14 +5339,14 @@ ${contractorEmail}`
             }}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'new-quote' 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#1070E3]/20 text-[#00C6FF] border border-[#1070E3]/40 shadow-lg shadow-[#1070E3]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <PlusCircle className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">New Quote</div>
-              <div className="text-xs text-gray-500">Create Quote</div>
+              <div className="text-xs text-[#C0C5CE]/60">Create Quote</div>
             </div>
           </button>
           
@@ -5350,14 +5354,14 @@ ${contractorEmail}`
             onClick={() => setCurrentView('saved-projects')}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'saved-projects' 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#1070E3]/20 text-[#00C6FF] border border-[#1070E3]/40 shadow-lg shadow-[#1070E3]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <FolderOpen className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">Saved Projects</div>
-              <div className="text-xs text-gray-500">Manage Projects</div>
+              <div className="text-xs text-[#C0C5CE]/60">Manage Projects</div>
             </div>
           </button>
           
@@ -5365,14 +5369,14 @@ ${contractorEmail}`
             onClick={() => setCurrentView('contracts')}
             className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
               currentView === 'contracts' 
-                ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-[#1070E3]/20 text-[#00C6FF] border border-[#1070E3]/40 shadow-lg shadow-[#1070E3]/10' 
+                : 'hover:bg-[#1A2332] text-[#C0C5CE] hover:text-white'
             }`}
           >
             <FileText className="w-5 h-5 flex-shrink-0" />
             <div className="text-left">
               <div className="font-medium text-sm">New Contract</div>
-              <div className="text-xs text-gray-500">Generate Contract</div>
+              <div className="text-xs text-[#C0C5CE]/60">Generate Contract</div>
             </div>
           </button>
           
