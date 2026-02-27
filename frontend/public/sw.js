@@ -1,7 +1,7 @@
-// Service Worker for Bathroom Quote Saver.AI PWA
+// Service Worker for ODIN - Construction Intelligence PWA
 // Enables offline functionality and app-like experience
 
-const CACHE_NAME = 'bathroom-quote-saver-v1.0.3';
+const CACHE_NAME = 'odin-v2.0.0';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
