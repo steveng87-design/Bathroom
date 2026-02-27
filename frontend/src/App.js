@@ -4449,6 +4449,35 @@ ${contractorEmail}`
                   </Button>
                   <Button
                     onClick={() => {
+                      // Send current quote to contract generator
+                      const totalCost = getTotalAdjustedCost() || quote.total_cost || 0;
+                      setContractForm(prev => ({
+                        ...prev,
+                        clientName: formData.clientInfo?.name || '',
+                        clientEmail: formData.clientInfo?.email || '',
+                        clientPhone: formData.clientInfo?.phone || '',
+                        clientAddress: formData.clientInfo?.address || '',
+                        projectDescription: `Bathroom Renovation - ${formData.clientInfo?.name || 'Project'}`,
+                        totalPrice: totalCost.toString(),
+                        startDate: new Date().toISOString().split('T')[0],
+                        completionDays: 30,
+                        paymentSchedule: [
+                          { stage: '1', description: 'Deposit (upon contract signing)', percentage: 10 },
+                          { stage: '2', description: 'Demolition, Frame & Rough-in Complete', percentage: 40 },
+                          { stage: '3', description: 'Coverings & Tiling Complete', percentage: 30 },
+                          { stage: '4', description: 'Fit-off & Handover Complete', percentage: 20 }
+                        ]
+                      }));
+                      setCurrentView('contracts');
+                      toast.success('Quote loaded into Contract Generator!');
+                    }}
+                    className="bg-white text-green-600 hover:bg-green-50 font-semibold"
+                  >
+                    <FileText className="w-4 h-4 mr-1" />
+                    Send to Contract
+                  </Button>
+                  <Button
+                    onClick={() => {
                       setQuote(null);
                       setAdjustedCosts({});
                       setAdjustmentMode(false);
