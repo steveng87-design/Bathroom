@@ -4386,6 +4386,15 @@ ${contractorEmail}`
                         Load Project
                       </Button>
                       <Button
+                        onClick={() => sendQuoteToContract(project)}
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 text-white"
+                        title="Send this quote to Contract Generator"
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        To Contract
+                      </Button>
+                      <Button
                         onClick={async () => {
                           try {
                             await axios.delete(`${API}/projects/${project.id}`);
