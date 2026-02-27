@@ -1,11 +1,11 @@
 {
-  "name": "Bathroom Quote Saver.AI",
-  "short_name": "QuoteSaver",
-  "description": "AI-Powered Bathroom Renovation Quoting App - Professional cost estimates with machine learning",
+  "name": "ODIN - Construction Intelligence",
+  "short_name": "ODIN",
+  "description": "AI-Powered Construction Management - Professional quotes, contracts, and invoicing for building professionals",
   "start_url": "/",
   "display": "standalone",
-  "theme_color": "#2563eb",
-  "background_color": "#ffffff",
+  "theme_color": "#1070E3",
+  "background_color": "#0D1321",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
@@ -54,10 +54,22 @@
       ]
     },
     {
-      "name": "Cost Adjustment",
-      "short_name": "Learning",
-      "description": "Adjust costs for AI learning",
-      "url": "/?action=learning",
+      "name": "Contracts",
+      "short_name": "Contracts",
+      "description": "Generate and manage contracts",
+      "url": "/?action=contracts",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "short_name": "Invoices",
+      "description": "Progress claims and invoicing",
+      "url": "/?action=invoices",
       "icons": [
         {
           "src": "/icon-192.png",
